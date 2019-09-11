@@ -1,2 +1,4 @@
 # smileyVars
-Template engine for SQL
+A template engine for SQL
+
+
