@@ -63,12 +63,46 @@ class Tokenizer implements Iterator<Token> {
                     scanPostgresqlEscapeString();
                 } else if (config.postgresqlDollarStringEnabled && c == '$') {
                     scanPostgresqlDollarString();
+                } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
+                    scanOracleDelimitedString();
                 }
-                    //TODO finish this
+                c = nextChar();
             } while (nextPosition < chars.length());
             return TokenType.TEXT;
         }
     };
+
+    private void scanOracleDelimitedString() {
+        if (nextPosition < chars.length()) {
+            char delimiter = adjustDelimiter(nextChar());
+            while (nextPosition < chars.length()) {
+                if (nextChar() == delimiter) {
+                    if (!isNextChar('\'')) {
+                        return;
+                    }
+                    nextPosition += 1; // skip over second single quote.
+                }
+            }
+        }
+    }
+
+    private char adjustDelimiter(char delimiter) {
+        switch (delimiter) {
+            case '(':
+                delimiter = ')';
+                break;
+            case '<':
+                delimiter = '>';
+                break;
+            case '{':
+                delimiter = '}';
+                break;
+            case '[':
+                delimiter = ']';
+                break;
+        }
+        return delimiter;
+    }
 
     private void scanPostgresqlDollarString() {
         int tagStartPosition = nextPosition;
@@ -122,14 +156,6 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private void scanAnsiQuotedString() {
-        while (nextPosition < chars.length()) {
-            if (nextChar() == '\'' ) {
-                if (!isNextChar('\'')) {
-                    return;
-                }
-                nextPosition += 1; // skip over second single quote.
-            }
-        }
     }
 
     private void scanQuotedIdentifier() {
