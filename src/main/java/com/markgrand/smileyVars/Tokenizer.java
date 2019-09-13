@@ -10,8 +10,6 @@ import java.util.function.Supplier;
  */
 class Tokenizer implements Iterator<Token> {
     //TODO support nested block comments for not Oracle
-    //TODO support oracleDelimitedString
-    //TODO support postgresqlDollarString
 
     private static final TokenizerConfig DEFAULT_CONFIG = new TokenizerConfig();
     static {
@@ -26,6 +24,8 @@ class Tokenizer implements Iterator<Token> {
     private Token nextToken ;
     private TokenizerConfig config;
 
+    private Supplier<TokenType> tokenScanner;
+
     /**
      * Construct a {@code Tokenizer} with default configuration.
      *
@@ -34,12 +34,12 @@ class Tokenizer implements Iterator<Token> {
     Tokenizer(CharSequence chars) {
         this.chars = chars;
         config = DEFAULT_CONFIG;
+        tokenScanner = scanUnbracketed;
         scanNextToken();
     }
 
     // Scanner to use outside of (: :)
-    private Supplier<TokenType> scanUnbracketed = new Supplier<TokenType>() {
-        @Override
+    private final Supplier<TokenType> scanUnbracketed = new Supplier<TokenType>() {
         public TokenType get() {
             char c = nextChar();
             if (c == '(') {
@@ -156,6 +156,14 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private void scanAnsiQuotedString() {
+        while (nextPosition < chars.length()) {
+            if (nextChar() == '\'' ) {
+                if (!isNextChar('\'')) {
+                    return;
+                }
+                nextPosition += 1; // skip over second single quote.
+            }
+        }
     }
 
     private void scanQuotedIdentifier() {
@@ -184,14 +192,9 @@ class Tokenizer implements Iterator<Token> {
     }
 
     // Scanner to use inside of (: :)
-    private Supplier<TokenType> scanBracketed = new Supplier<TokenType>() {
-        @Override
-        public TokenType get() {
-            return null;
-        }
+    private final Supplier<TokenType> scanBracketed = () -> {
+        return null;
     };
-
-    private Supplier<TokenType> tokenScanner = scanUnbracketed;
 
     /**
      * ugly state loop
