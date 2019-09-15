@@ -19,5 +19,9 @@ enum TokenType {
     /**
      * A substitution variable.
      */
-    VAR
+    VAR,
+    /**
+     * Marks the end.
+     */
+    EOF
 }
