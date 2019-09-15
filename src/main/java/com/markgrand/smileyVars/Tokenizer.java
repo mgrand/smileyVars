@@ -51,7 +51,7 @@ class Tokenizer implements Iterator<Token> {
                     return TokenType.SMILEY_OPEN;
                 }
             }
-            do {
+            while (true) {
                 if (c == '-' && isNextChar('-')) {
                     scanToEndOfLine();
                 } else if (c == '/' && isNextChar('*') ) {
@@ -67,8 +67,11 @@ class Tokenizer implements Iterator<Token> {
                 } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
                     scanOracleDelimitedString();
                 }
+                if (nextPosition >= chars.length()) {
+                    break;
+                }
                 c = nextChar();
-            } while (nextPosition < chars.length());
+            }
             return TokenType.TEXT;
         }
     };
@@ -208,7 +211,7 @@ class Tokenizer implements Iterator<Token> {
                 return TokenType.VAR;
             }
         }
-        do {
+        while (true) {
             if (c == '-' && isNextChar('-')) {
                 scanToEndOfLine();
             } else if (c == '/' && isNextChar('*') ) {
@@ -224,8 +227,11 @@ class Tokenizer implements Iterator<Token> {
             } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
                 scanOracleDelimitedString();
             }
+            if (nextPosition >= chars.length()) {
+                break;
+            }
             c = nextChar();
-        } while (nextPosition < chars.length());
+        }
         return TokenType.TEXT;
     };
 
