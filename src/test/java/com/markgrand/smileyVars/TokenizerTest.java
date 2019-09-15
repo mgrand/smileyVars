@@ -73,14 +73,26 @@ class TokenizerTest {
     }
 
     @Test
-    void unbracketedLineComment() {
+    void unbracketedLineCommentEol() {
         final String sql = "SELECT --(:abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedLineCommentNewLine() {
+        final String sql = "SELECT --(:abc FROM\ndual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
     @Test
     void unbracketedBlockComment() {
         final String sql = "SELECT /* (:\n blah blan :) */ abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedUnterminatedBlockComment() {
+        final String sql = "SELECT /* (:\n blah blan :)  abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
@@ -96,6 +108,6 @@ class TokenizerTest {
     }
 
     private Token makeToken(TokenType tokenType, String s) {
-        return new Token(TokenType.TEXT, s, 0, s.length());
+        return new Token(tokenType, s, 0, s.length());
     }
 }
