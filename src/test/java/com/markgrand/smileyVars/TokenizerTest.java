@@ -8,7 +8,8 @@ class TokenizerTest {
     @Test
     void empty() {
         final String sql = "";
-        noBracketTest(sql);
+        Tokenizer tokenizer = new Tokenizer(sql);
+        assertFalse(tokenizer.hasNext());
     }
 
     @Test

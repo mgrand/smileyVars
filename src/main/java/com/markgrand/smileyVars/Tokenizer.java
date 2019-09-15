@@ -1,6 +1,7 @@
 package com.markgrand.smileyVars;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
 /**
@@ -40,6 +41,9 @@ class Tokenizer implements Iterator<Token> {
     // Scanner to use outside of (: :)
     private final Supplier<TokenType> scanUnbracketed = new Supplier<TokenType>() {
         public TokenType get() {
+            if (isEof()) {
+                return TokenType.EOF;
+            }
             char c = nextChar();
             if (c == '(') {
                 if (isNextChar(':')) {
@@ -190,6 +194,9 @@ class Tokenizer implements Iterator<Token> {
 
     // Scanner to use inside of (: :)
     private final Supplier<TokenType> scanBracketed = () -> {
+        if (isEof()) {
+            return TokenType.EOF;
+        }
         char c = nextChar();
         if (c == ':') {
             if (isNextChar(')')) {
@@ -226,13 +233,13 @@ class Tokenizer implements Iterator<Token> {
      * ugly state loop
      */
     private void scanNextToken() {
-        if (nextPosition < chars.length()) {
-            nextToken = null;
+        if (nextPosition >= chars.length()) {
+            nextToken = new Token(TokenType.EOF, chars, nextPosition, chars.length());
             return; // Input is exhausted.
         }
         int tokenStart = nextPosition;
         TokenType tokenType = tokenScanner.get();
-        int tokenEnd = nextPosition - 1;
+        int tokenEnd = nextPosition;
         nextToken = new Token(tokenType, chars, tokenStart, tokenEnd);
     }
 
@@ -275,6 +282,10 @@ class Tokenizer implements Iterator<Token> {
         return false;
     }
 
+    private boolean isEof() {
+        return nextPosition >= chars.length();
+    }
+
     /**
      * Return true if there is a next token.
      *
@@ -282,7 +293,7 @@ class Tokenizer implements Iterator<Token> {
      */
     @Override
     public boolean hasNext() {
-        return nextToken != null;
+        return !nextToken.getTokenType().equals(TokenType.EOF);
     }
 
     /**
@@ -293,6 +304,9 @@ class Tokenizer implements Iterator<Token> {
     @Override
     public Token next() {
         Token token = nextToken;
+        if (TokenType.EOF.equals(token.getTokenType())) {
+            throw new NoSuchElementException("No more tokens in template body.");
+        }
         scanNextToken();
         return token;
     }

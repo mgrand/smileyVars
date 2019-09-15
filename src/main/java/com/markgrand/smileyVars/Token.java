@@ -13,10 +13,10 @@ class Token {
     /**
      * Constructor
      *
-     * @param tokenType The type of token this is.
-     * @param chars The full {@link CharSequence} that this token is part of.
+     * @param tokenType     The type of token this is.
+     * @param chars         The full {@link CharSequence} that this token is part of.
      * @param startPosition The position in {@code chars} that corresponds to the first character of this token.
-     * @param endPosition The position in {@code chars} that corresponds to the last character of this token.
+     * @param endPosition   The position in {@code chars} that corresponds to the last character of this token.
      */
     Token(TokenType tokenType, CharSequence chars, int startPosition, int endPosition) {
         this.tokenType = tokenType;
@@ -36,7 +36,7 @@ class Token {
 
     CharSequence getTokenchars() {
         if (tokenChars == null) {
-            tokenChars = chars.subSequence(startPosition, endPosition);
+            tokenChars = startPosition < endPosition ? chars.subSequence(startPosition, endPosition) : "";
         }
         return tokenChars;
     }
