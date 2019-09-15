@@ -40,4 +40,9 @@ class Token {
         }
         return tokenChars;
     }
+
+    @Override
+    public String toString() {
+        return "Token[" + tokenType + ", \"" + getTokenchars() + "\"";
+    }
 }
