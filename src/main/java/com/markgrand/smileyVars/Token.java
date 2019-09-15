@@ -43,6 +43,6 @@ class Token {
 
     @Override
     public String toString() {
-        return "Token[" + tokenType + ", \"" + getTokenchars() + "\"";
+        return "Token[" + tokenType + ", \"" + getTokenchars() + "\"]";
     }
 }
