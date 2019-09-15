@@ -196,7 +196,7 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private void scanToEndOfLine() {
-        while (! isNextChar('\n')) {
+        while (!isEof() && !isNextChar('\n')) {
             nextPosition += 1;
         }
     }
