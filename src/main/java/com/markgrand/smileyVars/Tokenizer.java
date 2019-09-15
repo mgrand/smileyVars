@@ -71,6 +71,12 @@ class Tokenizer implements Iterator<Token> {
                     break;
                 }
                 c = nextChar();
+                if (c == '(') {
+                    if (isNextChar(':')) {
+                        nextPosition -= 2;
+                        break;
+                    }
+                }
             }
             return TokenType.TEXT;
         }
@@ -231,6 +237,12 @@ class Tokenizer implements Iterator<Token> {
                 break;
             }
             c = nextChar();
+            if (c == ':') {
+                if (isNextChar(')')) {
+                    nextPosition -= 2;
+                    break;
+                }
+            }
         }
         return TokenType.TEXT;
     };
@@ -239,7 +251,7 @@ class Tokenizer implements Iterator<Token> {
      * ugly state loop
      */
     private void scanNextToken() {
-        if (nextPosition >= chars.length()) {
+        if (isEof()) {
             nextToken = new Token(TokenType.EOF, chars, nextPosition, chars.length());
             return; // Input is exhausted.
         }
@@ -256,7 +268,7 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private boolean isNextChar(char c) {
-        if (nextPosition < chars.length()) {
+        if (isEof()) {
             return false;
         }
         if (c == chars.charAt(nextPosition)) {
@@ -267,7 +279,7 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private boolean isNextCharIdentifierStart() {
-        if (nextPosition < chars.length()) {
+        if (isEof()) {
             return false;
         }
         if (Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
@@ -278,7 +290,7 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private boolean isNextCharIdentifierPart() {
-        if (nextPosition < chars.length()) {
+        if (isEof()) {
             return false;
         }
         if (Character.isJavaIdentifierPart(chars.charAt(nextPosition))) {

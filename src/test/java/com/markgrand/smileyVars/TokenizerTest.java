@@ -66,6 +66,24 @@ class TokenizerTest {
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
+    @Test
+    void unclosedBracket() {
+        final String sql = "SELECT (:abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN, "(:"), makeToken(TokenType.TEXT, "abc FROM dual"));
+    }
+
+    @Test
+    void unbracketedLineComment() {
+        final String sql = "SELECT --(:abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedBlockComment() {
+        final String sql = "SELECT /* (:\n blah blan :) */ abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, sql));
+    }
+
     private void doTest(String sql, Token ... tokens) {
         Tokenizer tokenizer = new Tokenizer(sql);
         for (int i=0; i < tokens.length; i++) {
