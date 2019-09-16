@@ -238,7 +238,7 @@ class Tokenizer implements Iterator<Token> {
             }
             c = nextChar();
             if (c == ':') {
-                if (isNextChar(')')) {
+                if (isNextChar(')') || isNextCharIdentifierStart()) {
                     nextPosition -= 2;
                     break;
                 }

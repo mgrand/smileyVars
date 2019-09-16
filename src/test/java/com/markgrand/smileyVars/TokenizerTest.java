@@ -44,25 +44,37 @@ class TokenizerTest {
 
     @Test
     void unbracketedAnsiStringSimple() {
-        final String sql = "SELECT 'abc' FROM dual";
+        final String sql = "SELECT 'abc(:' FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedAnsiStringEmbeddedSingleQuote() {
+        final String sql = "SELECT 'ab''c(:'  FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
     @Test
     void unbracketedAnsiStringUnclosed() {
-        final String sql = "SELECT 'abc FROM dual";
+        final String sql = "SELECT 'abc (: FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
     @Test
     void unbracketedIdentifierSimple() {
-        final String sql = "SELECT 'abc' FROM dual";
+        final String sql = "SELECT \"abc (:\" FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedIdentifierEmbeddedDoubleQuote() {
+        final String sql = "SELECT \"abc\"\" (:\" FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
     @Test
     void unbracketedIdentifierUnclosed() {
-        final String sql = "SELECT 'abc FROM dual";
+        final String sql = "SELECT 'abc (:FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
@@ -96,13 +108,22 @@ class TokenizerTest {
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
+    @Test
+    void bracketedSimple() {
+        final String sql = "SELECT (: blah :foo blan :) abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
+                makeToken(TokenType.TEXT, " blah "), makeToken(TokenType.VAR, ":foo"),
+                makeToken(TokenType.TEXT, " blan "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
+                makeToken(TokenType.TEXT, " abc FROM dual"));
+    }
+
     private void doTest(String sql, Token ... tokens) {
         Tokenizer tokenizer = new Tokenizer(sql);
-        for (int i=0; i < tokens.length; i++) {
+        for (Token thisToken : tokens) {
             assertTrue(tokenizer.hasNext());
             Token token = tokenizer.next();
-            assertEquals(tokens[i].getTokenType(), token.getTokenType());
-            assertEquals(tokens[i].getTokenchars(), token.getTokenchars());
+            assertEquals(thisToken.getTokenType(), token.getTokenType());
+            assertEquals(thisToken.getTokenchars(), token.getTokenchars());
         }
         assertFalse(tokenizer.hasNext());
     }
