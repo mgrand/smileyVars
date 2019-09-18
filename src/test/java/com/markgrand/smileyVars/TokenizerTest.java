@@ -8,7 +8,6 @@ class TokenizerTest {
     @Test
     void empty() {
         final String sql = "";
-        Tokenizer tokenizer = new Tokenizer(sql);
         doTest(sql);
     }
 
@@ -25,7 +24,7 @@ class TokenizerTest {
     }
 
     @Test
-    void operParenNoColon() {
+    void openParenNoColon() {
         final String sql = "SELECT count(*) FROM foo";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }

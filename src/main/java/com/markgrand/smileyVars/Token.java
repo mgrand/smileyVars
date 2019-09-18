@@ -4,10 +4,10 @@ package com.markgrand.smileyVars;
  * Represent a token in a smileyVars template
  */
 class Token {
-    private TokenType tokenType;
-    private CharSequence chars;
-    private int startPosition; // Start position of token in chars (inclusive).
-    private int endPosition; // End position of token in chars (inclusive).
+    private final TokenType tokenType;
+    private final CharSequence chars;
+    private final int startPosition; // Start position of token in chars (inclusive).
+    private final int endPosition; // End position of token in chars (inclusive).
     private CharSequence tokenChars = null;
 
     /**
