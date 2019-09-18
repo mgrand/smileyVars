@@ -188,9 +188,36 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private void scanToEndOfBlockComment() {
+        if (config.nestedBlockCommentEnabled) {
+            scanToEndOfNestedBlockComment();
+        } else {
+            scanToEndOfUnnestedBlockComment();
+        }
+    }
+
+    private void scanToEndOfUnnestedBlockComment() {
         while (nextPosition < chars.length()) {
             if (nextChar() == '*' && isNextChar('/')) {
                 return;
+            }
+        }
+    }
+
+    private void scanToEndOfNestedBlockComment() {
+        int count = 1;
+        while (nextPosition < chars.length()) {
+            char c = nextChar();
+            if (c == '/') {
+                if (isNextChar('*')) {
+                    count += 1;
+                }
+            } else if (c == '*') {
+                if (isNextChar('/')) {
+                    count -= 1;
+                    if (count == 0) {
+                        return;
+                    }
+                }
             }
         }
     }

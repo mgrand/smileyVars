@@ -103,6 +103,20 @@ class TokenizerTest {
     }
 
     @Test
+    void unbracketedNestedBlockComment() {
+        final String sql = "SELECT /* /* blah, */ (:\n blah blan :) */ abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedNestedBlockComment2() {
+        final String sql = "SELECT /* /* blah, */ */ (: blah blan :) abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, "SELECT /* /* blah, */ */ "), makeToken(TokenType.SMILEY_OPEN,"(:"),
+                makeToken(TokenType.TEXT, " blah blan "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
+                makeToken(TokenType.TEXT, " abc FROM dual"));
+    }
+
+    @Test
     void unbracketedUnterminatedBlockComment() {
         final String sql = "SELECT /* (:\n blah blan :)  abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
