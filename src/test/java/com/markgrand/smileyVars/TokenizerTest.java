@@ -130,6 +130,28 @@ class TokenizerTest {
                 makeToken(TokenType.TEXT, " abc FROM dual"));
     }
 
+    @Test
+    void bracketedLineComment() {
+        final String sql = "SELECT (: blah :foo --blan :) abc FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
+                makeToken(TokenType.TEXT, " blah "), makeToken(TokenType.VAR, ":foo"),
+                makeToken(TokenType.TEXT, " --blan :) abc FROM dual"));
+    }
+
+    @Test
+    void bracketedString() {
+        final String sql = "SELECT (: blah ':foo blan :) abc' FROM dual";
+        doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
+                makeToken(TokenType.TEXT, " blah ':foo blan :) abc' FROM dual"));
+    }
+
+    @Test
+    void bracketedLineQuotedId() {
+        final String sql = "SELECT (: blah \":foo blan :) abc FROM dual\"";
+        doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
+                makeToken(TokenType.TEXT, " blah \":foo blan :) abc FROM dual\""));
+    }
+
     private void doTest(String sql, Token ... tokens) {
         Tokenizer tokenizer = new Tokenizer(sql);
         for (Token thisToken : tokens) {
