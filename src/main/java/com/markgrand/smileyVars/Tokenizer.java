@@ -32,8 +32,12 @@ class Tokenizer implements Iterator<Token> {
      * @param chars The sql/template body to be expanded.
      */
     Tokenizer(CharSequence chars) {
+        this(chars, DEFAULT_CONFIG);
+    }
+
+    Tokenizer(CharSequence chars, TokenizerConfig config) {
+        this.config = config;
         this.chars = chars;
-        config = DEFAULT_CONFIG;
         tokenScanner = scanUnbracketed;
         scanNextToken();
     }
@@ -356,10 +360,4 @@ class Tokenizer implements Iterator<Token> {
         return token;
     }
 
-    private static class TokenizerConfig {
-        boolean postgresqlEscapeStringEnabled;
-        boolean postgresqlDollarStringEnabled;
-        boolean oracleDelimitedStringEnabled;
-        boolean nestedBlockCommentEnabled;
-    }
 }
