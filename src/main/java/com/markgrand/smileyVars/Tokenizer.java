@@ -70,6 +70,8 @@ class Tokenizer implements Iterator<Token> {
                     scanPostgresqlDollarString();
                 } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
                     scanOracleDelimitedString();
+                } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
+                    scanPast(']');
                 }
                 if (nextPosition >= chars.length()) {
                     break;
@@ -85,6 +87,10 @@ class Tokenizer implements Iterator<Token> {
             return TokenType.TEXT;
         }
     };
+
+    private void scanPast(char c) {
+        while (!isNextChar(c)) {}
+    }
 
     private void scanOracleDelimitedString() {
         if (nextPosition < chars.length()) {
@@ -263,6 +269,8 @@ class Tokenizer implements Iterator<Token> {
                 scanPostgresqlDollarString();
             } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
                 scanOracleDelimitedString();
+            } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
+                scanPast(']');
             }
             if (nextPosition >= chars.length()) {
                 break;
@@ -360,4 +368,80 @@ class Tokenizer implements Iterator<Token> {
         return token;
     }
 
+    /**
+     * Get a builder for Tokenizer objects.
+     * @return the builder object.
+     */
+    static TokenizerBuilder builder() {
+        return new TokenizerBuilder();
+    }
+
+    private static class TokenizerConfig {
+        boolean postgresqlEscapeStringEnabled;
+        boolean postgresqlDollarStringEnabled;
+        boolean oracleDelimitedStringEnabled;
+        boolean nestedBlockCommentEnabled;
+        boolean squareBracketIdentifierQuotingEnabled;
+    }
+
+    /**
+     * Builder class for Tokenizer
+     */
+    static class TokenizerBuilder {
+        TokenizerConfig config = new TokenizerConfig();
+
+        /**
+         * Constructor declared to prevent auto-creation of public constructor.
+         */
+        TokenizerBuilder(){}
+
+        TokenizerBuilder enablePostgresqlEscapeString(boolean value) {
+            config.postgresqlEscapeStringEnabled = value;
+            return this;
+        }
+
+        TokenizerBuilder enablePostgresqlDollarString(boolean value) {
+            config.postgresqlDollarStringEnabled = value;
+            return this;
+        }
+
+        TokenizerBuilder enableOracleDelimitedString(boolean value) {
+            config.oracleDelimitedStringEnabled = value;
+            return this;
+        }
+
+        TokenizerBuilder enableNestedBlockComment(boolean value) {
+            config.nestedBlockCommentEnabled = value;
+            return this;
+        }
+
+        TokenizerBuilder enableSquareBracketIdentifierQuoting(boolean value) {
+            config.squareBracketIdentifierQuotingEnabled = value;
+            return this;
+        }
+
+        TokenizerBuilder configureForAnsi(boolean value) {
+            return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(false)
+                           .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(false);
+        }
+
+        TokenizerBuilder configureForOracle(boolean value) {
+            return enableNestedBlockComment(false).enableOracleDelimitedString(true).enablePostgresqlDollarString(false)
+                           .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(false);
+        }
+
+        TokenizerBuilder configureForPostgresql(boolean value) {
+            return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(true)
+                           .enablePostgresqlEscapeString(true).enableSquareBracketIdentifierQuoting(false);
+        }
+
+        TokenizerBuilder configureForSqlServer(boolean value) {
+            return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(false)
+                           .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(true);
+        }
+
+        Tokenizer build(CharSequence chars) {
+            return new Tokenizer(chars, config);
+        }
+    }
 }
