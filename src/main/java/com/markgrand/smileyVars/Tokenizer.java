@@ -88,8 +88,10 @@ class Tokenizer implements Iterator<Token> {
         }
     };
 
-    private void scanPast(char c) {
-        while (!isNextChar(c)) {}
+    private void scanPast(@SuppressWarnings("SameParameterValue") char c) {
+        while (!isNextChar(c)) {
+            nextPosition += 1;
+        }
     }
 
     private void scanOracleDelimitedString() {
@@ -162,15 +164,10 @@ class Tokenizer implements Iterator<Token> {
     private void scanPostgresqlEscapeString() {
         while (nextPosition < chars.length()) {
             char c = nextChar();
-            if (c == '\'' ) {
-                if (!isNextChar('\'')) {
-                    return;
-                }
-                nextPosition += 1; // skip over second single quote.
-            } else if (c == '\\') {
-                if (isNextChar('\\')) {
-                    nextPosition += 1;
-                }
+            if (c == '\\') {
+                nextPosition += 1;
+            } else if (c == '\'') {
+                return;
             }
         }
     }

@@ -54,6 +54,42 @@ class TokenizerTest {
     }
 
     @Test
+    void unbracketedStringEmbeddedSingleQuoteOracleLower() {
+        final String sql = "SELECT q'!ab''c(:'  FROM dual!";
+        doTest(Tokenizer.builder().enableOracleDelimitedString(true).build(sql), makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedStringEmbeddedSingleQuoteOracleUpper() {
+        final String sql = "SELECT Q'!ab''c(:'  FROM dual!";
+        doTest(Tokenizer.builder().enableOracleDelimitedString(true).build(sql), makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedPostgresqlStringEmbeddedSingleQuoteEscapeLower() {
+        final String sql = "SELECT e'ab\\'c(:'  FROM dual";
+        doTest(Tokenizer.builder().enablePostgresqlEscapeString(true).build(sql), makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedPostgresqlStringEmbeddedSingleQuoteEscapeUpper() {
+        final String sql = "SELECT E'ab\\'c(:'  FROM dual";
+        doTest(Tokenizer.builder().enablePostgresqlEscapeString(true).build(sql), makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedDollarStringEmbeddedSingleQuoteEscapeEmpty() {
+        final String sql = "SELECT $$ab'c(:$$  FROM dual";
+        doTest(Tokenizer.builder().enablePostgresqlEscapeString(true).build(sql), makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedDollarStringEmbeddedSingleQuoteEscapeTag() {
+        final String sql = "SELECT $!!$ab'c(:$!!$  FROM dual";
+        doTest(Tokenizer.builder().enablePostgresqlEscapeString(true).build(sql), makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
     void unbracketedAnsiStringUnclosed() {
         final String sql = "SELECT 'abc (: FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
@@ -63,6 +99,13 @@ class TokenizerTest {
     void unbracketedIdentifierSimple() {
         final String sql = "SELECT \"abc (:\" FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
+    }
+
+    @Test
+    void unbracketedIdentifierSquare() {
+        final String sql = "SELECT [abc (:] FROM dual";
+        doTest(Tokenizer.builder().enableSquareBracketIdentifierQuoting(true).build(sql),
+                makeToken(TokenType.TEXT, sql));
     }
 
     @Test
@@ -113,6 +156,15 @@ class TokenizerTest {
         doTest(sql, makeToken(TokenType.TEXT, "SELECT /* /* blah, */ */ "), makeToken(TokenType.SMILEY_OPEN,"(:"),
                 makeToken(TokenType.TEXT, " blah blan "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
                 makeToken(TokenType.TEXT, " abc FROM dual"));
+    }
+
+    @Test
+    void unbracketedUnnestedBlockComment() {
+        final String sql = "SELECT /* /* blah, */ (:\n blah blan :) */ abc FROM dual";
+        doTest(Tokenizer.builder().enableNestedBlockComment(false).build(sql),
+                makeToken(TokenType.TEXT, "SELECT /* /* blah, */ "), makeToken(TokenType.SMILEY_OPEN, "(:"),
+                makeToken(TokenType.TEXT, "\n blah blan "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
+                makeToken(TokenType.TEXT, " */ abc FROM dual"));
     }
 
     @Test
