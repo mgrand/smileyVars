@@ -44,7 +44,7 @@ class TokenizerTest {
     @Test
     void unbracketedAnsiStringSimple() {
         final String sql = "SELECT 'abc(:' FROM dual";
-        doTest(sql, makeToken(TokenType.TEXT, sql));
+        doTest(Tokenizer.builder().configureForAnsi().build(sql), makeToken(TokenType.TEXT, sql));
     }
 
     @Test
@@ -154,6 +154,10 @@ class TokenizerTest {
 
     private void doTest(String sql, Token ... tokens) {
         Tokenizer tokenizer = new Tokenizer(sql);
+        doTest(tokenizer, tokens);
+    }
+
+    private void doTest(Tokenizer tokenizer, Token... tokens) {
         for (Token thisToken : tokens) {
             assertTrue(tokenizer.hasNext());
             Token token = tokenizer.next();
