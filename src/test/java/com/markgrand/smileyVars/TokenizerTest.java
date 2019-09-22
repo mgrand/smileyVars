@@ -1,7 +1,6 @@
 package com.markgrand.smileyVars;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class TokenizerTest {
