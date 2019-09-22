@@ -420,22 +420,22 @@ class Tokenizer implements Iterator<Token> {
             return this;
         }
 
-        TokenizerBuilder configureForAnsi(boolean value) {
+        TokenizerBuilder configureForAnsi() {
             return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(false)
                            .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(false);
         }
 
-        TokenizerBuilder configureForOracle(boolean value) {
+        TokenizerBuilder configureForOracle() {
             return enableNestedBlockComment(false).enableOracleDelimitedString(true).enablePostgresqlDollarString(false)
                            .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(false);
         }
 
-        TokenizerBuilder configureForPostgresql(boolean value) {
+        TokenizerBuilder configureForPostgresql() {
             return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(true)
                            .enablePostgresqlEscapeString(true).enableSquareBracketIdentifierQuoting(false);
         }
 
-        TokenizerBuilder configureForSqlServer(boolean value) {
+        TokenizerBuilder configureForSqlServer() {
             return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(false)
                            .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(true);
         }
