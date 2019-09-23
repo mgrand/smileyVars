@@ -22,7 +22,7 @@ class Token {
         this.tokenType = tokenType;
         this.chars = chars;
         this.startPosition = startPosition;
-        this.endPosition = endPosition;
+        this.endPosition = Math.min(endPosition, chars.length());
     }
 
     /**

@@ -99,10 +99,9 @@ class Tokenizer implements Iterator<Token> {
             char delimiter = adjustDelimiter(nextChar());
             while (nextPosition < chars.length()) {
                 if (nextChar() == delimiter) {
-                    if (!isNextChar('\'')) {
+                    if (isNextChar('\'')) {
                         return;
                     }
-                    nextPosition += 1; // skip over second single quote.
                 }
             }
         }
