@@ -7,6 +7,7 @@ import java.util.Map;
  *
  * @author Mark Grand
  */
+@SuppressWarnings("unused")
 public class SmileyVarsTemplate {
     private final Tokenizer.TokenizerBuilder builder;
     private final String sql;
@@ -68,9 +69,42 @@ public class SmileyVarsTemplate {
     public String apply(Map<String, String> values) {
         Tokenizer tokenizer = builder.build(sql);
         StringBuilder sb = new StringBuilder(sql.length()*2);
-
+        StringBuilder segment = null;
         while (tokenizer.hasNext()) {
-            
+            Token token = tokenizer.next();
+            switch (token.getTokenType()) {
+                case EOF:
+                    return sb.toString();
+                case TEXT:
+                    ((segment != null)? segment : sb).append(token.getTokenchars());
+                    break;
+                case VAR:
+                    String value = values.get(token.getTokenchars());
+                    if (value == null) {
+                        skipPastSmileyClose(tokenizer);
+                    } else {
+                        assert segment != null;
+                        segment.append(value);
+                    }
+                    break;
+                case SMILEY_OPEN:
+                    segment = new StringBuilder();
+                    break;
+                case SMILEY_CLOSE:
+                    sb.append(segment);
+                    segment = null;
+                    break;
+            }
+        }
+        return sb.toString();
+    }
+
+    private void skipPastSmileyClose(Tokenizer tokenizer) {
+        while (tokenizer.hasNext()) {
+            TokenType tokenType = tokenizer.next().getTokenType();
+            if (TokenType.SMILEY_CLOSE.equals(tokenType) || TokenType.EOF.equals(tokenType)) {
+                return;
+            }
         }
     }
 }

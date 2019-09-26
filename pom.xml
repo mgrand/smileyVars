@@ -12,6 +12,7 @@
         <junit.version>5.5.2</junit.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.verson>5.1.8.RELEASE</spring.verson>
     </properties>
 

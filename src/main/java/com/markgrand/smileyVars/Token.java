@@ -21,7 +21,7 @@ class Token {
     Token(TokenType tokenType, CharSequence chars, int startPosition, int endPosition) {
         this.tokenType = tokenType;
         this.chars = chars;
-        this.startPosition = startPosition;
+        this.startPosition = TokenType.VAR.equals(tokenType) ? startPosition + 1 : startPosition;
         this.endPosition = Math.min(endPosition, chars.length());
     }
 
@@ -34,11 +34,11 @@ class Token {
         return tokenType;
     }
 
-    CharSequence getTokenchars() {
+    String getTokenchars() {
         if (tokenChars == null) {
             tokenChars = startPosition < endPosition ? chars.subSequence(startPosition, endPosition) : "";
         }
-        return tokenChars;
+        return tokenChars.toString();
     }
 
     @Override
