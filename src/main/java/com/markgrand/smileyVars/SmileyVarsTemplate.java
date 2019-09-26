@@ -8,7 +8,6 @@ package com.markgrand.smileyVars;
 public class SmileyVarsTemplate {
     private final String sql;
 
-
     /**
      * Constructor
      *
