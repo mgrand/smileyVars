@@ -79,7 +79,7 @@ public class SmileyVarsTemplate {
                     ((segment != null)? segment : sb).append(token.getTokenchars());
                     break;
                 case VAR:
-                    String value = Objects.toString(values.get(token.getTokenchars()));
+                    String value = ValueFormatterRegistry.format(values.get(token.getTokenchars()));
                     if (value == null) {
                         skipPastSmileyClose(tokenizer);
                     } else {
