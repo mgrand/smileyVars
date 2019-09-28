@@ -7,6 +7,7 @@
     <groupId>com.markgrand</groupId>
     <artifactId>smiley-vars</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <junit.version>5.5.2</junit.version>
