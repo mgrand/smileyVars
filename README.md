@@ -87,7 +87,8 @@ SmileyVars uses slf4j for its logging.
 
 ## Appendix smileyVars Syntax
 
-The EBNF grammar below describes the syntax of smileyVars. There is a web site that will allow you to view it as a syntax/railroad diagram at <https://www.bottlecaps.de/rr/ui>.
+The EBNF grammar below describes the syntax of smileyVars. You can also view it as a [syntax/railroad diagram](documentation/sv-grammar.xhtml) at <https://www.bottlecaps.de/rr/ui>.
+
 
 ```EBNF
 /*
