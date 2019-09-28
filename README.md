@@ -71,11 +71,14 @@ SELECT item_number, quantity, aisle, level, bin_number FROM bin_tbl
 WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
 ```
 
+<!--
 In some cases there may be a concern about amount of data being transported from the database. In such cases you may 
 prefer to only include columns in the `SELECT` list that are not constrained to a single value in the `WHERE` clause.s
+-->
 
 ## Using smileyVars
-You can use smileyVars as a stand-alone pre-processor for SQL. However, smileyVars comes with an integration to Spring's JDBC template. Other integrations 
+You can use smileyVars as a stand-alone pre-processor for SQL. However, 
+smileyVars comes with an integration to Spring's JDBC template. Other integrations 
 
 *A user guide will be here*
 
@@ -87,7 +90,9 @@ SmileyVars uses slf4j for its logging.
 
 ## Appendix smileyVars Syntax
 
-The EBNF grammar below describes the syntax of smileyVars. You can also view it as a [syntax/railroad diagram](documentation/sv-grammar.xhtml) at <https://www.bottlecaps.de/rr/ui>.
+The EBNF grammar below describes the syntax of smileyVars. You can also 
+view it as a [syntax/railroad diagram](file:documentation/sv-grammar.xhtml)
+<small>(created using <https://www.bottlecaps.de/rr/ui>)</small>.
 
 
 ```EBNF
@@ -99,13 +104,15 @@ template_body ::= (sql_text | bracketed_text)*
 
 sql_text ::= (other_char | quoted_string | quoted_identifier | comment | '(' [^:] )*
 
-quoted_string ::= ansi_quoted_string | postgresql_escape_string | postgresql_dollar_string | oracle_delimited_string
+quoted_string ::= ansi_quoted_string | postgresql_escape_string | postgresql_dollar_string
+                | oracle_delimited_string
 
 ansi_quoted_string ::= "'" ( [^'] | "'" "'" )* "'"
 
 postgresql_escape_string ::= [eE] "'" ( [^'] | "''" | "\\" | "\'" )* "'"
 
-postgresql_dollar_string ::= dollar_tag [^#x0]* dollar_tag /* The dollar_tag on each end of this must be the same */
+/* The dollar_tag on each end of this must be the same */
+postgresql_dollar_string ::= dollar_tag [^#x0]* dollar_tag
 
 dollar_tag ::= '$' [^$]* '$'
 
@@ -113,7 +120,8 @@ oracle_delimited_string ::= [Qq] "'" ( "(" ([^)] | ")" [^'])* ")"
                                       | "[" ([^#x5D] | "]" [^'])* "]"
                                       | "{" ([^}] | "}" [^'])* "}"
                                       | "<" ([^>] | ">" [^'])* ">"
-                                      | delimiter_char [^#x0]* delimiter_char) "'" /* Both occurrences of delimiter_char must be the same character */
+                                      | delimiter_char [^#x0]* delimiter_char) "'"
+                /* Both occurrences of delimiter_char must be the same character */
 
 quoted_identifier ::= '"' ( [^"] | '"' '"' )* '"'
 
@@ -123,9 +131,11 @@ comment ::= line_comment | block_comment
 
 line_comment ::= "--" [^#x0a#x0d]* [#x0a#x0d]
 
-block_comment ::= "/*" ([^*] | '*' [^/])* "*/"  /* These should be able to nest as supported for PostgreSQL and SQLServer, DB2 */
+/* These should be able to nest as supported for PostgreSQL, SQLServer and DB2 */
+block_comment ::= "/*" ([^*] | '*' [^/])* "*/"
 
-bracketed_text ::= "(:" (bracketed_char | quoted_string | quoted_identifier | comment | (":" (var |  [^)])) )* ":)"
+bracketed_text ::= "(:" (bracketed_char | quoted_string | quoted_identifier | comment
+                 | (":" (var |  [^)])) )* ":)"
 
 bracketed_char ::= [^'":]
 
