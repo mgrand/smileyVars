@@ -1,13 +1,13 @@
 package com.markgrand.smileyVars;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A template for SQL that expands to leave out extraneous portions of a query.
  *
  * @author Mark Grand
  */
-@SuppressWarnings("unused")
 public class SmileyVarsTemplate {
     private final Tokenizer.TokenizerBuilder builder;
     private final String sql;
@@ -66,7 +66,7 @@ public class SmileyVarsTemplate {
      * @param values Apply the given values to this template
      * @return the template
      */
-    public String apply(Map<String, String> values) {
+    public String apply(Map<String, Object> values) {
         Tokenizer tokenizer = builder.build(sql);
         StringBuilder sb = new StringBuilder(sql.length()*2);
         StringBuilder segment = null;
@@ -79,7 +79,7 @@ public class SmileyVarsTemplate {
                     ((segment != null)? segment : sb).append(token.getTokenchars());
                     break;
                 case VAR:
-                    String value = values.get(token.getTokenchars());
+                    String value = Objects.toString(values.get(token.getTokenchars()));
                     if (value == null) {
                         skipPastSmileyClose(tokenizer);
                     } else {
