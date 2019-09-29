@@ -17,6 +17,14 @@ class SmileyVarsTemplateTest {
     }
 
     @org.junit.jupiter.api.Test
+    void ansiEmbeddedQuote() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:)");
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", "can't or won't");
+        assertEquals("Select * from foo where 1=1 and x='can''t or won''t'", template.apply(map));
+    }
+
+    @org.junit.jupiter.api.Test
     void postgresqlTemplate() {
         SmileyVarsTemplate template = SmileyVarsTemplate.postgresqlTemplate("Select * from foo where 1=1 (:and x=:x:)");
         assertEquals("Select * from foo where 1=1 ", template.apply(new HashMap<>()));
