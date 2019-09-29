@@ -15,10 +15,13 @@ class ValueFormatterRegistry {
     private static final Logger logger = LoggerFactory.getLogger(ValueFormatterRegistry.class);
 
     private static final ValueFormatterRegistry ansiRegistry = new ValueFormatterRegistry();
+    private static final ValueFormatterRegistry postgresqlRegistry
+            = new ValueFormatterRegistry().registerFormatter(Boolean.class, bool->((Boolean)bool).toString());
 
     private final List<ValueFormatter> formatterList = new LinkedList<>();
 
-    static ValueFormatterRegistry ansiiInstance() { return ansiRegistry; }
+    static ValueFormatterRegistry ansiInstance() { return ansiRegistry; }
+    static ValueFormatterRegistry postgresqlInstance() { return postgresqlRegistry; }
 
     private ValueFormatterRegistry() {
         logger.debug("Registering built-in formatters.");
@@ -38,6 +41,7 @@ class ValueFormatterRegistry {
      * @param formatter A function to return a representation of an object as an SQL literal.
      * @return this object
      */
+    @SuppressWarnings("WeakerAccess")
     ValueFormatterRegistry registerFormatter(Class clazz, Function<Object, String> formatter) {
        return registerFormatter(clazz::isInstance, formatter);
     }
@@ -50,6 +54,7 @@ class ValueFormatterRegistry {
      * @param formatter A function to return a representation of an object as an SQL literal.
      * @return this object
      */
+    @SuppressWarnings("WeakerAccess")
     ValueFormatterRegistry registerFormatter(Predicate<Object> predicate, Function<Object, String> formatter) {
         formatterList.add(new ValueFormatter(predicate, formatter));
         return this;

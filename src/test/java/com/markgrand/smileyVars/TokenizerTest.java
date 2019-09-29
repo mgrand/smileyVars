@@ -172,84 +172,84 @@ class TokenizerTest {
 
     @Test
     void unbracketedBlockComment() {
-        final String sql = "SELECT /* (:\n blah bleh :) */ abc FROM dual";
+        final String sql = "SELECT /* (:\n blah boat :) */ abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
     @Test
     void unbracketedNestedBlockComment() {
-        final String sql = "SELECT /* /* blah, */ (:\n blah bleh :) */ abc FROM dual";
+        final String sql = "SELECT /* /* blah, */ (:\n blah boat :) */ abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
     @Test
     void unbracketedNestedBlockComment2() {
-        final String sql = "SELECT /* /* blah, */ */ (: blah bleh :) abc FROM dual";
+        final String sql = "SELECT /* /* blah, */ */ (: blah boat :) abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, "SELECT /* /* blah, */ */ "), makeToken(TokenType.SMILEY_OPEN,"(:"),
-                makeToken(TokenType.TEXT, " blah bleh "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
+                makeToken(TokenType.TEXT, " blah boat "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
                 makeToken(TokenType.TEXT, " abc FROM dual"));
     }
 
     @Test
     void unbracketedUnnestedBlockComment() {
-        final String sql = "SELECT /* /* blah, */ (:\n blah bleh :) */ abc FROM dual";
+        final String sql = "SELECT /* /* blah, */ (:\n blah boat :) */ abc FROM dual";
         doTest(Tokenizer.builder().enableNestedBlockComment(false).build(sql),
                 makeToken(TokenType.TEXT, "SELECT /* /* blah, */ "), makeToken(TokenType.SMILEY_OPEN, "(:"),
-                makeToken(TokenType.TEXT, "\n blah bleh "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
+                makeToken(TokenType.TEXT, "\n blah boat "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
                 makeToken(TokenType.TEXT, " */ abc FROM dual"));
     }
 
     @Test
     void unbracketedUnterminatedBlockComment() {
-        final String sql = "SELECT /* (:\n blah bleh :)  abc FROM dual";
+        final String sql = "SELECT /* (:\n blah boat :)  abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, sql));
     }
 
     @Test
     void bracketedSimple() {
-        final String sql = "SELECT (: blah :foo bleh :) abc FROM dual";
+        final String sql = "SELECT (: blah :foo boat :) abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
                 makeToken(TokenType.TEXT, " blah "), makeToken(TokenType.VAR, ":foo"),
-                makeToken(TokenType.TEXT, " bleh "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
+                makeToken(TokenType.TEXT, " boat "), makeToken(TokenType.SMILEY_CLOSE, ":)"),
                 makeToken(TokenType.TEXT, " abc FROM dual"));
     }
 
     @Test
     void bracketedLineComment() {
-        final String sql = "SELECT (: blah :foo --bleh :) abc FROM dual";
+        final String sql = "SELECT (: blah :foo --boat :) abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
                 makeToken(TokenType.TEXT, " blah "), makeToken(TokenType.VAR, ":foo"),
-                makeToken(TokenType.TEXT, " --bleh :) abc FROM dual"));
+                makeToken(TokenType.TEXT, " --boat :) abc FROM dual"));
     }
 
     @Test
     void bracketedBlockComment() {
-        final String sql = "SELECT (: blah :foo /*bleh :) abc FROM dual";
+        final String sql = "SELECT (: blah :foo /*boat :) abc FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
                 makeToken(TokenType.TEXT, " blah "), makeToken(TokenType.VAR, ":foo"),
-                makeToken(TokenType.TEXT, " /*bleh :) abc FROM dual"));
+                makeToken(TokenType.TEXT, " /*boat :) abc FROM dual"));
     }
 
     @Test
     void bracketedString() {
-        final String sql = "SELECT (: blah ':foo bleh :) abc' FROM dual";
+        final String sql = "SELECT (: blah ':foo boat :) abc' FROM dual";
         doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
-                makeToken(TokenType.TEXT, " blah ':foo bleh :) abc' FROM dual"));
+                makeToken(TokenType.TEXT, " blah ':foo boat :) abc' FROM dual"));
     }
 
     @Test
     void bracketedLineQuotedId() {
-        final String sql = "SELECT (: blah \":foo bleh :) abc FROM dual\"";
+        final String sql = "SELECT (: blah \":foo boat :) abc FROM dual\"";
         doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
-                makeToken(TokenType.TEXT, " blah \":foo bleh :) abc FROM dual\""));
+                makeToken(TokenType.TEXT, " blah \":foo boat :) abc FROM dual\""));
     }
 
     @Test
     void bracketedSquareQuotedId() {
-        final String sql = "SELECT (: blah [:foo bleh :) abc] FROM dual";
+        final String sql = "SELECT (: blah [:foo boat :) abc] FROM dual";
         doTest(Tokenizer.builder().enableSquareBracketIdentifierQuoting(true).build(sql),
                 makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN,"(:"),
-                makeToken(TokenType.TEXT, " blah [:foo bleh :) abc] FROM dual"));
+                makeToken(TokenType.TEXT, " blah [:foo boat :) abc] FROM dual"));
     }
 
     private void doTest(String sql, Token ... tokens) {

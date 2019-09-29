@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TokenTest {
     @Test
     public void toStringTest() {
-        Token t = new Token(TokenType.TEXT, "abcd", 1, 3);
-        assertEquals("Token[TEXT, \"bc\"]", t.toString());
+        Token t = new Token(TokenType.TEXT, "redo", 1, 3);
+        assertEquals("Token[TEXT, \"ed\"]", t.toString());
     }
 }

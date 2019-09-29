@@ -35,7 +35,7 @@ class Tokenizer implements Iterator<Token> {
         this(chars, DEFAULT_CONFIG);
     }
 
-    Tokenizer(CharSequence chars, TokenizerConfig config) {
+    private Tokenizer(CharSequence chars, TokenizerConfig config) {
         this.config = config;
         this.chars = chars;
         tokenScanner = scanUnbracketed;

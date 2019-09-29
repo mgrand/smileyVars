@@ -4,6 +4,7 @@ package com.markgrand.smileyVars;
  * Superclass of all exceptions explicitly thrown by SmileyVars. You can catch all exceptions explicitly thrown by
  * SmileyVars by catching this.
  */
+@SuppressWarnings("WeakerAccess")
 public class SmileyVarsException extends RuntimeException {
     /**
      * Constructs a new exception with the specified detail message. The cause is not initialized, and may

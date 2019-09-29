@@ -28,7 +28,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate ansiTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForAnsi(), ValueFormatterRegistry.ansiiInstance());
+        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForAnsi(), ValueFormatterRegistry.ansiInstance());
     }
 
     /**
@@ -38,7 +38,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate postgresqlTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForPostgresql(), ValueFormatterRegistry.ansiiInstance());
+        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForPostgresql(), ValueFormatterRegistry.postgresqlInstance());
     }
 
     /**
@@ -48,7 +48,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate oracleTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForOracle(), ValueFormatterRegistry.ansiiInstance());
+        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForOracle(), ValueFormatterRegistry.ansiInstance());
     }
 
     /**
@@ -58,7 +58,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate sqlServerTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiiInstance());
+        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiInstance());
     }
 
     /**
