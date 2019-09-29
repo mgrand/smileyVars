@@ -1,7 +1,6 @@
 package com.markgrand.smileyVars;
 
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * A template for SQL that expands to leave out extraneous portions of a query.
@@ -11,13 +10,15 @@ import java.util.Objects;
 public class SmileyVarsTemplate {
     private final Tokenizer.TokenizerBuilder builder;
     private final String sql;
+    private final ValueFormatterRegistry formatterRegistry;
 
     /**
      * Constructor
      */
-    private SmileyVarsTemplate(String sql, Tokenizer.TokenizerBuilder builder) {
+    private SmileyVarsTemplate(String sql, Tokenizer.TokenizerBuilder builder, ValueFormatterRegistry formatterRegistry) {
         this.builder = builder;
         this.sql = sql;
+        this.formatterRegistry = formatterRegistry;
     }
 
     /**
@@ -27,7 +28,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate ansiTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForAnsi());
+        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForAnsi(), ValueFormatterRegistry.ansiiInstance());
     }
 
     /**
@@ -37,7 +38,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate postgresqlTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForPostgresql());
+        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForPostgresql(), ValueFormatterRegistry.ansiiInstance());
     }
 
     /**
@@ -47,7 +48,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate oracleTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForOracle());
+        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForOracle(), ValueFormatterRegistry.ansiiInstance());
     }
 
     /**
@@ -57,7 +58,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate sqlServerTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForSqlServer());
+        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiiInstance());
     }
 
     /**
@@ -79,7 +80,7 @@ public class SmileyVarsTemplate {
                     ((segment != null)? segment : sb).append(token.getTokenchars());
                     break;
                 case VAR:
-                    String value = ValueFormatterRegistry.format(values.get(token.getTokenchars()));
+                    String value = formatterRegistry.format(values.get(token.getTokenchars()));
                     if (value == null) {
                         skipPastSmileyClose(tokenizer);
                     } else {

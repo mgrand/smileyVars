@@ -384,7 +384,7 @@ class Tokenizer implements Iterator<Token> {
      * Builder class for Tokenizer
      */
     static class TokenizerBuilder {
-        TokenizerConfig config = new TokenizerConfig();
+        private final TokenizerConfig config = new TokenizerConfig();
 
         /**
          * Constructor declared to prevent auto-creation of public constructor.

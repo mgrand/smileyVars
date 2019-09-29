@@ -6,6 +6,7 @@ package com.markgrand.smileyVars;
  *
  * @see ValueFormatterRegistry
  */
+@SuppressWarnings("WeakerAccess")
 public class NoFormatterException extends SmileyVarsException {
     /**
      * Constructs a new exception with the specified detail message. The cause is not initialized, and may subsequently

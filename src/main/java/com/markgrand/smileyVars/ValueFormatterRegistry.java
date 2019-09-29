@@ -11,13 +11,16 @@ import org.slf4j.LoggerFactory;
 /**
  * Singleton to maintain a registry of {@link ValueFormatter} objects
  */
-@SuppressWarnings("WeakerAccess")
-public class ValueFormatterRegistry {
+class ValueFormatterRegistry {
     private static final Logger logger = LoggerFactory.getLogger(ValueFormatterRegistry.class);
-    private static List<ValueFormatter> formatterList = new LinkedList<>();
 
-    // Initialize with built-in ValueFormatter objects
-    static {
+    private static final ValueFormatterRegistry ansiRegistry = new ValueFormatterRegistry();
+
+    private final List<ValueFormatter> formatterList = new LinkedList<>();
+
+    static ValueFormatterRegistry ansiiInstance() { return ansiRegistry; }
+
+    private ValueFormatterRegistry() {
         logger.debug("Registering built-in formatters.");
         registerFormatter(Number.class, Object::toString);
         registerFormatter(String.class, string->"'" + ((String)string).replace("'", "''")+ "'");
@@ -33,9 +36,10 @@ public class ValueFormatterRegistry {
      * @param clazz     The class that a value must be an instance of for the given formatter function to be used to
      *                  format it.
      * @param formatter A function to return a representation of an object as an SQL literal.
+     * @return this object
      */
-    public static void registerFormatter(Class clazz, Function<Object, String> formatter) {
-       registerFormatter(clazz::isInstance, formatter);
+    ValueFormatterRegistry registerFormatter(Class clazz, Function<Object, String> formatter) {
+       return registerFormatter(clazz::isInstance, formatter);
     }
 
     /**
@@ -44,9 +48,11 @@ public class ValueFormatterRegistry {
      *
      * @param predicate The predicate to determine if the formatter can be applied to a given value.
      * @param formatter A function to return a representation of an object as an SQL literal.
+     * @return this object
      */
-    public static void registerFormatter(Predicate<Object> predicate, Function<Object, String> formatter) {
+    ValueFormatterRegistry registerFormatter(Predicate<Object> predicate, Function<Object, String> formatter) {
         formatterList.add(new ValueFormatter(predicate, formatter));
+        return this;
     }
 
     /**
@@ -55,7 +61,7 @@ public class ValueFormatterRegistry {
      * @return the SQL literal as a String or null if the value is null.
      * @throws NoFormatterException if there is no registered applicable formatter.
      */
-    public static String format(Object value) {
+    public String format(Object value) {
         if (value == null) {
             return null;
         }

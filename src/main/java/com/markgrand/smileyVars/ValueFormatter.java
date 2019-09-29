@@ -7,7 +7,7 @@ import java.util.function.Predicate;
  * Format objects that are values of smileyVars as SQL literals. If you want SmileyVars to format objects
  * that are instance of a class that is not a number, string or date.
  */
-public class ValueFormatter {
+class ValueFormatter {
     private final Predicate<Object> appliesTo;
     private final Function<Object, String> formattingFunction;
 
