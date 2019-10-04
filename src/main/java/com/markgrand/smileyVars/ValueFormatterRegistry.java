@@ -61,7 +61,7 @@ class ValueFormatterRegistry {
      */
     @SuppressWarnings("WeakerAccess")
     ValueFormatterRegistry registerFormatter(String name, Predicate<Object> predicate, Function<Object, String> formatter) {
-        formatterMap.put(name, new ValueFormatter(predicate, formatter));
+        formatterMap.put(name, new ValueFormatter(predicate, formatter, name));
         return this;
     }
 

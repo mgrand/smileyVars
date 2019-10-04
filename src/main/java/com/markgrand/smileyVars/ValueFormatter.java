@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 class ValueFormatter {
     private final Predicate<Object> appliesTo;
     private final Function<Object, String> formattingFunction;
-    private final String description;
+    private final String name;
 
     /**
      * Constructor
@@ -20,10 +20,10 @@ class ValueFormatter {
      * @param formattingFunction If given a value that the predicate returns true for, this should return a string that
      *                           represents to given value as an SQL literal.
      */
-    ValueFormatter(Predicate<Object> predicate, Function<Object, String> formattingFunction, String description) {
+    ValueFormatter(Predicate<Object> predicate, Function<Object, String> formattingFunction, String name) {
         appliesTo = predicate;
         this.formattingFunction = formattingFunction;
-        this.description = description;
+        this.name = name;
     }
 
     /**
@@ -53,7 +53,7 @@ class ValueFormatter {
      *
      * @return the description.
      */
-    String getDescription() {
-        return description;
+    String getName() {
+        return name;
     }
 }
