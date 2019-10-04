@@ -134,13 +134,13 @@ line_comment ::= "--" [^#x0a#x0d]* [#x0a#x0d]
 /* These should be able to nest as supported for PostgreSQL, SQLServer and DB2 */
 block_comment ::= "/*" ([^*] | '*' [^/])* "*/"
 
-bracketed_text ::= "(:" (bracketed_char | quoted_string | quoted_identifier | comment
-                 | (":" (var |  [^)])) )* ":)"
+bracketed_text ::= "(:" (bracketed_char | quoted_string | quoted_identifier
+                         | comment | (":" var (":" type)?) ) ":)"
 
 bracketed_char ::= [^'":]
 
-var ::= [A-Za-z] [A-Za-z0-9_]
-```
+var ::= [A-Za-z] [A-Za-z0-9_]*
 
+type ::= [$A-Za-z] [$A-Za-z0-9_]*
 
 <small>Copyright &copy; Mark Grand 2019</small>
