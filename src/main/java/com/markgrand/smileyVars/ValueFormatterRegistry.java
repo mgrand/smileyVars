@@ -3,6 +3,11 @@ package com.markgrand.smileyVars;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoField;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -15,20 +20,83 @@ class ValueFormatterRegistry {
 
     private static final ValueFormatterRegistry ansiRegistry = new ValueFormatterRegistry();
     private static final ValueFormatterRegistry postgresqlRegistry
-            = new ValueFormatterRegistry().registerFormatter("boolean", Boolean.class, bool->((Boolean)bool).toString());
-
+            = new ValueFormatterRegistry().registerFormatter("boolean", Boolean.class, bool -> ((Boolean) bool).toString());
+    private static SimpleDateFormat timestampFormatNoZone = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
-
-    static ValueFormatterRegistry ansiInstance() { return ansiRegistry; }
-    static ValueFormatterRegistry postgresqlInstance() { return postgresqlRegistry; }
 
     private ValueFormatterRegistry() {
         logger.debug("Registering built-in formatters.");
-        registerFormatter("number", Number.class, Object::toString);
-        registerFormatter("string", String.class, string->"'" + ((String)string).replace("'", "''")+ "'");
+        registerNumberFormatter();
+        registerStringFormatter();
+        registerTimestampFormatter();
         //TODO add formatter for BitSet, Date, Time, Calendar, Timestamp, Duration, Money, unique identifier/GUID, boolean
         //TODO need to account for national character set string literals and unicode string literals.
         logger.debug("Done registering built-in formatters.");
+    }
+
+    static ValueFormatterRegistry ansiInstance() {
+        return ansiRegistry;
+    }
+
+    static ValueFormatterRegistry postgresqlInstance() {
+        return postgresqlRegistry;
+    }
+
+    private void registerTimestampFormatter() {
+        final String formatterName = "timestamp";
+        Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof Instant;
+        Function<Object, String> formattingFunction = value -> {
+            StringBuilder builder = new StringBuilder("TIMESTAMP '");
+            if (value instanceof Date) {
+                doTimestampFormatNoZone((Date) value, builder);
+            } else if (value instanceof Calendar) {
+                formatCalendarAsTimestamp((Calendar) value, builder);
+            } else if (value instanceof Instant) {
+                formatInstantAsTimestamp((Instant) value, builder);
+            } else {
+                handleInapplicableValue(formatterName, value);
+            }
+            return builder.append('\'').toString();
+        };
+        registerFormatter(formatterName, predicate, formattingFunction);
+    }
+
+    private void formatInstantAsTimestamp(Instant value, StringBuilder builder) {
+        Instant instant = value;
+        builder.append(instant.get(ChronoField.YEAR)).append('-')
+                .append(instant.get(ChronoField.MONTH_OF_YEAR)).append('-').append(instant.get(ChronoField.DAY_OF_MONTH))
+                .append(' ').append(instant.get(ChronoField.HOUR_OF_DAY))
+                .append(':').append(instant.get(ChronoField.MINUTE_OF_HOUR)).append(':').append(instant.get(ChronoField.SECOND_OF_MINUTE));
+        int zoneOffsetMinutes = instant.get(ChronoField.OFFSET_SECONDS)/60;
+        builder.append(zoneOffsetMinutes >= 0 ? '+' : '-').append(zoneOffsetMinutes/60).append(':').append(zoneOffsetMinutes%60);
+        ;
+    }
+
+    private void formatCalendarAsTimestamp(Calendar value, StringBuilder builder) {
+        Calendar calendar = value;
+        builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)).append('-').append(calendar.get(Calendar.DAY_OF_MONTH))
+                .append(' ').append(calendar.get(Calendar.HOUR_OF_DAY)).append(':').append(calendar.get(Calendar.MINUTE)).append(':').append(calendar.get(Calendar.SECOND));
+        int zoneOffsetMinutes = calendar.get(Calendar.ZONE_OFFSET)/(60*1000);
+        builder.append(zoneOffsetMinutes >= 0 ? '+' : '-').append(zoneOffsetMinutes/60).append(':').append(zoneOffsetMinutes%60);
+    }
+
+    private void doTimestampFormatNoZone(Date value, StringBuilder builder) {
+        synchronized (timestampFormatNoZone) {
+            builder.append(timestampFormatNoZone.format(value));
+        }
+    }
+
+    private void handleInapplicableValue(String formatterName, Object value) {
+        String msg = "Formatter named " + formatterName + " cannot be applied to object of class " + value.getClass().getName();
+        throw new IllegalArgumentException(msg);
+    }
+
+    private void registerStringFormatter() {
+        registerFormatter("string", String.class, string -> "'" + ((String) string).replace("'", "''") + "'");
+    }
+
+    private void registerNumberFormatter() {
+        registerFormatter("number", Number.class, Object::toString);
     }
 
     /**
@@ -45,7 +113,7 @@ class ValueFormatterRegistry {
      */
     @SuppressWarnings("WeakerAccess")
     ValueFormatterRegistry registerFormatter(String name, Class clazz, Function<Object, String> formatter) {
-       return registerFormatter(name, clazz::isInstance, formatter);
+        return registerFormatter(name, clazz::isInstance, formatter);
     }
 
     /**
@@ -66,9 +134,10 @@ class ValueFormatterRegistry {
     }
 
     /**
-     * Format the given object as an string that is an SQL literal that represents the given object.
-     * The formatter used to format the object will be determined by going through the list of formatters until one is
-     * found whose {@link ValueFormatter#isApplicable(Object)} returns true for the given object.
+     * Format the given object as an string that is an SQL literal that represents the given object. The formatter used
+     * to format the object will be determined by going through the list of formatters until one is found whose {@link
+     * ValueFormatter#isApplicable(Object)} returns true for the given object.
+     *
      * @param value the object to be represented as an SQL literal.
      * @return the SQL literal as a String or null if the value is null.
      * @throws NoFormatterException if there is no registered applicable formatter.
@@ -86,9 +155,10 @@ class ValueFormatterRegistry {
     }
 
     /**
-     * Format the given object as an string that is an SQL literal that represents the given object.
-     * The formatter used to format the object will be determined by going through the list of formatters until one is
-     * found whose {@link ValueFormatter#isApplicable(Object)} returns true for the given object.
+     * Format the given object as an string that is an SQL literal that represents the given object. The formatter used
+     * to format the object will be determined by going through the list of formatters until one is found whose {@link
+     * ValueFormatter#isApplicable(Object)} returns true for the given object.
+     *
      * @param value the object to be represented as an SQL literal.
      * @return the SQL literal as a String or null if the value is null.
      * @throws NoFormatterException if there is no registered applicable formatter.
