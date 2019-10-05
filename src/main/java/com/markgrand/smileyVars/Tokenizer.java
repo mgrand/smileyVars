@@ -31,6 +31,7 @@ class Tokenizer implements Iterator<Token> {
      *
      * @param chars The sql/template body to be expanded.
      */
+    @SuppressWarnings("unused")
     Tokenizer(CharSequence chars) {
         this(chars, DEFAULT_CONFIG);
     }
@@ -282,9 +283,6 @@ class Tokenizer implements Iterator<Token> {
         return TokenType.TEXT;
     };
 
-    /**
-     * ugly state loop
-     */
     private void scanNextToken() {
         if (isEof()) {
             nextToken = new Token(TokenType.EOF, chars, nextPosition, chars.length());
@@ -362,6 +360,18 @@ class Tokenizer implements Iterator<Token> {
         }
         scanNextToken();
         return token;
+    }
+
+    /**
+     * Return the type of the next token that will be returned be {@link #next()}.
+     *
+     * @return the type of the next token that will be returned be {@link #next()}.
+     */
+    TokenType peek() {
+        if (nextToken == null) {
+            return TokenType.EOF;
+        }
+        return nextToken.getTokenType();
     }
 
     /**

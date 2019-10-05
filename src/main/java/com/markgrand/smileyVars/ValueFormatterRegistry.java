@@ -67,6 +67,8 @@ class ValueFormatterRegistry {
 
     /**
      * Format the given object as an string that is an SQL literal that represents the given object.
+     * The formatter used to format the object will be determined by going through the list of formatters until one is
+     * found whose {@link ValueFormatter#isApplicable(Object)} returns true for the given object.
      * @param value the object to be represented as an SQL literal.
      * @return the SQL literal as a String or null if the value is null.
      * @throws NoFormatterException if there is no registered applicable formatter.
@@ -81,5 +83,27 @@ class ValueFormatterRegistry {
             }
         }
         throw new NoFormatterException("No registered formatter for value that is an instance of " + value.getClass().getName());
+    }
+
+    /**
+     * Format the given object as an string that is an SQL literal that represents the given object.
+     * The formatter used to format the object will be determined by going through the list of formatters until one is
+     * found whose {@link ValueFormatter#isApplicable(Object)} returns true for the given object.
+     * @param value the object to be represented as an SQL literal.
+     * @return the SQL literal as a String or null if the value is null.
+     * @throws NoFormatterException if there is no registered applicable formatter.
+     */
+    String format(Object value, String formatterName) {
+        if (value == null) {
+            return null;
+        }
+        ValueFormatter valueFormatter = formatterMap.get(formatterName);
+        if (valueFormatter == null) {
+            throw new NoFormatterException("No registered formatter is named " + formatterName);
+        }
+        if (!valueFormatter.isApplicable(value)) {
+            throw new NoFormatterException("The formatter named " + formatterName + " cannot be applied to the value " + value.toString());
+        }
+        return valueFormatter.format(value);
     }
 }
