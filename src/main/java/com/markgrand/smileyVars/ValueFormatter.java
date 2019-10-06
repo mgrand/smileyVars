@@ -56,4 +56,11 @@ class ValueFormatter {
     String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return "ValueFormatter{" +
+                       "name='" + getName() + '\'' +
+                       '}';
+    }
 }

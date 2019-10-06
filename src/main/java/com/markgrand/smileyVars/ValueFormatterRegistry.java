@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -21,17 +22,31 @@ class ValueFormatterRegistry {
     private static final ValueFormatterRegistry ansiRegistry = new ValueFormatterRegistry();
     private static final ValueFormatterRegistry postgresqlRegistry
             = new ValueFormatterRegistry().registerFormatter("boolean", Boolean.class, bool -> ((Boolean) bool).toString());
-    private static SimpleDateFormat timestampFormatNoZone = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat timestampFormatNoZone = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private volatile static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
+
+    private static void ensureCommonBuiltinFormattersAreRegistered() {
+        if (commonBuiltinFormatters == null) {
+            synchronized (ValueFormatter.class) {
+                if (commonBuiltinFormatters == null) {
+                    logger.debug("Registering common formatters.");
+                    commonBuiltinFormatters = new LinkedHashMap<>();
+                    registerNumberFormatter(commonBuiltinFormatters);
+                    registerStringFormatter(commonBuiltinFormatters);
+                    registerTimestampFormatter(commonBuiltinFormatters);
+                    logger.debug("Registered common formatters: " + commonBuiltinFormatters);
+                }
+            }
+        }
+    }
+
     private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
 
     private ValueFormatterRegistry() {
-        logger.debug("Registering built-in formatters.");
-        registerNumberFormatter();
-        registerStringFormatter();
-        registerTimestampFormatter();
+        ensureCommonBuiltinFormattersAreRegistered();
+        formatterMap.putAll(commonBuiltinFormatters);
         //TODO add formatter for BitSet, Date, Time, Calendar, Timestamp, Duration, Money, unique identifier/GUID, boolean
         //TODO need to account for national character set string literals and unicode string literals.
-        logger.debug("Done registering built-in formatters.");
     }
 
     static ValueFormatterRegistry ansiInstance() {
@@ -42,7 +57,7 @@ class ValueFormatterRegistry {
         return postgresqlRegistry;
     }
 
-    private void registerTimestampFormatter() {
+    private static void registerTimestampFormatter(@SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
         final String formatterName = "timestamp";
         Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof Instant;
         Function<Object, String> formattingFunction = value -> {
@@ -51,52 +66,52 @@ class ValueFormatterRegistry {
                 doTimestampFormatNoZone((Date) value, builder);
             } else if (value instanceof Calendar) {
                 formatCalendarAsTimestamp((Calendar) value, builder);
-            } else if (value instanceof Instant) {
-                formatInstantAsTimestamp((Instant) value, builder);
+            } else if (value instanceof TemporalAccessor) {
+                formatTemporalAccessorAsTimestamp((TemporalAccessor) value, builder);
             } else {
                 handleInapplicableValue(formatterName, value);
             }
             return builder.append('\'').toString();
         };
-        registerFormatter(formatterName, predicate, formattingFunction);
+        registerFormatter(formatterName, predicate, formattingFunction, registryMap);
     }
 
-    private void formatInstantAsTimestamp(Instant value, StringBuilder builder) {
-        Instant instant = value;
+    private static void formatTemporalAccessorAsTimestamp(TemporalAccessor instant, StringBuilder builder) {
         builder.append(instant.get(ChronoField.YEAR)).append('-')
                 .append(instant.get(ChronoField.MONTH_OF_YEAR)).append('-').append(instant.get(ChronoField.DAY_OF_MONTH))
                 .append(' ').append(instant.get(ChronoField.HOUR_OF_DAY))
                 .append(':').append(instant.get(ChronoField.MINUTE_OF_HOUR)).append(':').append(instant.get(ChronoField.SECOND_OF_MINUTE));
-        int zoneOffsetMinutes = instant.get(ChronoField.OFFSET_SECONDS)/60;
-        builder.append(zoneOffsetMinutes >= 0 ? '+' : '-').append(zoneOffsetMinutes/60).append(':').append(zoneOffsetMinutes%60);
-        ;
+        int zoneOffsetMinutes = instant.get(ChronoField.OFFSET_SECONDS) / 60;
+        builder.append(zoneOffsetMinutes >= 0 ? '+' : '-').append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
     }
 
-    private void formatCalendarAsTimestamp(Calendar value, StringBuilder builder) {
-        Calendar calendar = value;
+    private static void formatCalendarAsTimestamp(Calendar calendar, StringBuilder builder) {
         builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)).append('-').append(calendar.get(Calendar.DAY_OF_MONTH))
                 .append(' ').append(calendar.get(Calendar.HOUR_OF_DAY)).append(':').append(calendar.get(Calendar.MINUTE)).append(':').append(calendar.get(Calendar.SECOND));
-        int zoneOffsetMinutes = calendar.get(Calendar.ZONE_OFFSET)/(60*1000);
-        builder.append(zoneOffsetMinutes >= 0 ? '+' : '-').append(zoneOffsetMinutes/60).append(':').append(zoneOffsetMinutes%60);
+        int zoneOffsetMinutes = calendar.get(Calendar.ZONE_OFFSET) / (60 * 1000);
+        builder.append(zoneOffsetMinutes >= 0 ? '+' : '-').append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
     }
 
-    private void doTimestampFormatNoZone(Date value, StringBuilder builder) {
+    private static void doTimestampFormatNoZone(Date date, StringBuilder builder) {
         synchronized (timestampFormatNoZone) {
-            builder.append(timestampFormatNoZone.format(value));
+            builder.append(timestampFormatNoZone.format(date));
         }
     }
 
-    private void handleInapplicableValue(String formatterName, Object value) {
+    @SuppressWarnings("SameParameterValue")
+    private static void handleInapplicableValue(String formatterName, Object value) {
         String msg = "Formatter named " + formatterName + " cannot be applied to object of class " + value.getClass().getName();
         throw new IllegalArgumentException(msg);
     }
 
-    private void registerStringFormatter() {
-        registerFormatter("string", String.class, string -> "'" + ((String) string).replace("'", "''") + "'");
+    @SuppressWarnings("SameParameterValue")
+    private static void registerStringFormatter(LinkedHashMap<String, ValueFormatter> registryMap) {
+        registerFormatter("string", String.class, string -> "'" + ((String) string).replace("'", "''") + "'", registryMap);
     }
 
-    private void registerNumberFormatter() {
-        registerFormatter("number", Number.class, Object::toString);
+    @SuppressWarnings("SameParameterValue")
+    private static void registerNumberFormatter(LinkedHashMap<String, ValueFormatter> registryMap) {
+        registerFormatter("number", Number.class, Object::toString, registryMap);
     }
 
     /**
@@ -111,7 +126,7 @@ class ValueFormatterRegistry {
      * @param formatter A function to return a representation of an object as an SQL literal.
      * @return this object
      */
-    @SuppressWarnings("WeakerAccess")
+    @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
     ValueFormatterRegistry registerFormatter(String name, Class clazz, Function<Object, String> formatter) {
         return registerFormatter(name, clazz::isInstance, formatter);
     }
@@ -129,8 +144,20 @@ class ValueFormatterRegistry {
      */
     @SuppressWarnings("WeakerAccess")
     ValueFormatterRegistry registerFormatter(String name, Predicate<Object> predicate, Function<Object, String> formatter) {
-        formatterMap.put(name, new ValueFormatter(predicate, formatter, name));
+        registerFormatter(name, predicate, formatter, formatterMap);
         return this;
+    }
+
+    private static void registerFormatter(String name, Class clazz,
+                                          Function<Object, String> formatter,
+                                          LinkedHashMap<String, ValueFormatter> map) {
+        map.put(name, new ValueFormatter(clazz::isInstance, formatter, name));
+    }
+
+    private static void registerFormatter(String name, Predicate<Object> predicate,
+                                          Function<Object, String> formatter,
+                                          LinkedHashMap<String, ValueFormatter> map) {
+        map.put(name, new ValueFormatter(predicate, formatter, name));
     }
 
     /**
