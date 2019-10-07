@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
@@ -59,7 +58,7 @@ class ValueFormatterRegistry {
 
     private static void registerTimestampFormatter(@SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
         final String formatterName = "timestamp";
-        Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof Instant;
+        Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof TemporalAccessor;
         Function<Object, String> formattingFunction = value -> {
             StringBuilder builder = new StringBuilder("TIMESTAMP '");
             if (value instanceof Date) {
@@ -76,20 +75,26 @@ class ValueFormatterRegistry {
         registerFormatter(formatterName, predicate, formattingFunction, registryMap);
     }
 
-    private static void formatTemporalAccessorAsTimestamp(TemporalAccessor instant, StringBuilder builder) {
-        builder.append(instant.get(ChronoField.YEAR)).append('-')
-                .append(instant.get(ChronoField.MONTH_OF_YEAR)).append('-').append(instant.get(ChronoField.DAY_OF_MONTH))
-                .append(' ').append(instant.get(ChronoField.HOUR_OF_DAY))
-                .append(':').append(instant.get(ChronoField.MINUTE_OF_HOUR)).append(':').append(instant.get(ChronoField.SECOND_OF_MINUTE));
-        int zoneOffsetMinutes = instant.get(ChronoField.OFFSET_SECONDS) / 60;
-        builder.append(zoneOffsetMinutes >= 0 ? '+' : '-').append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
+    private static void formatTemporalAccessorAsTimestamp(TemporalAccessor accessor, StringBuilder builder) {
+        builder.append(accessor.get(ChronoField.YEAR)).append('-')
+                .append(accessor.get(ChronoField.MONTH_OF_YEAR)).append('-').append(accessor.get(ChronoField.DAY_OF_MONTH))
+                .append(' ').append(accessor.get(ChronoField.HOUR_OF_DAY))
+                .append(':').append(accessor.get(ChronoField.MINUTE_OF_HOUR)).append(':').append(accessor.get(ChronoField.SECOND_OF_MINUTE));
+        int zoneOffsetMinutes = accessor.get(ChronoField.OFFSET_SECONDS) / 60;
+        if (zoneOffsetMinutes >= 0) {
+            builder.append('+');
+        }
+        builder.append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
     }
 
     private static void formatCalendarAsTimestamp(Calendar calendar, StringBuilder builder) {
-        builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)).append('-').append(calendar.get(Calendar.DAY_OF_MONTH))
+        builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)+1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH))
                 .append(' ').append(calendar.get(Calendar.HOUR_OF_DAY)).append(':').append(calendar.get(Calendar.MINUTE)).append(':').append(calendar.get(Calendar.SECOND));
         int zoneOffsetMinutes = calendar.get(Calendar.ZONE_OFFSET) / (60 * 1000);
-        builder.append(zoneOffsetMinutes >= 0 ? '+' : '-').append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
+        if (zoneOffsetMinutes >= 0) {
+            builder.append('+');
+        }
+        builder.append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
     }
 
     private static void doTimestampFormatNoZone(Date date, StringBuilder builder) {

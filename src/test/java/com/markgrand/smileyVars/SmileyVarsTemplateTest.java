@@ -2,6 +2,9 @@ package com.markgrand.smileyVars;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,4 +64,24 @@ class SmileyVarsTemplateTest {
         map.put("x", date);
         assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-04-18 13:43:56'", template.apply(map));
     }
+
+    @Test
+    void CalendarAsTimestamp() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:)");
+        Calendar calendar = new GregorianCalendar(2020, Calendar.FEBRUARY, 18, 13, 43, 56);
+        calendar.setTimeZone(TimeZone.getTimeZone("EST"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", calendar);
+        assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-2-18 13:43:56-5:0'", template.apply(map));
+    }
+
+    @Test
+    void TemporalAccessorAsTimestamp() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:)");
+        ZonedDateTime instant = ZonedDateTime.of(2020,2, 18, 13, 43, 56, 0, ZoneId.of("-5"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", instant);
+        assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-2-18 13:43:56-5:0'", template.apply(map));
+    }
+
 }
