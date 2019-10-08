@@ -78,17 +78,38 @@ prefer to only include columns in the `SELECT` list that are not constrained to 
 
 ## Using smileyVars
 You can use smileyVars as a stand-alone pre-processor for SQL. However, 
-smileyVars comes with an integration to Spring's JDBC template. Other integrations 
+more convenient integrations with other libraries are planned. In this 
+section, we show you how to use smileyVars as a stand-alone preprocessor.
+
+The first step is adding the smileyVars jar file to your project. For now
+you will need to build it yourself. You can use Maven to build it by
+using the command
+```
+mvn clean install
+```
 
 *A user guide will be here*
 
 ### Logging
 
-SmileyVars uses slf4j for its logging.
+SmileyVars uses slf4j for its logging.  You can find documentation for
+slf4j at <https://www.slf4j.org/manual.html>
 
-*Instructions on how to configure logging go here*
+## Roadmap
+This is a list of planned future features:
+* Availability of a pre-compiled jar in the Maven Central repository.
+* Syntax for specifying explicit formatters/datatypes of simleyVars.
+* Built-in support for additional datatypes:
+    * BitSet
+    * TimeDuration
+    * Money
+    * unique identifier/GUID 
+    * boolean
+* Integration with Spring JdbcTemplate
+* Support for parsing national character set string literals.
+* Support for parsing unicode string literals.
 
-## Appendix smileyVars Syntax
+## Appendix: smileyVars Syntax
 
 The EBNF grammar below describes the syntax of smileyVars. You can also 
 view it as a [syntax/railroad diagram](file:documentation/sv-grammar.xhtml)
