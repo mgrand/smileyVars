@@ -22,7 +22,14 @@ public class SmileyVarsTemplate {
     }
 
     /**
-     * Create a template for ANSI-compliant SQL
+     * Create a template for ANSI-compliant SQL. ANSI SQL is a standard that all relational databases conform to to some
+     * extent. This type of template is best when you are planning to write SQL that is portable between different
+     * database engines or if you are working with a relational database for which there is no specific template
+     * creation method.
+     * <p></p>
+     * ANSI templates ignore any smileyVars that are inside of string literals, quoted identifiers or comments. Note
+     * that ANSI templates recognize nested comments like this:
+     * <code>&#47;* This is &#47;* all one *&#47; big comment *&#47;</code>
      *
      * @param sql The template body.
      * @return the template.
@@ -32,8 +39,9 @@ public class SmileyVarsTemplate {
         return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForAnsi(), ValueFormatterRegistry.ansiInstance());
     }
 
-    /**
-     * Create a template for PostgreSQL SQL
+     /**
+     * Create a template for PostgreSQL SQL. This includes support for boolean smileyVars values. It is also able to
+     * parse dollar sign delimited string literals and escaped literals.
      *
      * @param sql The template body.
      * @return the template.

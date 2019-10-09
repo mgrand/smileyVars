@@ -88,7 +88,7 @@ using the command
 mvn clean install
 ```
 
-*A user guide will be here*
+To use smileyVars,
 
 ### Logging
 
