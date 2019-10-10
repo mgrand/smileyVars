@@ -41,7 +41,7 @@ public class SmileyVarsTemplate {
 
      /**
      * Create a template for PostgreSQL SQL. This includes support for boolean smileyVars values. It is also able to
-     * parse dollar sign delimited string literals and escaped literals.
+     * parse dollar sign delimited string literals and escaped string literals.
      *
      * @param sql The template body.
      * @return the template.
@@ -52,7 +52,8 @@ public class SmileyVarsTemplate {
     }
 
     /**
-     * Create a template for Oracle SQL
+     * Create a template for Oracle SQL. This is able to parse Oracle delimited string literals.  Like Oracle, it does
+     * not recognize nested comments.
      *
      * @param sql The template body.
      * @return the template.
@@ -63,7 +64,8 @@ public class SmileyVarsTemplate {
     }
 
     /**
-     * Create a template for Transact SQL (SQL Server)
+     * Create a template for Transact SQL (SQL Server). Like SqlServer, it recognizes identifiers that are quoted with
+     * square brackets.
      *
      * @param sql The template body.
      * @return the template.
