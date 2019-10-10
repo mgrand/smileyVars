@@ -65,6 +65,15 @@ class SmileyVarsTemplateTest {
     }
 
     @Test
+    void dateAsDate() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:date:)");
+        Date date = new GregorianCalendar(2020, Calendar.APRIL, 18, 13, 43, 56).getTime();
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", date);
+        assertEquals("Select * from foo where 1=1 and x=DATE '2020-04-18'", template.apply(map));
+    }
+
+    @Test
     void CalendarAsTimestamp() {
         SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:)");
         Calendar calendar = new GregorianCalendar(2020, Calendar.FEBRUARY, 18, 13, 43, 56);
@@ -72,6 +81,16 @@ class SmileyVarsTemplateTest {
         Map<String, Object> map = new HashMap<>();
         map.put("x", calendar);
         assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-2-18 13:43:56-5:0'", template.apply(map));
+    }
+
+    @Test
+    void CalendarAsDate() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:date :)");
+        Calendar calendar = new GregorianCalendar(2020, Calendar.FEBRUARY, 18, 13, 43, 56);
+        calendar.setTimeZone(TimeZone.getTimeZone("EST"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", calendar);
+        assertEquals("Select * from foo where 1=1 and x=DATE '2020-2-18' ", template.apply(map));
     }
 
     @Test
@@ -83,4 +102,13 @@ class SmileyVarsTemplateTest {
         assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-2-18 13:43:56-5:0'", template.apply(map));
     }
 
+
+    @Test
+    void TemporalAccessorAsDate() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:date)");
+        ZonedDateTime instant = ZonedDateTime.of(2020,2, 18, 13, 43, 56, 0, ZoneId.of("-5"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", instant);
+        assertEquals("Select * from foo where 1=1 and x=DATE '2020-2-18'", template.apply(map));
+    }
 }

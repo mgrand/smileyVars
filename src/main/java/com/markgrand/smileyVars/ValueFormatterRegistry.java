@@ -22,6 +22,7 @@ class ValueFormatterRegistry {
     private static final ValueFormatterRegistry postgresqlRegistry
             = new ValueFormatterRegistry().registerFormatter("boolean", Boolean.class, bool -> ((Boolean) bool).toString());
     private static final SimpleDateFormat timestampFormatNoZone = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private volatile static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
 
     private static void ensureCommonBuiltinFormattersAreRegistered() {
@@ -33,6 +34,7 @@ class ValueFormatterRegistry {
                     registerNumberFormatter(commonBuiltinFormatters);
                     registerStringFormatter(commonBuiltinFormatters);
                     registerTimestampFormatter(commonBuiltinFormatters);
+                    registerDateFormatter(commonBuiltinFormatters);
                     logger.debug("Registered common formatters: " + commonBuiltinFormatters);
                 }
             }
@@ -75,6 +77,25 @@ class ValueFormatterRegistry {
         registerFormatter(formatterName, predicate, formattingFunction, registryMap);
     }
 
+    private static void registerDateFormatter(@SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
+        final String formatterName = "date";
+        Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof TemporalAccessor;
+        Function<Object, String> formattingFunction = value -> {
+            StringBuilder builder = new StringBuilder("DATE '");
+            if (value instanceof Date) {
+                doDateFormat((Date) value, builder);
+            } else if (value instanceof Calendar) {
+                formatCalendarAsDate((Calendar) value, builder);
+            } else if (value instanceof TemporalAccessor) {
+                formatTemporalAccessorAsDate((TemporalAccessor) value, builder);
+            } else {
+                handleInapplicableValue(formatterName, value);
+            }
+            return builder.append('\'').toString();
+        };
+        registerFormatter(formatterName, predicate, formattingFunction, registryMap);
+    }
+
     private static void formatTemporalAccessorAsTimestamp(TemporalAccessor accessor, StringBuilder builder) {
         builder.append(accessor.get(ChronoField.YEAR)).append('-')
                 .append(accessor.get(ChronoField.MONTH_OF_YEAR)).append('-').append(accessor.get(ChronoField.DAY_OF_MONTH))
@@ -87,6 +108,11 @@ class ValueFormatterRegistry {
         builder.append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
     }
 
+    private static void formatTemporalAccessorAsDate(TemporalAccessor accessor, StringBuilder builder) {
+        builder.append(accessor.get(ChronoField.YEAR)).append('-')
+                .append(accessor.get(ChronoField.MONTH_OF_YEAR)).append('-').append(accessor.get(ChronoField.DAY_OF_MONTH));
+    }
+
     private static void formatCalendarAsTimestamp(Calendar calendar, StringBuilder builder) {
         builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)+1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH))
                 .append(' ').append(calendar.get(Calendar.HOUR_OF_DAY)).append(':').append(calendar.get(Calendar.MINUTE)).append(':').append(calendar.get(Calendar.SECOND));
@@ -97,9 +123,19 @@ class ValueFormatterRegistry {
         builder.append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
     }
 
+    private static void formatCalendarAsDate(Calendar calendar, StringBuilder builder) {
+        builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)+1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH));
+    }
+
     private static void doTimestampFormatNoZone(Date date, StringBuilder builder) {
         synchronized (timestampFormatNoZone) {
             builder.append(timestampFormatNoZone.format(date));
+        }
+    }
+
+    private static void doDateFormat(Date date, StringBuilder builder) {
+        synchronized (dateFormat) {
+            builder.append(dateFormat.format(date));
         }
     }
 
