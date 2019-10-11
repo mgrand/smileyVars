@@ -76,6 +76,12 @@ In some cases there may be a concern about amount of data being transported from
 prefer to only include columns in the `SELECT` list that are not constrained to a single value in the `WHERE` clause.s
 -->
 
+### Data Types
+When a smileyVar template is expanded, the variables are replaced with SQL 
+literals such as `123`, `'abc'` or `DATE '2020-04-28'`. Which type of
+literal a variable is replaced with may depend on just the type of value
+that is provided for the variable. 
+
 ## Using smileyVars
 You can use smileyVars as a stand-alone pre-processor for SQL. However, 
 more convenient integrations with other libraries are planned. In this 
