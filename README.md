@@ -80,7 +80,28 @@ prefer to only include columns in the `SELECT` list that are not constrained to 
 When a smileyVar template is expanded, the variables are replaced with SQL 
 literals such as `123`, `'abc'` or `DATE '2020-04-28'`. Which type of
 literal a variable is replaced with may depend on just the type of value
-that is provided for the variable. 
+that is provided for the variable:
+* Values that are instances of `Number` are formatted as SQL numeric 
+literals.
+* Values that are `String` objects are fomatted as SQL string literals.
+* Values that are `Calendar` objects are formatted as SQL timestamp 
+literals.
+
+For example, if `rate` is the `Integer` value `31`, `dept` is the
+`String` value `"nonce"` and `day` is the `Calendar` value 
+`18FEB2020 13:43:56EST` then
+```
+SELECT * FROM data WHERE 1=1 (: and rate=:rate:)(: and dept=:dept:)(: and day=:day:)
+```
+expands to
+```
+SELECT * FROM data WHERE 1=1 and rate=31 and dept='nonce' and day=TIMESTAMP '2020-2-18 13:43:56-5:0'
+```
+There are some cases where you want to explicitly specify what kind of
+literal a value should be formatted as. For example you may want a 
+`Calendar` value to be formatted as a date literal (with no time 
+component) rather than a timestamp. You can specify the formatting you
+want for a for
 
 ## Using smileyVars
 You can use smileyVars as a stand-alone pre-processor for SQL. However, 
