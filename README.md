@@ -9,7 +9,7 @@ SmileyVars is being initially developed with an integration to Spring's JdbcTemp
 
 Suppose we have a table that tracks the content of bins in a warehouse. Suppose that bins are identified by `aisle`, `level` and `bin_number`. A query to get information about the contents of one bin might look like
 
-```
+```SQL
 SELECT item_number, quantity FROM bin_tbl
 WHERE aisle=:aisle and level=:level and bin_number=:bin
 ```
@@ -90,11 +90,11 @@ literals.
 For example, if `rate` is the `Integer` value `31`, `dept` is the
 `String` value `"nonce"` and `day` is the `Calendar` value 
 `18FEB2020 13:43:56EST` then
-```
+```SQL
 SELECT * FROM data WHERE 1=1 (: and rate=:rate:)(: and dept=:dept:)(: and day=:day:)
 ```
 expands to
-```
+```SQL
 SELECT * FROM data WHERE 1=1 and rate=31 and dept='nonce' and day=TIMESTAMP '2020-2-18 13:43:56-5:0'
 ```
 There are some cases where you want to explicitly specify what kind of
@@ -103,12 +103,12 @@ literal a value should be formatted as. For example you may want a
 component) rather than a timestamp. You can specify the formatting you
 want for a variable by following it with a colon (:) and the name of a
 format like this:
-```
+```SQL
 SELECT * FROM data WHERE 1=1 (:and day=:day:date:)
 ```
 If `day` is the `Calendar` value `18FEB2020 13:43:56EST` then the above 
 example expands to
-```
+```SQL
 SELECT * FROM data WHERE 1=1 and day=DATE '2020-2-18'
 ```
 
