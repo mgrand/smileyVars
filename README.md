@@ -101,7 +101,47 @@ There are some cases where you want to explicitly specify what kind of
 literal a value should be formatted as. For example you may want a 
 `Calendar` value to be formatted as a date literal (with no time 
 component) rather than a timestamp. You can specify the formatting you
-want for a for
+want for a variable by following it with a colon (:) and the name of a
+format like this:
+```
+SELECT * FROM data WHERE 1=1 (:and day=:day:date:)
+```
+If `day` is the `Calendar` value `18FEB2020 13:43:56EST` then the above 
+example expands to
+```
+SELECT * FROM data WHERE 1=1 and day=DATE '2020-2-18'
+```
+
+These are the currently supported formats:
+
+| Format name | Default Mapping | Applies to Java Types                 | Produces          | Included in Template Type |
+| ----------- |:---------------:| ------------------------------------- | ----------------- | ------------------------- |
+| number      | yes             | `Number`                              | numeric literal   | all                       |
+| string      | yes             | `String`                              | string literal    | all                       |
+| timestamp   | yes             | `Date`, `Calendar`, `TemporalAccessor`| TIMESTAMP literal | all                       |
+| date        | no              | `Date`, `Calendar`, `TemporalAccessor`| DATE literal      | all                       |
+
+**Format name** is the name to use when explicitly specifying the format.
+
+**Default Mapping** is yes if the format will automatically be used 
+based on the type of value when there is no formatter specified.
+
+**Applies to Java Types** shows the Java types that the formatter can be
+used with. Note that some of thes types are abstract classes of 
+interfaces that are extended or implemented by many concret classes. For
+example, `Number` is extended by `BigDecimal`, `Double`, `Integer` and 
+other classes that represent numeric values. `TemporalAccessor` is 
+implemented by `Instant`, `LocalDateTime`, `Year` and other classes that
+represent points in time.
+
+**Produces** is the type of SQL literal that the formatter produces.
+
+**Included in Template Type** has to do with a feature of SmilelyVars we
+have not discussed yet. When you create a SmilelyVars template, it is
+created for a particular dialect of SQL such as PostgreSQL, Oracle of
+Transact-SQL (Sql Server). Some formatters are included in all template
+types. Other formatters are for use in just one type of template.
+
 
 ## Using smileyVars
 You can use smileyVars as a stand-alone pre-processor for SQL. However, 
