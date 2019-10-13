@@ -3,7 +3,7 @@
 
 SmileyVars is a lightweight template engine for SQL. It helps you avoid having to write similar SQL many times because small variations are needed.
 
-SmileyVars is being initially developed with an integration to Spring's JdbcTemplate. Other integrations are possible.
+SmileyVars is being initially developed with an integration to Spring&#x2bc;s JdbcTemplate. Other integrations are possible.
 
 ## Introduction by Example
 
@@ -70,6 +70,10 @@ A reasonable way to solve this problem is to just add those columns to the selec
 SELECT item_number, quantity, aisle, level, bin_number FROM bin_tbl
 WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
 ```
+
+<b>Note:</b><br>
+If a template contains more than one `:variable` between `(:` brackets 
+`:)`, then the text between the brackets will be included in the template&#x2bc;s expansion only if 
 
 <!--
 In some cases there may be a concern about amount of data being transported from the database. In such cases you may 
@@ -151,10 +155,15 @@ section, we show you how to use smileyVars as a stand-alone preprocessor.
 
 The first step is adding the smileyVars jar file to your project. The
 recommended way to get the library is to allow maven or another 
-dependency management tool to automatically download it
+dependency management tool to automatically download it. The maven 
+dependency information is:
+<dependency>
+    <groupId>com.markgrand.smileyVars</groupId>
+    <artifactId>smiley-vars</artifactId>
+    <version>0.2-RELEASE</version>
+</dependency>
 
-For now
-you will need to build it yourself. You can use Maven to build it by
+Alternatively, you can build it yourself. Download the source from https://github.com/mgrand/smileyVars. You can use Maven to build it by
 using the command
 ```
 mvn clean install
