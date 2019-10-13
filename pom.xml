@@ -6,8 +6,39 @@
 
     <groupId>com.markgrand</groupId>
     <artifactId>smiley-vars</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2-RELEASE</version>
     <packaging>jar</packaging>
+
+    <name>SmileyVars</name>
+    <description>A template engine for SQL</description>
+    <url>https://github.com/mgrand/smileyVars</url>
+
+    <scm>
+        <url>https://github.com/mgrand/smileyVars</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Mark Grand</name>
+            <email>mgrand@markgrand.com</email>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>America/New_York</timezone>
+            <properties>
+                <linkedIn>https://www.linkedin.com/in/markgrand/</linkedIn>
+            </properties>
+        </developer>
+    </developers>
 
     <properties>
         <junit.version>5.5.2</junit.version>
@@ -66,6 +97,33 @@
                 <version>${maven.javadoc.version}</version>
                 <configuration>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

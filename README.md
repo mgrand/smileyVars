@@ -149,7 +149,11 @@ You can use smileyVars as a stand-alone pre-processor for SQL. However,
 more convenient integrations with other libraries are planned. In this 
 section, we show you how to use smileyVars as a stand-alone preprocessor.
 
-The first step is adding the smileyVars jar file to your project. For now
+The first step is adding the smileyVars jar file to your project. The
+recommended way to get the library is to allow maven or another 
+dependency management tool to automatically download it
+
+For now
 you will need to build it yourself. You can use Maven to build it by
 using the command
 ```
