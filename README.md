@@ -169,7 +169,9 @@ using the command
 mvn clean install
 ```
 
-To use smileyVars,
+Using SmilelyVars in your Java code is very simple. There are just two steps. This is exemplified by the following code sample:
+```java
+```
 
 ### Logging
 
