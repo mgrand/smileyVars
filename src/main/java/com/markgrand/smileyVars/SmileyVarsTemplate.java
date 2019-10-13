@@ -95,16 +95,21 @@ public class SmileyVarsTemplate {
                     ((segment != null) ? segment : sb).append(token.getTokenchars());
                     break;
                 case VAR:
-                    doVarExpansion(values, tokenizer, segment, token);
+                    segment = doVarExpansion(values, tokenizer, segment, token);
                     break;
                 case SMILEY_OPEN:
                     segment = new StringBuilder();
                     break;
                 case SMILEY_CLOSE:
-                    sb.append(segment);
-                    segment = null;
+                    if (segment!=null) {
+                        sb.append(segment);
+                        segment = null;
+                    }
                     break;
             }
+        }
+        if (segment!=null) {
+            sb.append(segment);
         }
         return sb.toString();
     }
@@ -116,15 +121,18 @@ public class SmileyVarsTemplate {
      * @param tokenizer The tokenizer to use for getting an explicit formatter name if given.
      * @param segment   A {@link StringBuilder} that is being used to build the expansion of the template.
      * @param varToken  The token that is the variable.
+     * @return segment if the variable has a value; otherwise null.
      * @throws NoFormatterException if there is no applicable formatter registered to format the variable's value.
      */
-    private void doVarExpansion(Map<String, Object> values, Tokenizer tokenizer, StringBuilder segment, Token varToken) {
+    private StringBuilder doVarExpansion(Map<String, Object> values, Tokenizer tokenizer, StringBuilder segment, Token varToken) {
         String value = getVarValue(values, tokenizer, varToken);
         if (value == null) {
             skipPastSmileyClose(tokenizer);
+            return null;
         } else {
             assert segment != null;
             segment.append(value);
+            return segment;
         }
     }
 

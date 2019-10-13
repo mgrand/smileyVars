@@ -38,12 +38,48 @@ class SmileyVarsTemplateTest {
 
     @Test
     void oracleTemplate() {
-        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1 (:and x=:x:) (:and y=:y:)");
-        assertEquals("Select * from foo where 1=1 ", template.apply(new HashMap<>()));
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and x=:x:)(: and y=:y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
         Map<String, Object> map = new HashMap<>();
         map.put("x", "42");
         map.put("y", 39);
         assertEquals("Select * from foo where 1=1 and x='42' and y=39", template.apply(map));
+    }
+
+    @Test
+    void twoValues() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and x=:x and y=:y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", "42");
+        map.put("y", 39);
+        assertEquals("Select * from foo where 1=1 and x='42' and y=39", template.apply(map));
+    }
+
+    @Test
+    void valueAndNoValue() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and x=:x and y=:y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", "42");
+        assertEquals("Select * from foo where 1=1", template.apply(map));
+    }
+
+    @Test
+    void noValueAndValue() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and x=:x and y=:y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("y", 39);
+        assertEquals("Select * from foo where 1=1", template.apply(map));
+    }
+
+    @Test
+    void toeNoValue() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and x=:x and y=:y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        assertEquals("Select * from foo where 1=1", template.apply(map));
     }
 
     @Test
@@ -102,13 +138,21 @@ class SmileyVarsTemplateTest {
         assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-2-18 13:43:56-5:0'", template.apply(map));
     }
 
-
     @Test
     void TemporalAccessorAsDate() {
-        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:date)");
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:date:)");
         ZonedDateTime instant = ZonedDateTime.of(2020,2, 18, 13, 43, 56, 0, ZoneId.of("-5"));
         Map<String, Object> map = new HashMap<>();
         map.put("x", instant);
         assertEquals("Select * from foo where 1=1 and x=DATE '2020-2-18'", template.apply(map));
+    }
+
+    @Test
+    void unclosedBracket() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where 1=1 (:and x=:x:date)");
+        ZonedDateTime instant = ZonedDateTime.of(2020,2, 18, 13, 43, 56, 0, ZoneId.of("-5"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", instant);
+        assertEquals("Select * from foo where 1=1 and x=DATE '2020-2-18')", template.apply(map));
     }
 }
