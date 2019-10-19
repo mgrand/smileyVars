@@ -225,8 +225,7 @@ slf4j at <https://www.slf4j.org/manual.html>
 
 ## Roadmap
 This is a list of planned future features:
-* Availability of a pre-compiled jar in the Maven Central repository.
-* Syntax for specifying explicit formatters/datatypes of simleyVars.
+* Support for nested smileyVars brackets.
 * Built-in support for additional datatypes:
     * BitSet
     * TimeDuration
