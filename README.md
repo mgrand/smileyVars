@@ -28,7 +28,13 @@ SELECT item_number, quantity FROM bin_tbl
 WHERE aisle=:aisle (: and level=:level :) (: and bin_number=:bin :)
 ```
 
-What we have done is to bracket two parts of the query between `(:` and `:)`. When a portion of SQL is bracketed this way, if the bracketed portion contains any :*variables* and values are not supplied for all of the :*variables*, then that portion of the SQL is not included in the expansion. If all of the values are supplied for the above example then it will expand to exactly the same SQL as the previous example. However, if we supply just the values`aisle=32` and `bin=17`, it expands to 
+What we have done is to bracket two parts of the query between `(:` and 
+`:)`. When a portion of SQL is bracketed this way, if the bracketed 
+portion contains any :*variables* and values are not supplied for all of 
+the :*variables*, then that portion of the SQL is not included in the 
+expansion. If all of the values are supplied for the above example then 
+it will expand to exactly the same SQL as the previous example. However, 
+if we supply just the values `aisle=32` and `bin=17`, it expands to 
 
 ```SQL
 SELECT item_number, quantity FROM bin_tbl
@@ -42,8 +48,8 @@ SELECT item_number, quantity FROM bin_tbl
 WHERE aisle=32
 ```
 
-What if we wanted to also have the flexibility of not specifying `aisle`? Just bracketing that part of the WHERE does
-not work:
+What if we wanted to also have the flexibility of not specifying `aisle`? Just bracketing that part of the WHERE **does
+not work**:
 
 ```SQL
 SELECT item_number, quantity FROM bin_tbl
