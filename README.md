@@ -161,7 +161,7 @@ dependency information is:
 <dependency>
     <groupId>com.markgrand.smileyVars</groupId>
     <artifactId>smiley-vars</artifactId>
-    <version>0.2-RELEASE</version>
+    <version>0.2.1-RELEASE</version>
 </dependency>
 ```
 Alternatively, you can build it yourself. Download the source from https://github.com/mgrand/smileyVars. You can use Maven to build it by
