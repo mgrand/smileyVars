@@ -240,7 +240,8 @@ This is a list of planned future features:
 ## Appendix: smileyVars Syntax
 
 The EBNF grammar below describes the syntax of smileyVars. You can also 
-view it as a [syntax/railroad diagram](file:documentation/sv-grammar.xhtml)
+view it as a [syntax/railroad diagram]
+(https://gitcdn.link/repo/mgrand/smileyVars/master/documentation/sv-grammar.xhtml)
 <small>(created using <https://www.bottlecaps.de/rr/ui>)</small>.
 
 

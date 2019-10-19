@@ -155,4 +155,18 @@ class SmileyVarsTemplateTest {
         map.put("x", instant);
         assertEquals("Select * from foo where 1=1 and x=DATE '2020-2-18')", template.apply(map));
     }
+
+    @Test
+    void unbracketedBoundVar() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where x=:x");
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", 42);
+        assertEquals("Select * from foo where x=42", template.apply(map));
+    }
+
+    @Test
+    void unbracketedUnboundVar() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where x=:x");
+        assertEquals("Select * from foo where x=", template.apply(new HashMap<>()));
+    }
 }
