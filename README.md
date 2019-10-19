@@ -73,7 +73,9 @@ WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :
 
 <b>Note:</b><br>
 If a template contains more than one `:variable` between `(:` brackets 
-`:)`, then the text between the brackets will be included in the template&#x2bc;s expansion only if 
+`:)`, then the text between the brackets will be included in the 
+template&#x2bc;s expansion only if values are supplised for all of the
+`:variable`s.
 
 <!--
 In some cases there may be a concern about amount of data being transported from the database. In such cases you may 
