@@ -102,7 +102,7 @@ public class SmileyVarsTemplate {
                     processText(segment, token);
                     break;
                 case VAR:
-                    segment = processVar(values, tokenizer, segment, token);
+                    segment = processVar(values, tokenizer, segment, token, stack);
                     break;
                 case SMILEY_OPEN:
                     segment = processBracketOpen(segment, stack);
@@ -121,9 +121,13 @@ public class SmileyVarsTemplate {
         }
     }
 
-    private StringBuilder processVar(Map<String, Object> values, Tokenizer tokenizer, StringBuilder segment, Token token) {
+    private StringBuilder processVar(Map<String, Object> values, Tokenizer tokenizer,
+                                     StringBuilder segment, Token token, Stack<StringBuilder> stack) {
         if (segment != null) {
             segment = doVarExpansion(values, tokenizer, segment, token);
+            if (segment == null && stack.isEmpty()) {
+                throw new UnboundVariableException("No value is provided for :" + token.getTokenchars());
+            }
         }
         return segment;
     }
@@ -154,7 +158,11 @@ public class SmileyVarsTemplate {
         while (!stack.isEmpty()) {
             StringBuilder subSegment = segment;
             segment = stack.pop();
-            segment.append(subSegment);
+            if (segment != null) {
+                segment.append(subSegment);
+            } else {
+                segment = new StringBuilder();
+            }
         }
         return segment.toString();
     }
@@ -172,7 +180,7 @@ public class SmileyVarsTemplate {
     private StringBuilder doVarExpansion(Map<String, Object> values, Tokenizer tokenizer, StringBuilder segment, Token varToken) {
         String value = getVarValue(values, tokenizer, varToken);
         if (value == null) {
-            skipPastSmileyClose(tokenizer);
+            skipToSmileyClose(tokenizer);
             return null;
         } else {
             assert segment != null;
@@ -203,12 +211,14 @@ public class SmileyVarsTemplate {
         return formatterRegistry.format(values.get(varName));
     }
 
-    private void skipPastSmileyClose(Tokenizer tokenizer) {
+    private void skipToSmileyClose(Tokenizer tokenizer) {
         while (tokenizer.hasNext()) {
-            TokenType tokenType = tokenizer.next().getTokenType();
+            TokenType tokenType = tokenizer.peek();
             if (TokenType.SMILEY_CLOSE.equals(tokenType) || TokenType.EOF.equals(tokenType)) {
                 return;
             }
+            // Ignore next token.
+            tokenizer.next();
         }
     }
 }
