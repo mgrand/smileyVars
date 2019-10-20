@@ -1,5 +1,6 @@
 package com.markgrand.smileyVars;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZoneId;
@@ -7,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SmileyVarsTemplateTest {
 
@@ -54,6 +56,16 @@ class SmileyVarsTemplateTest {
         map.put("x", "42");
         map.put("y", 39);
         assertEquals("Select * from foo where 1=1 and x='42' and y=39", template.apply(map));
+    }
+
+    @Test
+    void twoLeftValues() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and :x=x and :y=y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", "42");
+        map.put("y", 39);
+        assertEquals("Select * from foo where 1=1 and '42'=x and 39=y", template.apply(map));
     }
 
     @Test
@@ -154,5 +166,81 @@ class SmileyVarsTemplateTest {
         Map<String, Object> map = new HashMap<>();
         map.put("x", instant);
         assertEquals("Select * from foo where 1=1 and x=DATE '2020-2-18')", template.apply(map));
+    }
+
+    @Test
+    void unbracketedBoundVar() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where x=:x");
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", 42);
+        assertEquals("Select * from foo where x=42", template.apply(map));
+    }
+
+    @Test
+    void unbracketedUnboundVar() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.ansiTemplate("Select * from foo where x=:x");
+        assertThrows(UnboundVariableException.class, ()->template.apply(new HashMap<>()));
+    }
+
+    @Disabled
+    @Test
+    void nestedRightBoundBrackets() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and x=:x(: and y=:y:):)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", "42");
+        map.put("y", 39);
+        assertEquals("Select * from foo where 1=1 and x='42' and y=39", template.apply(map));
+    }
+
+    @Disabled
+    @Test
+    void nestedLeftBoundBrackets() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(:(: and x=:x:) and y=:y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", "42");
+        map.put("y", 39);
+        assertEquals("Select * from foo where 1=1 and x='42' and y=39", template.apply(map));
+    }
+
+    @Disabled
+    @Test
+    void nestedRightInnerUnboundBrackets() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and x=:x(: and y=:y:):)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", "42");
+        assertEquals("Select * from foo where 1=1 and x='42'", template.apply(map));
+    }
+
+    @Disabled
+    @Test
+    void nestedLeftInnerUnboundBrackets() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(:(: and x=:x:) and y=:y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("y", 39);
+        assertEquals("Select * from foo where 1=1 and y=39", template.apply(map));
+    }
+
+    @Disabled
+    @Test
+    void nestedRightOuterUnboundBrackets() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(: and x=:x(: and y=:y:):)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("y", 39);
+        assertEquals("Select * from foo where 1=1", template.apply(map));
+    }
+
+    @Disabled
+    @Test
+    void nestedLeftOuterUnboundBrackets() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.oracleTemplate("Select * from foo where 1=1(:(: and x=:x:) and y=:y:)");
+        assertEquals("Select * from foo where 1=1", template.apply(new HashMap<>()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("x", "42");
+        assertEquals("Select * from foo where 1=1", template.apply(map));
     }
 }

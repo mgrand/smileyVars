@@ -4,7 +4,7 @@
 
 template_body ::= (sql_text | bracketed_text)*
 
-sql_text ::= (other_char | quoted_string | quoted_identifier | comment | '(' [^:] )*
+sql_text ::= (other_char | ":" var  ( ':' type )? | quoted_string | quoted_identifier | comment | '(' [^:] )*
 
 quoted_string ::= ansi_quoted_string | postgresql_escape_string | postgresql_dollar_string | oracle_delimited_string
 
@@ -24,7 +24,7 @@ oracle_delimited_string ::= [Qq] "'" ( "(" ([^)] | ")" [^'])* ")"
 
 quoted_identifier ::= '"' ( [^"] | '"' '"' )* '"'
 
-other_char ::= [^'"(]
+other_char ::= [^'"(:]
 
 comment ::= line_comment | block_comment
 

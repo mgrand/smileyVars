@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 class Tokenizer implements Iterator<Token> {
 
     private static final TokenizerConfig DEFAULT_CONFIG = new TokenizerConfig();
+
     static {
         DEFAULT_CONFIG.oracleDelimitedStringEnabled = false;
         DEFAULT_CONFIG.postgresqlDollarStringEnabled = false;
@@ -21,30 +22,66 @@ class Tokenizer implements Iterator<Token> {
 
     private CharSequence chars;
     private int nextPosition = 0;
-    private Token nextToken ;
+    private Token nextToken;
     private TokenizerConfig config;
 
     private Supplier<TokenType> tokenScanner;
+    private final Supplier<TokenType> scanUnbracketed = new ScanUnbracketed();
 
-    /**
-     * Construct a {@code Tokenizer} with default configuration.
-     *
-     * @param chars The sql/template body to be expanded.
-     */
-    @SuppressWarnings("unused")
-    Tokenizer(CharSequence chars) {
-        this(chars, DEFAULT_CONFIG);
-    }
-
-    private Tokenizer(CharSequence chars, TokenizerConfig config) {
-        this.config = config;
-        this.chars = chars;
-        tokenScanner = scanUnbracketed;
-        scanNextToken();
-    }
+    // Scanner to use inside of (: :)
+    private final Supplier<TokenType> scanBracketed = () -> {
+        if (isEof()) {
+            return TokenType.EOF;
+        }
+        char c = nextChar();
+        if (c == ':') {
+            if (isNextChar(')')) {
+                tokenScanner = scanUnbracketed;
+                return TokenType.SMILEY_CLOSE;
+            } else if (isNextCharIdentifierStart()) {
+                scanToEndOfIdentifier();
+                return TokenType.VAR;
+            }
+        } else if (c == '(') {
+            if (isNextChar(':')) {
+                //TODO Support nested brackets.
+                throw new UnsupportedFeatureException("Nested brackets are not yet supported");
+            }
+        }
+        while (true) {
+            if (c == '-' && isNextChar('-')) {
+                scanToEndOfLine();
+            } else if (c == '/' && isNextChar('*')) {
+                scanToEndOfBlockComment();
+            } else if (c == '"') {
+                scanQuotedIdentifier();
+            } else if (c == '\'') {
+                scanAnsiQuotedString();
+            } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
+                scanPostgresqlEscapeString();
+            } else if (config.postgresqlDollarStringEnabled && c == '$') {
+                scanPostgresqlDollarString();
+            } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
+                scanOracleDelimitedString();
+            } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
+                scanPast(']');
+            }
+            if (nextPosition >= chars.length()) {
+                break;
+            }
+            c = nextChar();
+            if (c == ':') {
+                if (isNextChar(')') || isNextCharIdentifierStart()) {
+                    nextPosition -= 2;
+                    break;
+                }
+            }
+        }
+        return TokenType.TEXT;
+    };
 
     // Scanner to use outside of (: :)
-    private final Supplier<TokenType> scanUnbracketed = new Supplier<TokenType>() {
+    private class ScanUnbracketed implements Supplier<TokenType> {
         public TokenType get() {
             if (isEof()) {
                 return TokenType.EOF;
@@ -55,11 +92,17 @@ class Tokenizer implements Iterator<Token> {
                     tokenScanner = scanBracketed;
                     return TokenType.SMILEY_OPEN;
                 }
+            } else if (c == ':' && isNextCharIdentifierStart()) {
+                scanToEndOfIdentifier();
+                return TokenType.VAR;
             }
             while (true) {
                 if (c == '-' && isNextChar('-')) {
                     scanToEndOfLine();
-                } else if (c == '/' && isNextChar('*') ) {
+                } else if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
+                    nextPosition -= 1;
+                    return TokenType.TEXT;
+                } else if (c == '/' && isNextChar('*')) {
                     scanToEndOfBlockComment();
                 } else if (c == '"') {
                     scanQuotedIdentifier();
@@ -87,7 +130,33 @@ class Tokenizer implements Iterator<Token> {
             }
             return TokenType.TEXT;
         }
-    };
+    }
+
+    /**
+     * Construct a {@code Tokenizer} with default configuration.
+     *
+     * @param chars The sql/template body to be expanded.
+     */
+    @SuppressWarnings("unused")
+    Tokenizer(CharSequence chars) {
+        this(chars, DEFAULT_CONFIG);
+    }
+
+    private Tokenizer(CharSequence chars, TokenizerConfig config) {
+        this.config = config;
+        this.chars = chars;
+        tokenScanner = scanUnbracketed;
+        scanNextToken();
+    }
+
+    /**
+     * Get a builder for Tokenizer objects.
+     *
+     * @return the builder object.
+     */
+    static TokenizerBuilder builder() {
+        return new TokenizerBuilder();
+    }
 
     private void scanPast(@SuppressWarnings("SameParameterValue") char c) {
         while (!isNextChar(c)) {
@@ -174,7 +243,7 @@ class Tokenizer implements Iterator<Token> {
 
     private void scanAnsiQuotedString() {
         while (nextPosition < chars.length()) {
-            if (nextChar() == '\'' ) {
+            if (nextChar() == '\'') {
                 if (!isNextChar('\'')) {
                     return;
                 }
@@ -185,7 +254,7 @@ class Tokenizer implements Iterator<Token> {
 
     private void scanQuotedIdentifier() {
         while (nextPosition < chars.length()) {
-            if (nextChar() == '"' ) {
+            if (nextChar() == '"') {
                 if (!isNextChar('"')) {
                     return;
                 }
@@ -235,53 +304,11 @@ class Tokenizer implements Iterator<Token> {
         }
     }
 
-    // Scanner to use inside of (: :)
-    private final Supplier<TokenType> scanBracketed = () -> {
-        if (isEof()) {
-            return TokenType.EOF;
+    private void scanToEndOfIdentifier() {
+        //noinspection StatementWithEmptyBody
+        while (isNextCharIdentifierPart()) {
         }
-        char c = nextChar();
-        if (c == ':') {
-            if (isNextChar(')')) {
-                tokenScanner = scanUnbracketed;
-                return TokenType.SMILEY_CLOSE;
-            } else if (isNextCharIdentifierStart()) {
-                //noinspection StatementWithEmptyBody
-                while (isNextCharIdentifierPart()) {  }
-                return TokenType.VAR;
-            }
-        }
-        while (true) {
-            if (c == '-' && isNextChar('-')) {
-                scanToEndOfLine();
-            } else if (c == '/' && isNextChar('*') ) {
-                scanToEndOfBlockComment();
-            } else if (c == '"') {
-                scanQuotedIdentifier();
-            } else if (c == '\'') {
-                scanAnsiQuotedString();
-            } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
-                scanPostgresqlEscapeString();
-            } else if (config.postgresqlDollarStringEnabled && c == '$') {
-                scanPostgresqlDollarString();
-            } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
-                scanOracleDelimitedString();
-            } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
-                scanPast(']');
-            }
-            if (nextPosition >= chars.length()) {
-                break;
-            }
-            c = nextChar();
-            if (c == ':') {
-                if (isNextChar(')') || isNextCharIdentifierStart()) {
-                    nextPosition -= 2;
-                    break;
-                }
-            }
-        }
-        return TokenType.TEXT;
-    };
+    }
 
     private void scanNextToken() {
         if (isEof()) {
@@ -305,7 +332,7 @@ class Tokenizer implements Iterator<Token> {
             return false;
         }
         if (c == chars.charAt(nextPosition)) {
-            nextPosition +=1;
+            nextPosition += 1;
             return true;
         }
         return false;
@@ -316,7 +343,7 @@ class Tokenizer implements Iterator<Token> {
             return false;
         }
         if (Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
-            nextPosition +=1;
+            nextPosition += 1;
             return true;
         }
         return false;
@@ -327,7 +354,7 @@ class Tokenizer implements Iterator<Token> {
             return false;
         }
         if (Character.isJavaIdentifierPart(chars.charAt(nextPosition))) {
-            nextPosition +=1;
+            nextPosition += 1;
             return true;
         }
         return false;
@@ -374,14 +401,6 @@ class Tokenizer implements Iterator<Token> {
         return nextToken.getTokenType();
     }
 
-    /**
-     * Get a builder for Tokenizer objects.
-     * @return the builder object.
-     */
-    static TokenizerBuilder builder() {
-        return new TokenizerBuilder();
-    }
-
     private static class TokenizerConfig {
         boolean postgresqlEscapeStringEnabled;
         boolean postgresqlDollarStringEnabled;
@@ -399,7 +418,8 @@ class Tokenizer implements Iterator<Token> {
         /**
          * Constructor declared to prevent auto-creation of public constructor.
          */
-        TokenizerBuilder(){}
+        TokenizerBuilder() {
+        }
 
         TokenizerBuilder enablePostgresqlEscapeString(boolean value) {
             config.postgresqlEscapeStringEnabled = value;

@@ -46,7 +46,7 @@ class TokenizerTest {
     @Test
     void unbracketedVar() {
         final String sql = "SELECT :abc FROM foo";
-        doTest(sql, makeToken(TokenType.TEXT, sql));
+        doTest(sql, makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.VAR, ":abc"), makeToken(TokenType.TEXT, " FROM foo"));
     }
 
     @Test

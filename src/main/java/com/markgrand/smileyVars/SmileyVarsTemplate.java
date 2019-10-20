@@ -1,6 +1,10 @@
 package com.markgrand.smileyVars;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * A template for SQL that expands to leave out extraneous portions of a query.
@@ -8,6 +12,8 @@ import java.util.Map;
  * @author Mark Grand
  */
 public class SmileyVarsTemplate {
+    private static final Logger logger = LoggerFactory.getLogger(SmileyVarsTemplate.class);
+
     private final Tokenizer.TokenizerBuilder builder;
     private final String sql;
     private final ValueFormatterRegistry formatterRegistry;
@@ -80,38 +86,85 @@ public class SmileyVarsTemplate {
      * @param values Apply the given values to this template
      * @return the template
      * @throws NoFormatterException if there is no applicable formatter registered to format a variable's value.
+     * @throws UnsupportedFeatureException if the template uses a smileyVars feature that is not yet supported.
      */
     @SuppressWarnings("unused")
-    public String apply(Map<String, Object> values) {
+    public String apply(Map<String, Object> values) throws UnsupportedFeatureException {
         Tokenizer tokenizer = builder.build(sql);
-        StringBuilder sb = new StringBuilder(sql.length() * 2);
-        StringBuilder segment = null;
+        StringBuilder segment = new StringBuilder(sql.length() * 2);
+        Stack<StringBuilder> stack = new Stack<>();
         while (tokenizer.hasNext()) {
             Token token = tokenizer.next();
             switch (token.getTokenType()) {
                 case EOF:
-                    return sb.toString();
+                    return finalizeExpansion(segment, stack);
                 case TEXT:
-                    ((segment != null) ? segment : sb).append(token.getTokenchars());
+                    processText(segment, token);
                     break;
                 case VAR:
-                    segment = doVarExpansion(values, tokenizer, segment, token);
+                    segment = processVar(values, tokenizer, segment, token, stack);
                     break;
                 case SMILEY_OPEN:
-                    segment = new StringBuilder();
+                    segment = processBracketOpen(segment, stack);
                     break;
                 case SMILEY_CLOSE:
-                    if (segment!=null) {
-                        sb.append(segment);
-                        segment = null;
-                    }
+                    segment = processBracketClose(segment, stack);
                     break;
             }
         }
-        if (segment!=null) {
-            sb.append(segment);
+        return finalizeExpansion(segment, stack);
+    }
+
+    private void processText(StringBuilder segment, Token token) {
+        if (segment != null) {
+            segment.append(token.getTokenchars());
         }
-        return sb.toString();
+    }
+
+    private StringBuilder processVar(Map<String, Object> values, Tokenizer tokenizer,
+                                     StringBuilder segment, Token token, Stack<StringBuilder> stack) {
+        if (segment != null) {
+            segment = doVarExpansion(values, tokenizer, segment, token);
+            if (segment == null && stack.isEmpty()) {
+                throw new UnboundVariableException("No value is provided for :" + token.getTokenchars());
+            }
+        }
+        return segment;
+    }
+
+    private StringBuilder processBracketOpen(StringBuilder segment, Stack<StringBuilder> stack) {
+        stack.push(segment);
+        segment = new StringBuilder();
+        return segment;
+    }
+
+    private StringBuilder processBracketClose(StringBuilder segment, Stack<StringBuilder> stack) {
+        if (stack.isEmpty()) {
+            logger.warn("SmileyVars template has an extra close bracket: {}", sql);
+        } else {
+            StringBuilder subSegment = segment;
+            segment = stack.pop();
+            if (subSegment != null) {
+                segment.append(subSegment);
+            }
+        }
+        return segment;
+    }
+
+    private String finalizeExpansion(StringBuilder segment, Stack<StringBuilder> stack) {
+        if (segment == null) {
+            segment = new StringBuilder();
+        }
+        while (!stack.isEmpty()) {
+            StringBuilder subSegment = segment;
+            segment = stack.pop();
+            if (segment != null) {
+                segment.append(subSegment);
+            } else {
+                segment = new StringBuilder();
+            }
+        }
+        return segment.toString();
     }
 
     /**
@@ -127,7 +180,7 @@ public class SmileyVarsTemplate {
     private StringBuilder doVarExpansion(Map<String, Object> values, Tokenizer tokenizer, StringBuilder segment, Token varToken) {
         String value = getVarValue(values, tokenizer, varToken);
         if (value == null) {
-            skipPastSmileyClose(tokenizer);
+            skipToSmileyClose(tokenizer);
             return null;
         } else {
             assert segment != null;
@@ -158,12 +211,14 @@ public class SmileyVarsTemplate {
         return formatterRegistry.format(values.get(varName));
     }
 
-    private void skipPastSmileyClose(Tokenizer tokenizer) {
+    private void skipToSmileyClose(Tokenizer tokenizer) {
         while (tokenizer.hasNext()) {
-            TokenType tokenType = tokenizer.next().getTokenType();
+            TokenType tokenType = tokenizer.peek();
             if (TokenType.SMILEY_CLOSE.equals(tokenType) || TokenType.EOF.equals(tokenType)) {
                 return;
             }
+            // Ignore next token.
+            tokenizer.next();
         }
     }
 }
