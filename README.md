@@ -1,7 +1,7 @@
 # smileyVars
 *A template engine for SQL*
 
-SmileyVars is a lightweight template engine for SQL. It helps you avoid having to write similar SQL many times because small variations are needed.
+SmileyVars is a lightweight template engine for SQL. It helps you avoid having to write similar SQL many times because simple variations are needed.
 
 SmileyVars is being initially developed with an integration to Spring&#x2bc;s JdbcTemplate. Other integrations are possible.
 
@@ -241,7 +241,7 @@ This is a list of planned future features:
 The EBNF grammar below describes the syntax of smileyVars. You can also 
 view it as a [syntax/railroad diagram]
 (https://gitcdn.link/repo/mgrand/smileyVars/master/documentation/sv-grammar.xhtml)
-<small>(created using <https://www.bottlecaps.de/rr/ui>)</small>.
+<sub>(created using <https://www.bottlecaps.de/rr/ui>)</sub>.
 
 
 ```EBNF
