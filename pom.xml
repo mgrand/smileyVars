@@ -6,7 +6,7 @@
 
     <groupId>com.markgrand.smileyVars</groupId>
     <artifactId>smiley-vars</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.2.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>SmileyVars</name>
