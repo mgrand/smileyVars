@@ -7,8 +7,28 @@ import java.util.Map;
 import java.util.Stack;
 
 /**
- * A template for SQL that expands to leave out extraneous portions of a query.
- *
+ * <p>SmileyVars is a lightweight template engine for SQL. It helps you avoid having to write similar SQL many times
+ * because simple variations are needed.</p>
+ * <p>Suppose we have a table that tracks the content of bins in a warehouse. Suppose that bins are identified by
+ * <code>aisle</code>, <code>level</code> and <code>bin_number</code>. A query to get information about the contents of
+ * one bin might look like</p>
+ * <pre>
+ * SELECT item_number, quantity FROM bin_tbl
+ * WHERE aisle=:aisle and level=:level and bin_number=:bin
+ * </pre>
+ * <p>The first thing that you might notice about this example is that the value to be substituted into the SQL are
+ * indicated by a name prefixed by "<tt>:</tt>". If we provide the values <code>aisle=32</code>, <code>level=4</code>
+ * and <code>bin=17</code> this will expand to</p>
+ * <pre>
+ * SELECT item_number, quantity FROM bin_tbl
+ * WHERE aisle=32 and level=4 and bin_number=17
+ * </pre>
+ * <p>Suppose that we would like to use the same SQL even for cases were we want to retrieve multiple rows. We could
+ * write</p>
+ *<pre>
+ * SELECT item_number, quantity FROM bin_tbl
+ * WHERE aisle=:aisle (: and level=:level :) (: and bin_number=:bin :)
+ *</pre>
  * @author Mark Grand
  */
 public class SmileyVarsTemplate {
@@ -45,7 +65,7 @@ public class SmileyVarsTemplate {
         return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForAnsi(), ValueFormatterRegistry.ansiInstance());
     }
 
-     /**
+    /**
      * Create a template for PostgreSQL SQL. This includes support for boolean smileyVars values. It is also able to
      * parse dollar sign delimited string literals and escaped string literals.
      *
@@ -85,7 +105,7 @@ public class SmileyVarsTemplate {
      *
      * @param values Apply the given values to this template
      * @return the template
-     * @throws NoFormatterException if there is no applicable formatter registered to format a variable's value.
+     * @throws NoFormatterException        if there is no applicable formatter registered to format a variable's value.
      * @throws UnsupportedFeatureException if the template uses a smileyVars feature that is not yet supported.
      */
     @SuppressWarnings("unused")
