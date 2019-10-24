@@ -25,10 +25,27 @@ import java.util.Stack;
  * </pre>
  * <p>Suppose that we would like to use the same SQL even for cases were we want to retrieve multiple rows. We could
  * write</p>
- *<pre>
+ * <pre>
  * SELECT item_number, quantity FROM bin_tbl
  * WHERE aisle=:aisle (: and level=:level :) (: and bin_number=:bin :)
- *</pre>
+ * </pre>
+ * <p>What we have done is to bracket two parts of the query between <tt>(:</tt> and <tt>:)</tt>. When a portion of SQL
+ * is bracketed this way, if the bracketed portion contains any :<i>variables</i> and values are not supplied for all of
+ * the :<i>variables</i>, then that portion of the SQL is not included in the expansion. If all of the values are
+ * supplied for the above example then it will expand to exactly the same SQL as the previous example. However, if we
+ * supply just the values <code>aisle=32</code> and <code>bin=17</code> with no value for <code>bin</code>, it expands
+ * to</p>
+ * <pre>
+ * SELECT item_number, quantity FROM bin_tbl
+ * WHERE aisle=32 and bin_number=17
+ * </pre>
+ * <p>If we supply just <code>aisle=32</code>, it expands to</p>
+ * <pre>
+ * SELECT item_number, quantity FROM bin_tbl
+ * WHERE aisle=32
+ * </pre>
+ * <p></p>
+ *
  * @author Mark Grand
  */
 public class SmileyVarsTemplate {
