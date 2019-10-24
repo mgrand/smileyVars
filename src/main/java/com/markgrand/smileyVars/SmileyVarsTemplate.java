@@ -44,7 +44,30 @@ import java.util.Stack;
  * SELECT item_number, quantity FROM bin_tbl
  * WHERE aisle=32
  * </pre>
- * <p></p>
+ * <p>What if we wanted to also have the flexibility of not specifying <code>aisle</code>? Just bracketing that part of
+ * the WHERE clause <b><i>does not work</i></b>:</p>
+ * <pre>
+ * SELECT item_number, quantity FROM bin_tbl
+ * WHERE (: aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
+ * </pre>
+ * <p>If the first bracketed portion of this query is not in the expansion, it is not valid SQL. There is a simple
+ * syntactic trick that we can use to avoid this issue. We can begin the <code>WHERE</code> clause with <code>1=1</code>
+ * like this:</p>
+ * <pre>
+ * SELECT item_number, quantity FROM bin_tbl
+ * WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
+ * </pre>
+ * <p>This form of the SQL query allows us to supply all, some or none of the
+ * values and have it expand to a valid SQL query.</p>
+ * <p>One thing to notice about this query is that the <code>SELECT</code> list does not include the
+ * <code>aisle</code>, <code>level</code> or <code>bin_number</code> columns. Because of this, when we get the results
+ * of the query, we do not know which bin result rows are associated with.</p>
+ * <p>A reasonable way to solve this problem is to just add those columns to the select list like this:</p>
+ * <pre>
+ * SELECT item_number, quantity, aisle, level, bin_number FROM bin_tbl
+ * WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
+ * </pre>
+ * <p>For more SimleyVars documentation, see <a href="https://github.com/mgrand/smileyVars">https://github.com/mgrand/smileyVars</a>.</p>
  *
  * @author Mark Grand
  */

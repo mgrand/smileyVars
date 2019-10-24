@@ -49,23 +49,26 @@ SELECT item_number, quantity FROM bin_tbl
 WHERE aisle=32
 ```
 
-What if we wanted to also have the flexibility of not specifying `aisle`? Just bracketing that part of the WHERE **does
-not work**:
+What if we wanted to also have the flexibility of not specifying
+`aisle`? Just bracketing that part of the WHERE clause **does not
+work**:
 
 ```SQL
 SELECT item_number, quantity FROM bin_tbl
 WHERE (: aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
 ```
 
-If the first bracketed portion of this query is not in the expansion, it is not syntactically valid SQL. There is a 
-simple syntactic trick that we can use to avoid this issue. We can begin the `WHERE` clause with `1=1` like this:
+If the first bracketed portion of this query is not in the expansion, it
+is not valid SQL. There is a simple syntactic trick that we can use to
+avoid this issue. We can begin the `WHERE` clause with `1=1` like this:
  
 ```SQL
 SELECT item_number, quantity FROM bin_tbl
 WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
 ```
 
-This form of the SQL query allows us to supply all, some or none of the values and have it expand to a valid SQL query.
+This form of the SQL query allows us to supply all, some or none of the 
+values and have it expand to a valid SQL query.
 
 One thing to notice about this query is that the `SELECT` list does not include the `aisle`, `level` or `bin_number` 
 columns. Because of this, when we get the results of the query, we do not know which bin result rows are associated
