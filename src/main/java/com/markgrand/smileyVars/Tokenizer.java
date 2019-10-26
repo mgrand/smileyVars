@@ -10,7 +10,6 @@ import java.util.function.Supplier;
  * @author Mark Grand
  */
 class Tokenizer implements Iterator<Token> {
-
     private static final TokenizerConfig DEFAULT_CONFIG = new TokenizerConfig();
 
     static {
