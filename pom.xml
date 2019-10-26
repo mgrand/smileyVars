@@ -6,7 +6,7 @@
 
     <groupId>com.markgrand.smileyVars</groupId>
     <artifactId>smiley-vars</artifactId>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>SmileyVars</name>
@@ -53,12 +53,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.verson}</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
             <groupId>org.slf4j</groupId>
