@@ -12,6 +12,7 @@ public class UnsupportedFeatureException extends SmileyVarsException {
      * @param message the detail message. The detail message is saved for later retrieval by the {@link #getMessage()}
      *                method.
      */
+    @SuppressWarnings("SameParameterValue")
     UnsupportedFeatureException(String message) {
         super(message);
     }
