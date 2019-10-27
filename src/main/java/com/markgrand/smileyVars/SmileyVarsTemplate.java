@@ -3,6 +3,9 @@ package com.markgrand.smileyVars;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Stack;
 
@@ -88,21 +91,60 @@ public class SmileyVarsTemplate {
     }
 
     /**
-     * Create a template for ANSI-compliant SQL. ANSI SQL is a standard that all relational databases conform to to some
-     * extent. This type of template is best when you are planning to write SQL that is portable between different
-     * database engines or if you are working with a relational database for which there is no specific template
-     * creation method.
-     * <p></p>
-     * ANSI templates ignore any smileyVars that are inside of string literals, quoted identifiers or comments. Note
-     * that ANSI templates recognize nested comments like this:
-     * <code>&#47;* This is &#47;* all one *&#47; big comment *&#47;</code>
+     * Create a template for the given type of database.
      *
+     * @param databaseType The type of database that this template is for.
+     * @param sql          The template body.
+     * @return the template.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static SmileyVarsTemplate template(DatabaseType databaseType, String sql) {
+        return new SmileyVarsTemplate(sql, databaseType.getTokenizerBuilder(), databaseType.getValueFormatterRegistry());
+    }
+
+    /**
+     * Create a template for the type of database associated with the given data source.
+     *
+     * @param conn a database connection to the database that the template will be used with.
+     * @param sql The template body.
+     * @return the template.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static SmileyVarsTemplate template(Connection conn, String sql) throws SQLException {
+        return template(DatabaseType.inferDatabaseType(conn.getMetaData()), sql);
+    }
+
+    /**
+     * Create a template for the type of database associated with the given data source.
+     *
+     * @param ds the data source that the template will be used with.
      * @param sql The template body.
      * @return the template.
      */
     @SuppressWarnings("unused")
+    public static SmileyVarsTemplate template(DataSource ds, String sql) throws SQLException {
+        try (Connection conn = ds.getConnection()) {
+            return template(conn, sql);
+        }
+    }
+
+    /**
+     * <p>Create a template for ANSI-compliant SQL. ANSI SQL is a standard that all relational databases conform to to some
+     * extent. This type of template is best when you are planning to write SQL that is portable between different
+     * database engines or if you are working with a relational database for which there is no specific template
+     * creation method.</p>
+     * <p>ANSI templates ignore any smileyVars that are inside of string literals, quoted identifiers or comments. Note
+     * that ANSI templates recognize nested comments like this:</p>
+     * <code>&#47;* This is &#47;* all one *&#47; big comment *&#47;</code>
+     *
+     * @param sql The template body.
+     * @return the template.
+     * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.ANSI)}
+     */
+    @SuppressWarnings("unused")
+    @Deprecated
     public static SmileyVarsTemplate ansiTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForAnsi(), ValueFormatterRegistry.ansiInstance());
+        return template(DatabaseType.ANSI, sql);
     }
 
     /**
@@ -114,7 +156,7 @@ public class SmileyVarsTemplate {
      */
     @SuppressWarnings("unused")
     public static SmileyVarsTemplate postgresqlTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForPostgresql(), ValueFormatterRegistry.postgresqlInstance());
+        return template(DatabaseType.POSTGRESQL, sql);
     }
 
     /**
@@ -126,7 +168,7 @@ public class SmileyVarsTemplate {
      */
     @SuppressWarnings("unused")
     public static SmileyVarsTemplate oracleTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForOracle(), ValueFormatterRegistry.ansiInstance());
+        return template(DatabaseType.ORACLE, sql);
     }
 
     /**
@@ -137,7 +179,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     public static SmileyVarsTemplate sqlServerTemplate(String sql) {
-        return new SmileyVarsTemplate(sql, Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiInstance());
+        return template(DatabaseType.SQL_SERVER, sql);
     }
 
     /**
