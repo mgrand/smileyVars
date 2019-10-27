@@ -41,6 +41,7 @@
     </developers>
 
     <properties>
+        <jmockit.version>1.48</jmockit.version>
         <junit.version>5.5.2</junit.version>
         <logback.version>1.2.3</logback.version>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -74,6 +75,13 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>${jmockit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <distributionManagement>
@@ -90,6 +98,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefile.version}</version>
                 <configuration>
+<!--                    <argLine>-->
+<!--                        -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar-->
+<!--                    </argLine>-->
                 </configuration>
             </plugin>
             <plugin>

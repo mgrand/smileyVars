@@ -400,12 +400,32 @@ class Tokenizer implements Iterator<Token> {
         return nextToken.getTokenType();
     }
 
-    private static class TokenizerConfig {
+    static class TokenizerConfig {
         boolean postgresqlEscapeStringEnabled;
         boolean postgresqlDollarStringEnabled;
         boolean oracleDelimitedStringEnabled;
         boolean nestedBlockCommentEnabled;
         boolean squareBracketIdentifierQuotingEnabled;
+
+        boolean isPostgresqlEscapeStringEnabled() {
+            return postgresqlEscapeStringEnabled;
+        }
+
+        boolean isPostgresqlDollarStringEnabled() {
+            return postgresqlDollarStringEnabled;
+        }
+
+        boolean isOracleDelimitedStringEnabled() {
+            return oracleDelimitedStringEnabled;
+        }
+
+        boolean isNestedBlockCommentEnabled() {
+            return nestedBlockCommentEnabled;
+        }
+
+        boolean isSquareBracketIdentifierQuotingEnabled() {
+            return squareBracketIdentifierQuotingEnabled;
+        }
     }
 
     /**
@@ -468,5 +488,7 @@ class Tokenizer implements Iterator<Token> {
         Tokenizer build(CharSequence chars) {
             return new Tokenizer(chars, config);
         }
+
+        TokenizerConfig getConfig() { return config; }
     }
 }

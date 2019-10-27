@@ -18,9 +18,9 @@ import java.util.function.Predicate;
 class ValueFormatterRegistry {
     private static final Logger logger = LoggerFactory.getLogger(ValueFormatterRegistry.class);
 
-    private static final ValueFormatterRegistry ansiRegistry = new ValueFormatterRegistry();
+    private static final ValueFormatterRegistry ansiRegistry = new ValueFormatterRegistry("ANSI");
     private static final ValueFormatterRegistry postgresqlRegistry
-            = new ValueFormatterRegistry().registerFormatter("boolean", Boolean.class, bool -> ((Boolean) bool).toString());
+            = new ValueFormatterRegistry("PostgreSQL").registerFormatter("boolean", Boolean.class, bool -> ((Boolean) bool).toString());
     private static final SimpleDateFormat timestampFormatNoZone = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private volatile static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
@@ -42,11 +42,17 @@ class ValueFormatterRegistry {
     }
 
     private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
+    private final String name;
 
-    private ValueFormatterRegistry() {
+    public String getName() {
+        return name;
+    }
+
+    private ValueFormatterRegistry(String name) {
         ensureCommonBuiltinFormattersAreRegistered();
         formatterMap.putAll(commonBuiltinFormatters);
-        //TODO add formatter for BitSet, Date, Time, Calendar, Timestamp, Duration, Money, unique identifier/GUID, boolean
+        this.name = name;
+        //TODO add formatter for BitSet, Time, Calendar, Duration, Money, unique identifier/GUID
         //TODO need to account for national character set string literals and unicode string literals.
     }
 
