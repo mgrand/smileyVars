@@ -13,21 +13,37 @@ public enum DatabaseType {
     /**
      * Generic type of template that is not specialized for any particular type of database.
      */
-    ANSI,
+    ANSI(Tokenizer.builder().configureForAnsi(), ValueFormatterRegistry.ansiInstance()),
     /**
      * Template specialized for PostgreSQL.
      */
-    POSTGRESQL,
+    POSTGRESQL(Tokenizer.builder().configureForPostgresql(), ValueFormatterRegistry.postgresqlInstance()),
     /**
      * Template specialized for Oracle.
      */
-    ORACLE,
+    ORACLE(Tokenizer.builder().configureForOracle(), ValueFormatterRegistry.ansiInstance()),
     /**
      * Template specialized for SQL Server.
      */
-    SQL_SERVER;
+    SQL_SERVER(Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiInstance());
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseType.class);
+
+    private final Tokenizer.TokenizerBuilder tokenizerBuilder;
+    private final ValueFormatterRegistry valueFormatterRegistry;
+
+    DatabaseType(Tokenizer.TokenizerBuilder tokenizerBuilder, ValueFormatterRegistry valueFormatterRegistry) {
+        this.tokenizerBuilder = tokenizerBuilder;
+        this.valueFormatterRegistry = valueFormatterRegistry;
+    }
+
+    Tokenizer.TokenizerBuilder getTokenizerBuilder() {
+        return tokenizerBuilder;
+    }
+
+    ValueFormatterRegistry getValueFormatterRegistry() {
+        return valueFormatterRegistry;
+    }
 
     static DatabaseType inferDatabaseType(DatabaseMetaData databaseMetaData) {
         try {
@@ -95,5 +111,6 @@ public enum DatabaseType {
             logger.warn("Attempt to get type of database failed", e);
             return ANSI;
         }
+
     }
 }
