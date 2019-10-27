@@ -176,7 +176,7 @@ dependency information is:
     <version>0.2.1-RELEASE</version>
 </dependency>
 ```
-Alternatively, you can build it yourself. Download the source from https://github.com/mgrand/smileyVars. You can use Maven to build it by
+Alternatively, you can build it yourself. Download the source from <https://github.com/mgrand/smileyVars>. You can use Maven to build it by
 using the command
 ```
 mvn clean install
@@ -189,7 +189,7 @@ Using SmilelyVars in your Java code is very simple. There are just two steps:
 This is exemplified by the following code sample:
 ```java
 import com.markgrand.smileyVars.SmileyVarsTemplate;
-...
+//...
 public class SimpleAnsiExample {
     private static final SmileyVarsTemplate selectTemplate 
         = SmileyVarsTemplate.ansiTemplate("SELECT item, quant FROM bin_tbl WHERE 1=1(: and aisle=:aisle:)(: and bin_number=:bin :)");
@@ -200,9 +200,9 @@ public class SimpleAnsiExample {
         map.put("aisle", aisle);
         map.put("bin", bin);
         ResultSet rs = stmt.executeQuery(selectTemplate.apply(map));
-        ...
+        //...
     }
-    ...
+    //...
 }
 ```
 
@@ -243,8 +243,7 @@ This is a list of planned future features:
 ## Appendix: smileyVars Syntax
 
 The EBNF grammar below describes the syntax of smileyVars. You can also 
-view it as a [syntax/railroad diagram]
-(https://gitcdn.link/repo/mgrand/smileyVars/master/documentation/sv-grammar.xhtml)
+view it as a [syntax/railroad diagram]<https://gitcdn.link/repo/mgrand/smileyVars/master/documentation/sv-grammar.xhtml>ml)
 <sub>(created using <https://www.bottlecaps.de/rr/ui>)</sub>.
 
 
