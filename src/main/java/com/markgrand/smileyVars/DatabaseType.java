@@ -54,10 +54,7 @@ public enum DatabaseType {
             if ("CUBRID".equalsIgnoreCase(productName)) {
                 return ANSI;
             }
-            if ("DB2 UDB for AS/400".equals(productName)) {
-                return ANSI;
-            }
-            if (productName.startsWith("DB2/")) {
+            if (productName.startsWith("DB2")) {
                 return ANSI;
             }
             if ("Apache Derby".equals(productName)) {

@@ -1,13 +1,49 @@
 package com.markgrand.smileyVars;
 
+import mockit.Expectations;
+import mockit.Mocked;
 import org.junit.jupiter.api.Test;
+
+import java.sql.DatabaseMetaData;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class DatabaseTypeTest {
+    @Test
+    void inferDatabaseTypeNull(@Mocked DatabaseMetaData metaData) {
+        assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
+    }
 
     @Test
-    void inferDatabaseType() {
-        fail();
+    void inferDatabaseTypeCubrid(@Mocked DatabaseMetaData metaData) throws Exception {
+        new Expectations() {{
+            metaData.getDatabaseProductName(); result = "CUBRID";
+        }};
+        assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
+    }
+
+    @Test
+    void inferDatabaseTypeDb2400(@Mocked DatabaseMetaData metaData) throws Exception {
+        new Expectations() {{
+            metaData.getDatabaseProductName(); result = "DB2 UDB for AS/400";
+        }};
+        assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
+    }
+
+    @Test
+    void inferDatabaseTypeDb2390(@Mocked DatabaseMetaData metaData) throws Exception {
+        new Expectations() {{
+            metaData.getDatabaseProductName(); result = "DB2/390";
+        }};
+        assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
+    }
+
+    @Test
+    void inferDatabaseTypeDerby(@Mocked DatabaseMetaData metaData) throws Exception {
+        new Expectations() {{
+            metaData.getDatabaseProductName(); result = "Apache Derby";
+        }};
+        assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
     }
 
     @Test
