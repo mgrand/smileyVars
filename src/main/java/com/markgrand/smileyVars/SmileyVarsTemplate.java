@@ -154,7 +154,7 @@ public class SmileyVarsTemplate {
      * @param sql The template body.
      * @return the template.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public static SmileyVarsTemplate postgresqlTemplate(String sql) {
         return template(DatabaseType.POSTGRESQL, sql);
     }
@@ -166,7 +166,7 @@ public class SmileyVarsTemplate {
      * @param sql The template body.
      * @return the template.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public static SmileyVarsTemplate oracleTemplate(String sql) {
         return template(DatabaseType.ORACLE, sql);
     }
@@ -178,6 +178,7 @@ public class SmileyVarsTemplate {
      * @param sql The template body.
      * @return the template.
      */
+    @SuppressWarnings("unused")
     public static SmileyVarsTemplate sqlServerTemplate(String sql) {
         return template(DatabaseType.SQL_SERVER, sql);
     }
