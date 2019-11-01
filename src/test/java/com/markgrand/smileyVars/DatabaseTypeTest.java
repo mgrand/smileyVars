@@ -193,6 +193,14 @@ class DatabaseTypeTest {
     }
 
     @Test
+    void exception(@Mocked DatabaseMetaData metaData) throws Exception {
+        new Expectations() {{
+            metaData.getDatabaseProductName(); result = new SQLException();
+        }};
+        assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
+    }
+
+    @Test
     void getTokenizerBuilderAnsi() {
         Tokenizer.TokenizerBuilder builder = DatabaseType.ANSI.getTokenizerBuilder();
         assertFalse(builder.getConfig().isPostgresqlEscapeStringEnabled());

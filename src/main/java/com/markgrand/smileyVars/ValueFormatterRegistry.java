@@ -44,7 +44,7 @@ class ValueFormatterRegistry {
     private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
     private final String name;
 
-    public String getName() {
+    String getName() {
         return name;
     }
 

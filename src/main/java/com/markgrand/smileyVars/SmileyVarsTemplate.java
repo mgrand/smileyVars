@@ -121,7 +121,7 @@ public class SmileyVarsTemplate {
      * @param sql The template body.
      * @return the template.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public static SmileyVarsTemplate template(DataSource ds, String sql) throws SQLException {
         try (Connection conn = ds.getConnection()) {
             return template(conn, sql);
@@ -139,7 +139,7 @@ public class SmileyVarsTemplate {
      *
      * @param sql The template body.
      * @return the template.
-     * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.ANSI)}
+     * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.ANSI, sql)}
      */
     @SuppressWarnings("unused")
     @Deprecated
@@ -153,8 +153,10 @@ public class SmileyVarsTemplate {
      *
      * @param sql The template body.
      * @return the template.
+     * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.POSTGRESQL, sql)}
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
+    @Deprecated
     public static SmileyVarsTemplate postgresqlTemplate(String sql) {
         return template(DatabaseType.POSTGRESQL, sql);
     }
@@ -165,8 +167,10 @@ public class SmileyVarsTemplate {
      *
      * @param sql The template body.
      * @return the template.
+     * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.ORACLE, sql)}
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
+    @Deprecated
     public static SmileyVarsTemplate oracleTemplate(String sql) {
         return template(DatabaseType.ORACLE, sql);
     }
@@ -177,8 +181,10 @@ public class SmileyVarsTemplate {
      *
      * @param sql The template body.
      * @return the template.
+     * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.SQL_SERVER, sql)}
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    @Deprecated
     public static SmileyVarsTemplate sqlServerTemplate(String sql) {
         return template(DatabaseType.SQL_SERVER, sql);
     }
@@ -199,8 +205,6 @@ public class SmileyVarsTemplate {
         while (tokenizer.hasNext()) {
             Token token = tokenizer.next();
             switch (token.getTokenType()) {
-                case EOF:
-                    return finalizeExpansion(segment, stack);
                 case TEXT:
                     processText(segment, token);
                     break;
