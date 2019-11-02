@@ -407,11 +407,11 @@ class Tokenizer implements Iterator<Token> {
     }
 
     static class TokenizerConfig {
-        boolean postgresqlEscapeStringEnabled;
-        boolean postgresqlDollarStringEnabled;
-        boolean oracleDelimitedStringEnabled;
-        boolean nestedBlockCommentEnabled;
-        boolean squareBracketIdentifierQuotingEnabled;
+        boolean postgresqlEscapeStringEnabled = false;
+        boolean postgresqlDollarStringEnabled = false;
+        boolean oracleDelimitedStringEnabled = false;
+        boolean nestedBlockCommentEnabled = false;
+        boolean squareBracketIdentifierQuotingEnabled = false;
 
         boolean isPostgresqlEscapeStringEnabled() {
             return postgresqlEscapeStringEnabled;

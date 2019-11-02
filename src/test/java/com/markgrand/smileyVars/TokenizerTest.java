@@ -82,8 +82,9 @@ class TokenizerTest {
 
     @Test
     void unbracketedStringEmbeddedSingleQuoteOracleSquare() {
-        final String sql = "SELECT Q'[ab[]''c(: ]' FROM dual";
-        doTest(Tokenizer.builder().enableOracleDelimitedString(true).build(sql), makeToken(TokenType.TEXT, sql));
+        final String sql = "SELECT q'[ab[]''c(: ]' FROM dual";
+        doTest(Tokenizer.builder().enableOracleDelimitedString(true).build(sql),
+                makeToken(TokenType.TEXT, "SELECT q'[ab[]''c(: ]' FROM dual"));
     }
 
     @Test
@@ -251,6 +252,14 @@ class TokenizerTest {
         doTest(Tokenizer.builder().enableSquareBracketIdentifierQuoting(true).build(sql),
                 makeToken(TokenType.TEXT, "SELECT "), makeToken(TokenType.SMILEY_OPEN, "(:"),
                 makeToken(TokenType.TEXT, " blah [:foo boat :) abc] FROM dual"));
+    }
+
+    @Test
+    void peek() {
+        Tokenizer tokenizer = Tokenizer.builder().enableSquareBracketIdentifierQuoting(true).build("foo");
+        assertEquals(TokenType.TEXT, tokenizer.peek());
+        assertEquals(TokenType.TEXT, tokenizer.next().getTokenType());
+        assertEquals(TokenType.EOF, tokenizer.peek());
     }
 
     //TODO remove this test when nested brackets are supported
