@@ -220,6 +220,13 @@ class SmileyVarsTemplateTest {
     }
 
     @Test
+    void extraClosedBracket() {
+        String sql = "Select * from foo where 1=1 :)";
+        SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 :)");
+        assertEquals(sql, template.apply(new HashMap<>()));
+    }
+
+    @Test
     void unbracketedBoundVar() {
         SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where x=:x");
         Map<String, Object> map = new HashMap<>();
