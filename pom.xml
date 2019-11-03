@@ -13,12 +13,21 @@
         <module>smiley-vars</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${validation.version}</version>
+        </dependency>
+    </dependencies>
+
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.javadoc.version>3.1.1</maven.javadoc.version>
         <maven.surefile.version>3.0.0-M3</maven.surefile.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <validation.version>2.0.1.Final</validation.version>
     </properties>
 
     <url>https://github.com/mgrand/smileyVars</url>
