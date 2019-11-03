@@ -1,5 +1,6 @@
 package com.markgrand.smileyVars.spring;
 
+import com.markgrand.smileyVars.DatabaseType;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.SQLWarningException;
 import org.springframework.jdbc.core.*;
@@ -11,10 +12,7 @@ import javax.sql.DataSource;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.WeakReference;
 import java.sql.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This is an extension of {@linkplain JdbcTemplate} that supports SmileyVars Templates.
@@ -24,12 +22,19 @@ import java.util.Map;
  * @author Mark Grand
  */
 public class SmileyVarsJdbcTemplate extends JdbcTemplate {
+    Optional<DatabaseType> dbType = Optional.empty();
+
     public SmileyVarsJdbcTemplate() {
         super();
     }
 
     public SmileyVarsJdbcTemplate(DataSource dataSource) {
         super(dataSource);
+        try (Connection conn = dataSource.getConnection()) {
+            dbType = DatabaseType.inferDatabaseType(conn.getMetaData());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public SmileyVarsJdbcTemplate(DataSource dataSource, boolean lazyInit) {
