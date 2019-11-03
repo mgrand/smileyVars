@@ -31,7 +31,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     public SmileyVarsJdbcTemplate(DataSource dataSource) {
         super(dataSource);
         try (Connection conn = dataSource.getConnection()) {
-            dbType = DatabaseType.inferDatabaseType(conn.getMetaData());
+            dbType = Optional.of(DatabaseType.inferDatabaseType(conn.getMetaData()));
         } catch (SQLException e) {
             e.printStackTrace();
         }
