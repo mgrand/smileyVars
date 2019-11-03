@@ -1,6 +1,7 @@
 package com.markgrand.smileyVars.spring;
 
 import com.markgrand.smileyVars.DatabaseType;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.SQLWarningException;
 import org.springframework.jdbc.core.*;
@@ -9,8 +10,6 @@ import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
-import java.lang.ref.PhantomReference;
-import java.lang.ref.WeakReference;
 import java.sql.*;
 import java.util.*;
 
@@ -21,6 +20,7 @@ import java.util.*;
  * {@inheritDoc}
  * @author Mark Grand
  */
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     Optional<DatabaseType> dbType = Optional.empty();
 
@@ -28,7 +28,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         super();
     }
 
-    public SmileyVarsJdbcTemplate(DataSource dataSource) {
+    public SmileyVarsJdbcTemplate(@NotNull DataSource dataSource) {
         super(dataSource);
         try (Connection conn = dataSource.getConnection()) {
             dbType = Optional.of(DatabaseType.inferDatabaseType(conn.getMetaData()));
@@ -112,7 +112,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public <T> T execute(ConnectionCallback<T> action) throws DataAccessException {
+    public <T> T execute(@NotNull ConnectionCallback<T> action) throws DataAccessException {
         return super.execute(action);
     }
 
@@ -122,7 +122,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public <T> T execute(StatementCallback<T> action) throws DataAccessException {
+    public <T> T execute(@NotNull StatementCallback<T> action) throws DataAccessException {
         return super.execute(action);
     }
 
@@ -132,7 +132,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public <T> T query(String sql, ResultSetExtractor<T> rse) throws DataAccessException {
+    public <T> T query(@NotNull String sql, @NotNull ResultSetExtractor<T> rse) throws DataAccessException {
         return super.query(sql, rse);
     }
 
@@ -142,7 +142,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> query(String sql, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.query(sql, rowMapper);
     }
 
@@ -177,7 +177,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public int update(String sql) throws DataAccessException {
+    public int update(@NotNull String sql) throws DataAccessException {
         return super.update(sql);
     }
 
@@ -187,17 +187,17 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public <T> T execute(PreparedStatementCreator psc, PreparedStatementCallback<T> action) throws DataAccessException {
+    public <T> T execute(@NotNull PreparedStatementCreator psc, @NotNull PreparedStatementCallback<T> action) throws DataAccessException {
         return super.execute(psc, action);
     }
 
     @Override
-    public <T> T execute(String sql, PreparedStatementCallback<T> action) throws DataAccessException {
+    public <T> T execute(@NotNull String sql, PreparedStatementCallback<T> action) throws DataAccessException {
         return super.execute(sql, action);
     }
 
     @Override
-    public <T> T query(PreparedStatementCreator psc, PreparedStatementSetter pss, ResultSetExtractor<T> rse) throws DataAccessException {
+    public <T> T query(PreparedStatementCreator psc, PreparedStatementSetter pss, @NotNull ResultSetExtractor<T> rse) throws DataAccessException {
         return super.query(psc, pss, rse);
     }
 
@@ -207,7 +207,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public <T> T query(String sql, PreparedStatementSetter pss, ResultSetExtractor<T> rse) throws DataAccessException {
+    public <T> T query(@NotNull String sql, PreparedStatementSetter pss, ResultSetExtractor<T> rse) throws DataAccessException {
         return super.query(sql, pss, rse);
     }
 
@@ -252,42 +252,42 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public <T> List<T> query(PreparedStatementCreator psc, RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> query(PreparedStatementCreator psc, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.query(psc, rowMapper);
     }
 
     @Override
-    public <T> List<T> query(String sql, PreparedStatementSetter pss, RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> query(String sql, PreparedStatementSetter pss, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.query(sql, pss, rowMapper);
     }
 
     @Override
-    public <T> List<T> query(String sql, Object[] args, int[] argTypes, RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> query(String sql, Object[] args, int[] argTypes, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.query(sql, args, argTypes, rowMapper);
     }
 
     @Override
-    public <T> List<T> query(String sql, Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> query(String sql, Object[] args, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.query(sql, args, rowMapper);
     }
 
     @Override
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) throws DataAccessException {
+    public <T> List<T> query(String sql, @NotNull RowMapper<T> rowMapper, Object... args) throws DataAccessException {
         return super.query(sql, rowMapper, args);
     }
 
     @Override
-    public <T> T queryForObject(String sql, Object[] args, int[] argTypes, RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> T queryForObject(String sql, Object[] args, int[] argTypes, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.queryForObject(sql, args, argTypes, rowMapper);
     }
 
     @Override
-    public <T> T queryForObject(String sql, Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> T queryForObject(String sql, Object[] args, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.queryForObject(sql, args, rowMapper);
     }
 
     @Override
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object... args) throws DataAccessException {
+    public <T> T queryForObject(String sql, @NotNull RowMapper<T> rowMapper, Object... args) throws DataAccessException {
         return super.queryForObject(sql, rowMapper, args);
     }
 
@@ -362,12 +362,12 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public int update(PreparedStatementCreator psc, KeyHolder generatedKeyHolder) throws DataAccessException {
+    public int update(PreparedStatementCreator psc, @NotNull KeyHolder generatedKeyHolder) throws DataAccessException {
         return super.update(psc, generatedKeyHolder);
     }
 
     @Override
-    public int update(String sql, PreparedStatementSetter pss) throws DataAccessException {
+    public int update(@NotNull String sql, PreparedStatementSetter pss) throws DataAccessException {
         return super.update(sql, pss);
     }
 
@@ -382,7 +382,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public int[] batchUpdate(String sql, BatchPreparedStatementSetter pss) throws DataAccessException {
+    public int[] batchUpdate(String sql, @NotNull BatchPreparedStatementSetter pss) throws DataAccessException {
         return super.batchUpdate(sql, pss);
     }
 
@@ -392,27 +392,27 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public int[] batchUpdate(String sql, List<Object[]> batchArgs, int[] argTypes) throws DataAccessException {
+    public int[] batchUpdate(String sql, @NotNull List<Object[]> batchArgs, int[] argTypes) throws DataAccessException {
         return super.batchUpdate(sql, batchArgs, argTypes);
     }
 
     @Override
-    public <T> int[][] batchUpdate(String sql, Collection<T> batchArgs, int batchSize, ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
+    public <T> int[][] batchUpdate(String sql, @NotNull Collection<T> batchArgs, int batchSize, ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
         return super.batchUpdate(sql, batchArgs, batchSize, pss);
     }
 
     @Override
-    public <T> T execute(CallableStatementCreator csc, CallableStatementCallback<T> action) throws DataAccessException {
+    public <T> T execute(@NotNull CallableStatementCreator csc, @NotNull CallableStatementCallback<T> action) throws DataAccessException {
         return super.execute(csc, action);
     }
 
     @Override
-    public <T> T execute(String callString, CallableStatementCallback<T> action) throws DataAccessException {
+    public <T> T execute(@NotNull String callString, CallableStatementCallback<T> action) throws DataAccessException {
         return super.execute(callString, action);
     }
 
     @Override
-    public Map<String, Object> call(CallableStatementCreator csc, List<SqlParameter> declaredParameters) throws DataAccessException {
+    public Map<String, Object> call(CallableStatementCreator csc, @NotNull List<SqlParameter> declaredParameters) throws DataAccessException {
         return super.call(csc, declaredParameters);
     }
 
@@ -422,7 +422,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    protected Map<String, Object> extractOutputParameters(CallableStatement cs, List<SqlParameter> parameters) throws SQLException {
+    protected Map<String, Object> extractOutputParameters(CallableStatement cs, @NotNull List<SqlParameter> parameters) throws SQLException {
         return super.extractOutputParameters(cs, parameters);
     }
 
@@ -447,7 +447,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    protected void applyStatementSettings(Statement stmt) throws SQLException {
+    protected void applyStatementSettings(@NotNull Statement stmt) throws SQLException {
         super.applyStatementSettings(stmt);
     }
 
@@ -677,46 +677,5 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     @Override
     public String toString() {
         return super.toString();
-    }
-
-    /**
-     * Called by the garbage collector on an object when garbage collection determines that there are no more references
-     * to the object. A subclass overrides the {@code finalize} method to dispose of system resources or to perform
-     * other cleanup.
-     * <p>
-     * The general contract of {@code finalize} is that it is invoked if and when the Java&trade; virtual machine has
-     * determined that there is no longer any means by which this object can be accessed by any thread that has not yet
-     * died, except as a result of an action taken by the finalization of some other object or class which is ready to
-     * be finalized. The {@code finalize} method may take any action, including making this object available again to
-     * other threads; the usual purpose of {@code finalize}, however, is to perform cleanup actions before the object is
-     * irrevocably discarded. For example, the finalize method for an object that represents an input/output connection
-     * might perform explicit I/O transactions to break the connection before the object is permanently discarded.
-     * <p>
-     * The {@code finalize} method of class {@code Object} performs no special action; it simply returns normally.
-     * Subclasses of {@code Object} may override this definition.
-     * <p>
-     * The Java programming language does not guarantee which thread will invoke the {@code finalize} method for any
-     * given object. It is guaranteed, however, that the thread that invokes finalize will not be holding any
-     * user-visible synchronization locks when finalize is invoked. If an uncaught exception is thrown by the finalize
-     * method, the exception is ignored and finalization of that object terminates.
-     * <p>
-     * After the {@code finalize} method has been invoked for an object, no further action is taken until the Java
-     * virtual machine has again determined that there is no longer any means by which this object can be accessed by
-     * any thread that has not yet died, including possible actions by other objects or classes which are ready to be
-     * finalized, at which point the object may be discarded.
-     * <p>
-     * The {@code finalize} method is never invoked more than once by a Java virtual machine for any given object.
-     * <p>
-     * Any exception thrown by the {@code finalize} method causes the finalization of this object to be halted, but is
-     * otherwise ignored.
-     *
-     * @throws Throwable the {@code Exception} raised by this method
-     * @jls 12.6 Finalization of Class Instances
-     * @see WeakReference
-     * @see PhantomReference
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
     }
 }

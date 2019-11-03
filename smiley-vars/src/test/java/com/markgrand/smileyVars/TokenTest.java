@@ -1,5 +1,6 @@
 package com.markgrand.smileyVars;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TokenTest {
     @Test
     public void toStringTest() {
-        Token t = new Token(TokenType.TEXT, "redo", 1, 3);
+        @NotNull Token t = new Token(TokenType.TEXT, "redo", 1, 3);
         assertEquals("Token[TEXT, \"ed\"]", t.toString());
     }
 }

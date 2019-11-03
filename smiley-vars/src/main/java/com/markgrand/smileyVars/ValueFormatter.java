@@ -1,5 +1,7 @@
 package com.markgrand.smileyVars;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -57,6 +59,7 @@ class ValueFormatter {
         return name;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "ValueFormatter{" +

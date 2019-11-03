@@ -1,5 +1,7 @@
 package com.markgrand.smileyVars;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,19 +58,21 @@ class ValueFormatterRegistry {
         //TODO need to account for national character set string literals and unicode string literals.
     }
 
+    @NotNull
     static ValueFormatterRegistry ansiInstance() {
         return ansiRegistry;
     }
 
+    @NotNull
     static ValueFormatterRegistry postgresqlInstance() {
         return postgresqlRegistry;
     }
 
-    private static void registerTimestampFormatter(@SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
-        final String formatterName = "timestamp";
-        Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof TemporalAccessor;
-        Function<Object, String> formattingFunction = value -> {
-            StringBuilder builder = new StringBuilder("TIMESTAMP '");
+    private static void registerTimestampFormatter(@NotNull @SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
+        @NotNull final String formatterName = "timestamp";
+        @NotNull Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof TemporalAccessor;
+        @NotNull Function<Object, String> formattingFunction = value -> {
+            @NotNull StringBuilder builder = new StringBuilder("TIMESTAMP '");
             if (value instanceof Date) {
                 doTimestampFormatNoZone((Date) value, builder);
             } else if (value instanceof Calendar) {
@@ -83,11 +87,11 @@ class ValueFormatterRegistry {
         registerFormatter(formatterName, predicate, formattingFunction, registryMap);
     }
 
-    private static void registerDateFormatter(@SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
-        final String formatterName = "date";
-        Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof TemporalAccessor;
-        Function<Object, String> formattingFunction = value -> {
-            StringBuilder builder = new StringBuilder("DATE '");
+    private static void registerDateFormatter(@NotNull @SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
+        @NotNull final String formatterName = "date";
+        @NotNull Predicate<Object> predicate = object -> object instanceof Date || object instanceof Calendar || object instanceof TemporalAccessor;
+        @NotNull Function<Object, String> formattingFunction = value -> {
+            @NotNull StringBuilder builder = new StringBuilder("DATE '");
             if (value instanceof Date) {
                 doDateFormat((Date) value, builder);
             } else if (value instanceof Calendar) {
@@ -102,7 +106,7 @@ class ValueFormatterRegistry {
         registerFormatter(formatterName, predicate, formattingFunction, registryMap);
     }
 
-    private static void formatTemporalAccessorAsTimestamp(TemporalAccessor accessor, StringBuilder builder) {
+    private static void formatTemporalAccessorAsTimestamp(@NotNull TemporalAccessor accessor, @NotNull StringBuilder builder) {
         builder.append(accessor.get(ChronoField.YEAR)).append('-')
                 .append(accessor.get(ChronoField.MONTH_OF_YEAR)).append('-').append(accessor.get(ChronoField.DAY_OF_MONTH))
                 .append(' ').append(accessor.get(ChronoField.HOUR_OF_DAY))
@@ -114,12 +118,12 @@ class ValueFormatterRegistry {
         builder.append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
     }
 
-    private static void formatTemporalAccessorAsDate(TemporalAccessor accessor, StringBuilder builder) {
+    private static void formatTemporalAccessorAsDate(@NotNull TemporalAccessor accessor, @NotNull StringBuilder builder) {
         builder.append(accessor.get(ChronoField.YEAR)).append('-')
                 .append(accessor.get(ChronoField.MONTH_OF_YEAR)).append('-').append(accessor.get(ChronoField.DAY_OF_MONTH));
     }
 
-    private static void formatCalendarAsTimestamp(Calendar calendar, StringBuilder builder) {
+    private static void formatCalendarAsTimestamp(@NotNull Calendar calendar, @NotNull StringBuilder builder) {
         builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)+1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH))
                 .append(' ').append(calendar.get(Calendar.HOUR_OF_DAY)).append(':').append(calendar.get(Calendar.MINUTE)).append(':').append(calendar.get(Calendar.SECOND));
         int zoneOffsetMinutes = calendar.get(Calendar.ZONE_OFFSET) / (60 * 1000);
@@ -129,35 +133,35 @@ class ValueFormatterRegistry {
         builder.append(zoneOffsetMinutes / 60).append(':').append(zoneOffsetMinutes % 60);
     }
 
-    private static void formatCalendarAsDate(Calendar calendar, StringBuilder builder) {
+    private static void formatCalendarAsDate(@NotNull Calendar calendar, @NotNull StringBuilder builder) {
         builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)+1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH));
     }
 
-    private static void doTimestampFormatNoZone(Date date, StringBuilder builder) {
+    private static void doTimestampFormatNoZone(Date date, @NotNull StringBuilder builder) {
         synchronized (timestampFormatNoZone) {
             builder.append(timestampFormatNoZone.format(date));
         }
     }
 
-    private static void doDateFormat(Date date, StringBuilder builder) {
+    private static void doDateFormat(Date date, @NotNull StringBuilder builder) {
         synchronized (dateFormat) {
             builder.append(dateFormat.format(date));
         }
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void handleInapplicableValue(String formatterName, Object value) {
-        String msg = "Formatter named " + formatterName + " cannot be applied to object of class " + value.getClass().getName();
+    private static void handleInapplicableValue(String formatterName, @NotNull Object value) {
+        @NotNull String msg = "Formatter named " + formatterName + " cannot be applied to object of class " + value.getClass().getName();
         throw new IllegalArgumentException(msg);
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void registerStringFormatter(LinkedHashMap<String, ValueFormatter> registryMap) {
+    private static void registerStringFormatter(@NotNull LinkedHashMap<String, ValueFormatter> registryMap) {
         registerFormatter("string", String.class, string -> "'" + ((String) string).replace("'", "''") + "'", registryMap);
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void registerNumberFormatter(LinkedHashMap<String, ValueFormatter> registryMap) {
+    private static void registerNumberFormatter(@NotNull LinkedHashMap<String, ValueFormatter> registryMap) {
         registerFormatter("number", Number.class, Object::toString, registryMap);
     }
 
@@ -173,8 +177,9 @@ class ValueFormatterRegistry {
      * @param formatter A function to return a representation of an object as an SQL literal.
      * @return this object
      */
+    @NotNull
     @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
-    ValueFormatterRegistry registerFormatter(String name, Class clazz, Function<Object, String> formatter) {
+    ValueFormatterRegistry registerFormatter(String name, @NotNull Class clazz, Function<Object, String> formatter) {
         return registerFormatter(name, clazz::isInstance, formatter);
     }
 
@@ -189,21 +194,22 @@ class ValueFormatterRegistry {
      * @param formatter A function to return a representation of an object as an SQL literal.
      * @return this object
      */
+    @NotNull
     @SuppressWarnings("WeakerAccess")
     ValueFormatterRegistry registerFormatter(String name, Predicate<Object> predicate, Function<Object, String> formatter) {
         registerFormatter(name, predicate, formatter, formatterMap);
         return this;
     }
 
-    private static void registerFormatter(String name, Class clazz,
+    private static void registerFormatter(String name, @NotNull Class clazz,
                                           Function<Object, String> formatter,
-                                          LinkedHashMap<String, ValueFormatter> map) {
+                                          @NotNull LinkedHashMap<String, ValueFormatter> map) {
         map.put(name, new ValueFormatter(clazz::isInstance, formatter, name));
     }
 
     private static void registerFormatter(String name, Predicate<Object> predicate,
                                           Function<Object, String> formatter,
-                                          LinkedHashMap<String, ValueFormatter> map) {
+                                          @NotNull LinkedHashMap<String, ValueFormatter> map) {
         map.put(name, new ValueFormatter(predicate, formatter, name));
     }
 
@@ -216,11 +222,11 @@ class ValueFormatterRegistry {
      * @return the SQL literal as a String or null if the value is null.
      * @throws NoFormatterException if there is no registered applicable formatter.
      */
-    String format(Object value) {
+    @Nullable String format(@Nullable Object value) {
         if (value == null) {
             return null;
         }
-        for (ValueFormatter valueFormatter : formatterMap.values()) {
+        for (@NotNull ValueFormatter valueFormatter : formatterMap.values()) {
             if (valueFormatter.isApplicable(value)) {
                 return valueFormatter.format(value);
             }
@@ -237,7 +243,7 @@ class ValueFormatterRegistry {
      * @return the SQL literal as a String or null if the value is null.
      * @throws NoFormatterException if there is no registered applicable formatter.
      */
-    String format(Object value, String formatterName) {
+    @Nullable String format(@Nullable Object value, String formatterName) {
         if (value == null) {
             return null;
         }

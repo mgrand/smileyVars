@@ -188,11 +188,11 @@ Using SmilelyVars in your Java code is very simple. There are just two steps:
 
 This is exemplified by the following code sample:
 ```java
-import com.markgrand.smileyVars.SmileyVarsTemplate;
+import com.markgrand.smileyVars.DatabaseType;import com.markgrand.smileyVars.SmileyVarsTemplate;
 //...
 public class SimpleAnsiExample {
     private static final SmileyVarsTemplate selectTemplate 
-        = SmileyVarsTemplate.ansiTemplate("SELECT item, quant FROM bin_tbl WHERE 1=1(: and aisle=:aisle:)(: and bin_number=:bin :)");
+        = SmileyVarsTemplate.Template(DatabaseType.ANSI, "SELECT item, quant FROM bin_tbl WHERE 1=1(: and aisle=:aisle:)(: and bin_number=:bin :)");
 
     public StorageLocation getLocation(Connection conn, String aisle, Integer bin) throws SQLException {
         Statement stmt = conn.createStatement();
@@ -206,17 +206,18 @@ public class SimpleAnsiExample {
 }
 ```
 
-A call to the static method `SmileyVarsTemplate.ansiTemplate` creates a 
-template with the given body. The `ansiTemplate` method creates 
-templates that support features that are common to most relational 
-databases. There are other methods that create templates that are 
-specialized for a specific type of relational database:
+A call to the static method `SmileyVarsTemplate.template` creates a
+template with the given body to be parsed according to the rules for the
+specified type of database. The value `DatabaseType.ANSI` specifies
+generic rules that support features common to most relational databases.
+There are other values that are for a specific type of
+relational database:
 
-| Method                                 | Database   |
-| -------------------------------------- | ---------- |
-| `SimpleAnsiExample.postgresqlTemplate` | PostgreSql |
-| `SimpleAnsiExample.oracleTemplate`     | Oracle     |
-| `SimpleAnsiExample.sqlServerTemplate`  | SQL Server |
+| Method                    | Database   |
+| --------------------------| ---------- |
+| `DatabaseType.POSTGRESQL` | PostgreSql |
+| `DatabaseType.ORACLE`     | Oracle     |
+| `DatabaseType.SQL_SERVER` | SQL Server |
 
 To apply values to a template, you need to put variable names and their 
 values in a map. Then pass the map to the template&#x2bc;s `apply` 

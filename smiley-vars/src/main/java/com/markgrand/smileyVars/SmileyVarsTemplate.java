@@ -1,5 +1,7 @@
 package com.markgrand.smileyVars;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +86,7 @@ public class SmileyVarsTemplate {
     /**
      * Constructor
      */
-    private SmileyVarsTemplate(String sql, Tokenizer.TokenizerBuilder builder, ValueFormatterRegistry formatterRegistry) {
+    private SmileyVarsTemplate(@NotNull String sql, @NotNull Tokenizer.TokenizerBuilder builder, @NotNull ValueFormatterRegistry formatterRegistry) {
         this.builder = builder;
         this.sql = sql;
         this.formatterRegistry = formatterRegistry;
@@ -98,7 +100,8 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     @SuppressWarnings("WeakerAccess")
-    public static SmileyVarsTemplate template(DatabaseType databaseType, String sql) {
+    @NotNull
+    public static SmileyVarsTemplate template(@NotNull DatabaseType databaseType, @NotNull String sql) {
         return new SmileyVarsTemplate(sql, databaseType.getTokenizerBuilder(), databaseType.getValueFormatterRegistry());
     }
 
@@ -110,7 +113,8 @@ public class SmileyVarsTemplate {
      * @return the template.
      */
     @SuppressWarnings("WeakerAccess")
-    public static SmileyVarsTemplate template(Connection conn, String sql) throws SQLException {
+    @NotNull
+    public static SmileyVarsTemplate template(@NotNull Connection conn, @NotNull String sql) throws SQLException {
         return template(DatabaseType.inferDatabaseType(conn.getMetaData()), sql);
     }
 
@@ -121,8 +125,9 @@ public class SmileyVarsTemplate {
      * @param sql The template body.
      * @return the template.
      */
+    @org.jetbrains.annotations.NotNull
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public static SmileyVarsTemplate template(DataSource ds, String sql) throws SQLException {
+    public static SmileyVarsTemplate template(@NotNull DataSource ds, @NotNull String sql) throws SQLException {
         try (Connection conn = ds.getConnection()) {
             return template(conn, sql);
         }
@@ -143,7 +148,8 @@ public class SmileyVarsTemplate {
      */
     @SuppressWarnings("unused")
     @Deprecated
-    public static SmileyVarsTemplate ansiTemplate(String sql) {
+    @NotNull
+    public static SmileyVarsTemplate ansiTemplate(@NotNull String sql) {
         return template(DatabaseType.ANSI, sql);
     }
 
@@ -155,6 +161,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.POSTGRESQL, sql)}
      */
+    @org.jetbrains.annotations.NotNull
     @SuppressWarnings({"unused", "WeakerAccess"})
     @Deprecated
     public static SmileyVarsTemplate postgresqlTemplate(String sql) {
@@ -169,6 +176,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.ORACLE, sql)}
      */
+    @org.jetbrains.annotations.NotNull
     @SuppressWarnings({"unused", "WeakerAccess"})
     @Deprecated
     public static SmileyVarsTemplate oracleTemplate(String sql) {
@@ -183,6 +191,7 @@ public class SmileyVarsTemplate {
      * @return the template.
      * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.SQL_SERVER, sql)}
      */
+    @NotNull
     @SuppressWarnings({"unused", "WeakerAccess"})
     @Deprecated
     public static SmileyVarsTemplate sqlServerTemplate(String sql) {
@@ -197,11 +206,12 @@ public class SmileyVarsTemplate {
      * @throws NoFormatterException        if there is no applicable formatter registered to format a variable's value.
      * @throws UnsupportedFeatureException if the template uses a smileyVars feature that is not yet supported.
      */
+    @org.jetbrains.annotations.NotNull
     @SuppressWarnings("unused")
-    public String apply(Map<String, Object> values) throws UnsupportedFeatureException {
-        Tokenizer tokenizer = builder.build(sql);
-        StringBuilder segment = new StringBuilder(sql.length() * 2);
-        Stack<StringBuilder> stack = new Stack<>();
+    public String apply(@NotNull Map<String, Object> values) throws UnsupportedFeatureException {
+        @org.jetbrains.annotations.NotNull Tokenizer tokenizer = builder.build(sql);
+        @Nullable StringBuilder segment = new StringBuilder(sql.length() * 2);
+        @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack = new Stack<>();
         while (tokenizer.hasNext()) {
             Token token = tokenizer.next();
             switch (token.getTokenType()) {
@@ -222,14 +232,15 @@ public class SmileyVarsTemplate {
         return finalizeExpansion(segment, stack);
     }
 
-    private void processText(StringBuilder segment, Token token) {
+    private void processText(@Nullable StringBuilder segment, @org.jetbrains.annotations.NotNull Token token) {
         if (segment != null) {
             segment.append(token.getTokenchars());
         }
     }
 
-    private StringBuilder processVar(Map<String, Object> values, Tokenizer tokenizer,
-                                     StringBuilder segment, Token token, Stack<StringBuilder> stack) {
+    @Nullable
+    private StringBuilder processVar(@org.jetbrains.annotations.NotNull Map<String, Object> values, @org.jetbrains.annotations.NotNull Tokenizer tokenizer,
+                                     @Nullable StringBuilder segment, @org.jetbrains.annotations.NotNull Token token, @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack) {
         if (segment != null) {
             segment = doVarExpansion(values, tokenizer, segment, token);
             if (segment == null && stack.isEmpty()) {
@@ -239,13 +250,13 @@ public class SmileyVarsTemplate {
         return segment;
     }
 
-    private StringBuilder processBracketOpen(StringBuilder segment, Stack<StringBuilder> stack) {
+    private StringBuilder processBracketOpen(StringBuilder segment, @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack) {
         stack.push(segment);
         segment = new StringBuilder();
         return segment;
     }
 
-    private StringBuilder processBracketClose(StringBuilder segment, Stack<StringBuilder> stack) {
+    private StringBuilder processBracketClose(StringBuilder segment, @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack) {
         if (stack.isEmpty()) {
             logger.warn("SmileyVars template has an extra close bracket: {}", sql);
         } else {
@@ -258,12 +269,13 @@ public class SmileyVarsTemplate {
         return segment;
     }
 
-    private String finalizeExpansion(StringBuilder segment, Stack<StringBuilder> stack) {
+    @org.jetbrains.annotations.NotNull
+    private String finalizeExpansion(@Nullable StringBuilder segment, @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack) {
         if (segment == null) {
             segment = new StringBuilder();
         }
         while (!stack.isEmpty()) {
-            StringBuilder subSegment = segment;
+            @Nullable StringBuilder subSegment = segment;
             segment = stack.pop();
             if (segment != null) {
                 segment.append(subSegment);
@@ -284,13 +296,13 @@ public class SmileyVarsTemplate {
      * @return segment if the variable has a value; otherwise null.
      * @throws NoFormatterException if there is no applicable formatter registered to format the variable's value.
      */
-    private StringBuilder doVarExpansion(Map<String, Object> values, Tokenizer tokenizer, StringBuilder segment, Token varToken) {
+    @Nullable
+    private StringBuilder doVarExpansion(@org.jetbrains.annotations.NotNull Map<String, Object> values, @org.jetbrains.annotations.NotNull Tokenizer tokenizer, @org.jetbrains.annotations.NotNull StringBuilder segment, @org.jetbrains.annotations.NotNull Token varToken) {
         String value = getVarValue(values, tokenizer, varToken);
         if (value == null) {
             skipToSmileyClose(tokenizer);
             return null;
         } else {
-            assert segment != null;
             segment.append(value);
             return segment;
         }
@@ -308,17 +320,17 @@ public class SmileyVarsTemplate {
      * @return The value of the variable formatted as an SQL literal
      * @throws NoFormatterException if there is no applicable formatter registered to format the variable's value.
      */
-    private String getVarValue(Map<String, Object> values, Tokenizer tokenizer, Token varToken) {
-        String varName = varToken.getTokenchars();
+    private String getVarValue(@org.jetbrains.annotations.NotNull Map<String, Object> values, @org.jetbrains.annotations.NotNull Tokenizer tokenizer, @org.jetbrains.annotations.NotNull Token varToken) {
+        @org.jetbrains.annotations.NotNull String varName = varToken.getTokenchars();
         if (tokenizer.peek() == TokenType.VAR) {
-            String typeName = tokenizer.next().getTokenchars();
+            @org.jetbrains.annotations.NotNull String typeName = tokenizer.next().getTokenchars();
             return formatterRegistry.format(values.get(varName), typeName);
         }
         //No explicit type given for variable, so let the formatter predicates identify the correct formatter to use.
         return formatterRegistry.format(values.get(varName));
     }
 
-    private void skipToSmileyClose(Tokenizer tokenizer) {
+    private void skipToSmileyClose(@org.jetbrains.annotations.NotNull Tokenizer tokenizer) {
         while (tokenizer.hasNext()) {
             TokenType tokenType = tokenizer.peek();
             if (TokenType.SMILEY_CLOSE.equals(tokenType) || TokenType.EOF.equals(tokenType)) {

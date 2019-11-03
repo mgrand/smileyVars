@@ -1,5 +1,7 @@
 package com.markgrand.smileyVars;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
@@ -87,6 +89,7 @@ class Tokenizer implements Iterator<Token> {
 
     // Scanner to use outside of (: :)
     private class ScanUnbracketed implements Supplier<TokenType> {
+        @NotNull
         public TokenType get() {
             if (isEof()) {
                 return TokenType.EOF;
@@ -159,6 +162,7 @@ class Tokenizer implements Iterator<Token> {
      *
      * @return the builder object.
      */
+    @NotNull
     static TokenizerBuilder builder() {
         return new TokenizerBuilder();
     }
@@ -446,55 +450,55 @@ class Tokenizer implements Iterator<Token> {
         TokenizerBuilder() {
         }
 
-        TokenizerBuilder enablePostgresqlEscapeString(boolean value) {
+        @NotNull TokenizerBuilder enablePostgresqlEscapeString(boolean value) {
             config.postgresqlEscapeStringEnabled = value;
             return this;
         }
 
-        TokenizerBuilder enablePostgresqlDollarString(boolean value) {
+        @NotNull TokenizerBuilder enablePostgresqlDollarString(boolean value) {
             config.postgresqlDollarStringEnabled = value;
             return this;
         }
 
-        TokenizerBuilder enableOracleDelimitedString(boolean value) {
+        @NotNull TokenizerBuilder enableOracleDelimitedString(boolean value) {
             config.oracleDelimitedStringEnabled = value;
             return this;
         }
 
-        TokenizerBuilder enableNestedBlockComment(boolean value) {
+        @NotNull TokenizerBuilder enableNestedBlockComment(boolean value) {
             config.nestedBlockCommentEnabled = value;
             return this;
         }
 
-        TokenizerBuilder enableSquareBracketIdentifierQuoting(boolean value) {
+        @NotNull TokenizerBuilder enableSquareBracketIdentifierQuoting(boolean value) {
             config.squareBracketIdentifierQuotingEnabled = value;
             return this;
         }
 
-        TokenizerBuilder configureForAnsi() {
+        @NotNull TokenizerBuilder configureForAnsi() {
             return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(false)
                            .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(false);
         }
 
-        TokenizerBuilder configureForOracle() {
+        @NotNull TokenizerBuilder configureForOracle() {
             return enableNestedBlockComment(false).enableOracleDelimitedString(true).enablePostgresqlDollarString(false)
                            .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(false);
         }
 
-        TokenizerBuilder configureForPostgresql() {
+        @NotNull TokenizerBuilder configureForPostgresql() {
             return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(true)
                            .enablePostgresqlEscapeString(true).enableSquareBracketIdentifierQuoting(false);
         }
 
-        TokenizerBuilder configureForSqlServer() {
+        @NotNull TokenizerBuilder configureForSqlServer() {
             return enableNestedBlockComment(true).enableOracleDelimitedString(false).enablePostgresqlDollarString(false)
                            .enablePostgresqlEscapeString(false).enableSquareBracketIdentifierQuoting(true);
         }
 
-        Tokenizer build(CharSequence chars) {
+        @NotNull Tokenizer build(CharSequence chars) {
             return new Tokenizer(chars, config);
         }
 
-        TokenizerConfig getConfig() { return config; }
+        @NotNull TokenizerConfig getConfig() { return config; }
     }
 }

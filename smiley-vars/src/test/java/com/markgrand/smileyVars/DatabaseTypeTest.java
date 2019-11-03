@@ -4,6 +4,7 @@ import mockit.Capturing;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -13,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DatabaseTypeTest {
     @Test
-    void inferDatabaseTypeNull(@Mocked DatabaseMetaData metaData) {
+    void inferDatabaseTypeNull(@NotNull @Mocked DatabaseMetaData metaData) {
         assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
     }
 
     @Test
-    void inferDatabaseTypeCubrid(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeCubrid(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "CUBRID";
         }};
@@ -26,7 +27,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeDb2400(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeDb2400(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "DB2 UDB for AS/400";
         }};
@@ -34,7 +35,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeDb2390(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeDb2390(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "DB2/390";
         }};
@@ -42,7 +43,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeDerby(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeDerby(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "Apache Derby";
         }};
@@ -50,7 +51,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeEnterprise(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeEnterprise(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "EnterpriseDB";
         }};
@@ -58,7 +59,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeFirebird(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeFirebird(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "Firebird";
         }};
@@ -66,7 +67,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeH2(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeH2(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "H2";
         }};
@@ -74,7 +75,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeHdb(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeHdb(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "HDB";
         }};
@@ -82,7 +83,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeHsql(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeHsql(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "HSQL Database Engine";
         }};
@@ -90,7 +91,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeInformix(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeInformix(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "Informix Dynamic Server";
         }};
@@ -98,7 +99,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeIngres(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeIngres(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "ingres";
         }};
@@ -106,7 +107,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeMaria(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeMaria(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "MariaDB";
             metaData.getDriverName(); result = "MariaDB";
@@ -115,7 +116,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeMySql(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeMySql(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "MySQL";
         }};
@@ -123,7 +124,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeOracle(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeOracle(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "Oracle";
         }};
@@ -131,7 +132,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypePostgreSQL(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypePostgreSQL(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "PostgreSQL";
         }};
@@ -139,7 +140,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeSqlServer(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeSqlServer(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "Microsoft SQL Server";
         }};
@@ -147,7 +148,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeSybase(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeSybase(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "Sybase SQL Server";
         }};
@@ -155,7 +156,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeAdaptive(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeAdaptive(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "Adaptive Server Enterprise";
         }};
@@ -163,7 +164,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeAAnywhere(@Mocked DatabaseMetaData metaData) throws Exception {
+    void inferDatabaseTypeAAnywhere(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "Adaptive Server Anywhere";
         }};
@@ -171,7 +172,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeSAnywhere(@Mocked DatabaseMetaData metaData, @Capturing Logger logger) throws Exception {
+    void inferDatabaseTypeSAnywhere(@NotNull @Mocked DatabaseMetaData metaData, @NotNull @Capturing Logger logger) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "SQL Anywhere";
         }};
@@ -182,7 +183,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void inferDatabaseTypeUnknown(@Mocked DatabaseMetaData metaData, @Capturing Logger logger) throws Exception {
+    void inferDatabaseTypeUnknown(@NotNull @Mocked DatabaseMetaData metaData, @NotNull @Capturing Logger logger) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = "xxxxxxxx";
         }};
@@ -193,7 +194,7 @@ class DatabaseTypeTest {
     }
 
     @Test
-    void exception(@Mocked DatabaseMetaData metaData) throws Exception {
+    void exception(@NotNull @Mocked DatabaseMetaData metaData) throws Exception {
         new Expectations() {{
             metaData.getDatabaseProductName(); result = new SQLException();
         }};
