@@ -45,7 +45,7 @@ public enum DatabaseType {
         return valueFormatterRegistry;
     }
 
-    static DatabaseType inferDatabaseType(DatabaseMetaData databaseMetaData) {
+    public static DatabaseType inferDatabaseType(DatabaseMetaData databaseMetaData) {
         try {
             String productName = databaseMetaData.getDatabaseProductName();
             if (productName == null) {
