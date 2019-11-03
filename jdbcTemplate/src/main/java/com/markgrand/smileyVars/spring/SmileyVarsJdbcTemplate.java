@@ -39,10 +39,14 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
 
     private void inferDbType(@NotNull DataSource dataSource) {
         try (Connection conn = dataSource.getConnection()) {
-            dbType = Optional.of(DatabaseType.inferDatabaseType(conn.getMetaData()));
+            inferDbType(conn.getMetaData());
         } catch (SQLException e) {
             logger.debug("Error inferring database type from connection", e);
         }
+    }
+
+    private void inferDbType(@NotNull DatabaseMetaData databaseMetaData) {
+        dbType = Optional.of(DatabaseType.inferDatabaseType(databaseMetaData));
     }
 
     public SmileyVarsJdbcTemplate(DataSource dataSource, boolean lazyInit) {
@@ -367,8 +371,11 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public void setDatabaseProductName(String dbName) {
-        super.setDatabaseProductName(dbName);
+    public void setDatabaseProductName(String databaseProductName) {
+        super.setDatabaseProductName(databaseProductName);
+        MockDatabaseMetadata mockDatabaseMetadata = new MockDatabaseMetadata();
+        mockDatabaseMetadata.setDatabaseProductName(databaseProductName);
+        inferDbType(mockDatabaseMetadata);
     }
 
     /**
