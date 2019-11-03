@@ -2,8 +2,9 @@ package com.markgrand.smileyVars.spring;
 
 import java.sql.*;
 
+@SuppressWarnings("RedundantThrows")
 public class MockDatabaseMetadata implements DatabaseMetaData {
-
+    private String databaseProductName;
 
     /**
      * Retrieves whether the current user can call all the procedures returned by the method
@@ -13,7 +14,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      */
     @Override
-    public boolean allProceduresAreCallable() {
+    public boolean allProceduresAreCallable() throws SQLException {
         return false;
     }
 
@@ -25,7 +26,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      */
     @Override
-    public boolean allTablesAreSelectable() {
+    public boolean allTablesAreSelectable() throws SQLException {
         return false;
     }
 
@@ -36,7 +37,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      */
     @Override
-    public String getURL() {
+    public String getURL() throws SQLException {
         return null;
     }
 
@@ -47,7 +48,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      */
     @Override
-    public String getUserName() {
+    public String getUserName() throws SQLException {
         return null;
     }
 
@@ -58,7 +59,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      */
     @Override
-    public boolean isReadOnly() {
+    public boolean isReadOnly() throws SQLException {
         return false;
     }
 
@@ -121,8 +122,12 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      */
     @Override
-    public String getDatabaseProductName() throws SQLException {
-        return null;
+    public String getDatabaseProductName()  throws SQLException {
+        return databaseProductName;
+    }
+    
+    public void setDatabaseProductName(String databaseProductName) {
+        this.databaseProductName = databaseProductName;
     }
 
     /**
@@ -2876,6 +2881,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      */
     @Override
     public int getSQLStateType() throws SQLException {
+        //noinspection MagicConstant
         return 0;
     }
 
@@ -3175,8 +3181,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * DECIMAL_DIGITS is not applicable.
      * <LI><B>NUM_PREC_RADIX</B> int {@code =>} Radix (typically either 10 or 2)
      * <LI><B>COLUMN_USAGE</B> String {@code =>} The allowed usage for the column.  The
-     * value returned will correspond to the enum name returned by {@link PseudoColumnUsage#name
-     * PseudoColumnUsage.name()}
+     * value returned will correspond to the enum name returned by {@link PseudoColumnUsage#name()}
      * <LI><B>REMARKS</B> String {@code =>} comment describing column (may be <code>null</code>)
      * <LI><B>CHAR_OCTET_LENGTH</B> int {@code =>} for char types the
      * maximum number of bytes in the column
