@@ -37,14 +37,13 @@ public enum DatabaseType {
         this.valueFormatterRegistry = valueFormatterRegistry;
     }
 
-    Tokenizer.TokenizerBuilder getTokenizerBuilder() {
-        return tokenizerBuilder;
-    }
-
-    ValueFormatterRegistry getValueFormatterRegistry() {
-        return valueFormatterRegistry;
-    }
-
+    /**
+     * Infer the type of database that this is for based on a connection's metadata.
+     *
+     * @param databaseMetaData the metadata
+     * @return The {@code DatabaseType} value that corresponds to the inferred type of database. If there is a problem
+     * inferring the type of database, the problem is logged and {@link DatabaseType#ANSI} is returned.
+     */
     public static DatabaseType inferDatabaseType(DatabaseMetaData databaseMetaData) {
         try {
             String productName = databaseMetaData.getDatabaseProductName();
@@ -93,13 +92,13 @@ public enum DatabaseType {
             if ("PostgreSQL".equals(productName)) {
                 return POSTGRESQL;
             }
-            if ( productName.startsWith( "Microsoft SQL Server" ) ) {
+            if (productName.startsWith("Microsoft SQL Server")) {
                 return SQL_SERVER;
             }
-            if ( "Sybase SQL Server".equals( productName ) || "Adaptive Server Enterprise".equals( productName ) ) {
+            if ("Sybase SQL Server".equals(productName) || "Adaptive Server Enterprise".equals(productName)) {
                 return ANSI;
             }
-            if ( productName.startsWith( "Adaptive Server Anywhere" ) || "SQL Anywhere".equals( productName ) ) {
+            if (productName.startsWith("Adaptive Server Anywhere") || "SQL Anywhere".equals(productName)) {
                 return ANSI;
             }
             logger.warn("Defaulting unknown database product " + productName + " to use ANSI templates.");
@@ -109,5 +108,13 @@ public enum DatabaseType {
             return ANSI;
         }
 
+    }
+
+    Tokenizer.TokenizerBuilder getTokenizerBuilder() {
+        return tokenizerBuilder;
+    }
+
+    ValueFormatterRegistry getValueFormatterRegistry() {
+        return valueFormatterRegistry;
     }
 }
