@@ -1,9 +1,9 @@
 package com.markgrand.smileyVars;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
@@ -45,9 +45,8 @@ public enum DatabaseType {
      * @return The {@code DatabaseType} value that corresponds to the inferred type of database. If there is a problem
      * inferring the type of database, the problem is logged and {@link DatabaseType#ANSI} is returned.
      */
-    @org.jetbrains.annotations.NotNull
     @NotNull
-    public static DatabaseType inferDatabaseType(@org.jetbrains.annotations.NotNull @NotNull  DatabaseMetaData databaseMetaData) {
+    public static DatabaseType inferDatabaseType(@NotNull  DatabaseMetaData databaseMetaData) {
         try {
             String productName = databaseMetaData.getDatabaseProductName();
             if (productName == null) {
