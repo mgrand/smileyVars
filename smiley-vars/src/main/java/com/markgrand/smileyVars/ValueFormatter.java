@@ -1,8 +1,9 @@
 package com.markgrand.smileyVars;
 
+import com.markgrand.smileyVars.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -13,7 +14,7 @@ import java.util.function.Predicate;
 class ValueFormatter {
     private final Predicate<Object> appliesTo;
     private final Function<Object, String> formattingFunction;
-    private final Function<Object, Method> preparedStatementSetter;
+    private final TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter;
     private final String name;
 
     /**
@@ -27,7 +28,7 @@ class ValueFormatter {
      */
     ValueFormatter(Predicate<Object> predicate,
                    Function<Object, String> formattingFunction,
-                   Function<Object, Method> preparedStatementSetter,
+                   TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
                    String name) {
         appliesTo = predicate;
         this.formattingFunction = formattingFunction;
@@ -58,13 +59,12 @@ class ValueFormatter {
     }
 
     /**
-     * Get the {@code Method} object to use for setting a parameter of a perpared statement with the given value.
+     * Get the object to use for setting a parameter of a perpared statement with the given value.
      *
-     * @param value The value to be paired with a setter method.
      * @return the setter method.
      */
-    Method getPreparedStatementSetter(Object value) {
-        return preparedStatementSetter.apply(value);
+    TriConsumer<PreparedStatement, Integer, Object> getPreparedStatementSetter() {
+        return preparedStatementSetter;
     }
 
     /**
