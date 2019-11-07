@@ -230,6 +230,8 @@ slf4j at <https://www.slf4j.org/manual.html>
 
 ## Roadmap
 This is a list of planned future features:
+* Support for Timestamp and Calendar
+* Spring Integration
 * Support for nested smileyVars brackets.
 * Built-in support for additional datatypes:
     * BitSet
