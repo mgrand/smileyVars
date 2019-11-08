@@ -59,7 +59,7 @@ class ValueFormatter {
     }
 
     /**
-     * Get the object to use for setting a parameter of a perpared statement with the given value.
+     * Get the object to use for setting a parameter of a prepared statement with the given value.
      *
      * @return the setter method.
      */
