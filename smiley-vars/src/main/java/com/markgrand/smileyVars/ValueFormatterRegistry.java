@@ -1,7 +1,7 @@
 package com.markgrand.smileyVars;
 
 import com.markgrand.smileyVars.util.CheckedContinuation;
-import com.markgrand.smileyVars.util.TriConsumer;
+import com.markgrand.smileyVars.util.PreparedStatementSetter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -29,11 +28,18 @@ class ValueFormatterRegistry {
     private static final Logger logger = LoggerFactory.getLogger(ValueFormatterRegistry.class);
 
     private static final ValueFormatterRegistry ansiRegistry = new ValueFormatterRegistry("ANSI");
+    private static PreparedStatementSetter preparedStatementBooleanSetter =
+            (preparedStatement, i, value)-> {
+        if (value == null) {
+            handleSqlException(()->preparedStatement.setNull(i, Types.BOOLEAN));
+        } else {
+            handleSqlException(() -> preparedStatement.setBoolean(i, (boolean) value));
+        }
+    };
     private static final ValueFormatterRegistry postgresqlRegistry
             = new ValueFormatterRegistry("PostgreSQL")
-                      .registerFormatter("boolean", Boolean.class,
-                              (preparedStatement, i, value)-> handleSqlException(()->preparedStatement.setBoolean(i, (boolean)value)),
-                              bool -> ((Boolean) bool).toString());
+                      .registerFormatter("boolean", Boolean.class, preparedStatementBooleanSetter,
+                              bool -> bool== null ? "null" : bool.toString());
     private static final SimpleDateFormat timestampFormatNoZone = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private volatile static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
@@ -90,7 +96,7 @@ class ValueFormatterRegistry {
             }
             return builder.append('\'').toString();
         };
-        TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter = (preparedStatement, i, value) -> {
+        PreparedStatementSetter preparedStatementSetter = (preparedStatement, i, value) -> {
             final Timestamp timestamp =
                     (value instanceof Date) ? new Timestamp(((Date) value).getTime())
                             : value instanceof Calendar ? new Timestamp(((Calendar) value).getTimeInMillis())
@@ -118,7 +124,7 @@ class ValueFormatterRegistry {
             }
             return builder.append('\'').toString();
         };
-        TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter = (preparedStatement, i, value) -> {
+        PreparedStatementSetter preparedStatementSetter = (preparedStatement, i, value) -> {
             final java.sql.Date date =
                     (value instanceof java.sql.Date) ? (java.sql.Date) value
                             : value instanceof Date ? new java.sql.Date(((Date)value).getTime())
@@ -182,7 +188,7 @@ class ValueFormatterRegistry {
 
     @SuppressWarnings("SameParameterValue")
     private static void registerStringFormatter(@NotNull LinkedHashMap<String, ValueFormatter> registryMap) {
-        TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter
+        PreparedStatementSetter preparedStatementSetter
                 = (preparedStatement, i, value) -> handleSqlException(() -> preparedStatement.setString(i, (String) value));
         registerFormatter("string",
                 String.class, string -> "'" + ((String) string).replace("'", "''") + "'",
@@ -192,7 +198,7 @@ class ValueFormatterRegistry {
     @SuppressWarnings("SameParameterValue")
     private static void registerNumberFormatter(@NotNull LinkedHashMap<String, ValueFormatter> registryMap) {
         final String formatterName = "number";
-        TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter = (preparedStatement, i, value) -> {
+        PreparedStatementSetter preparedStatementSetter = (preparedStatement, i, value) -> {
             if (value == null) {
                 handleSqlException(() -> preparedStatement.setNull(i, Types.TINYINT));
             } else if (value instanceof Integer || value instanceof Short || value instanceof Byte) {
@@ -218,14 +224,14 @@ class ValueFormatterRegistry {
     private static void registerFormatter(@NotNull String name,
                                           @NotNull Class clazz,
                                           @NotNull Function<Object, String> formatter,
-                                          @NotNull TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                                          @NotNull PreparedStatementSetter preparedStatementSetter,
                                           @NotNull LinkedHashMap<String, ValueFormatter> map) {
         map.put(name, new ValueFormatter(clazz::isInstance, formatter, preparedStatementSetter, name));
     }
 
     private static void registerFormatter(@NotNull String name, @NotNull Predicate<Object> predicate,
                                           @NotNull Function<Object, String> formatter,
-                                          @NotNull TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                                          @NotNull PreparedStatementSetter preparedStatementSetter,
                                           @NotNull LinkedHashMap<String, ValueFormatter> map) {
         map.put(name, new ValueFormatter(predicate, formatter, preparedStatementSetter, name));
     }
@@ -261,7 +267,7 @@ class ValueFormatterRegistry {
     @NotNull
     @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
     ValueFormatterRegistry registerFormatter(String name, @NotNull Class clazz,
-                                             TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                                             PreparedStatementSetter preparedStatementSetter,
                                              Function<Object, String> formatter) {
         return registerFormatter(name, clazz::isInstance, preparedStatementSetter, formatter);
     }
@@ -284,7 +290,7 @@ class ValueFormatterRegistry {
     @NotNull
     @SuppressWarnings("WeakerAccess")
     ValueFormatterRegistry registerFormatter(String name, Predicate<Object> predicate,
-                                             TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                                             PreparedStatementSetter preparedStatementSetter,
                                              Function<Object, String> formatter) {
         registerFormatter(name, predicate, formatter, preparedStatementSetter, formatterMap);
         return this;

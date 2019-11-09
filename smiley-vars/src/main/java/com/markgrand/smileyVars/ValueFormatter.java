@@ -1,9 +1,10 @@
 package com.markgrand.smileyVars;
 
-import com.markgrand.smileyVars.util.TriConsumer;
+import com.markgrand.smileyVars.util.PreparedStatementSetter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -14,7 +15,7 @@ import java.util.function.Predicate;
 class ValueFormatter {
     private final Predicate<Object> appliesTo;
     private final Function<Object, String> formattingFunction;
-    private final TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter;
+    private final PreparedStatementSetter preparedStatementSetter;
     private final String name;
 
     /**
@@ -28,7 +29,7 @@ class ValueFormatter {
      */
     ValueFormatter(Predicate<Object> predicate,
                    Function<Object, String> formattingFunction,
-                   TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                   PreparedStatementSetter preparedStatementSetter,
                    String name) {
         appliesTo = predicate;
         this.formattingFunction = formattingFunction;
@@ -59,12 +60,19 @@ class ValueFormatter {
     }
 
     /**
-     * Get the object to use for setting a parameter of a prepared statement with the given value.
+     * Set a prepared statement parameter.
      *
-     * @return the setter method.
+     * @param preparedStatement The PreparedStatement whose parameter is to be set.
+     * @param i                 The index of the parameter to set
+     * @param value             The value to set the parameter to.
+     * @throws SmileyVarsSqlException if given PreparedStatement object throws an SQLException.
      */
-    TriConsumer<PreparedStatement, Integer, Object> getPreparedStatementSetter() {
-        return preparedStatementSetter;
+    void setPreparedStatementParameter(PreparedStatement preparedStatement, Integer i, Object value) {
+        try {
+            preparedStatementSetter.apply(preparedStatement, i, value);
+        } catch (SQLException e) {
+            throw new SmileyVarsSqlException("Error setting value of varaible named " + name, e);
+        }
     }
 
     /**
