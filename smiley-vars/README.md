@@ -99,7 +99,7 @@ literal a variable is replaced with may depend on just the type of value
 that is provided for the variable:
 * Values that are instances of `Number` are formatted as SQL numeric 
 literals.
-* Values that are `String` objects are fomatted as SQL string literals.
+* Values that are `String` objects are formatted as SQL string literals.
 * Values that are `Calendar` objects are formatted as SQL timestamp 
 literals.
 
@@ -143,10 +143,10 @@ These are the currently supported formats:
 based on the type of value when there is no formatter specified.
 
 **Applies to Java Types** shows the Java types that the formatter can be
-used with. Note that some of thes types are abstract classes of 
-interfaces that are extended or implemented by many concret classes. For
-example, `Number` is extended by `BigDecimal`, `Double`, `Integer` and 
-other classes that represent numeric values. `TemporalAccessor` is 
+used with. Note that some of these types are abstract classes of
+interfaces that are extended or implemented by many concrete classes.
+For example, `Number` is extended by `BigDecimal`, `Double`, `Integer`
+and other classes that represent numeric values. `TemporalAccessor` is
 implemented by `Instant`, `LocalDateTime`, `Year` and other classes that
 represent points in time.
 
@@ -158,7 +158,8 @@ created for a particular dialect of SQL such as PostgreSQL, Oracle of
 Transact-SQL (Sql Server). Some formatters are included in all template
 types. Other formatters are for use in just one type of template.
 
-<sub>**Note**: No dialect-specifed formats have been implemented for this version of SmileyVars.</sub>
+<sub>**Note**: No dialect-specified formats have been implemented for
+this version of SmileyVars.</sub>
 
 ## Using smileyVars
 You can use smileyVars as a stand-alone pre-processor for SQL. However, 
@@ -228,12 +229,12 @@ method. The apply method returns the expanded template body.
 SmileyVars uses slf4j for its logging.  Slf4j integrates with all of the popular logging libraries (Logback, log4j, &hellip;). You can find documentation for
 slf4j at <https://www.slf4j.org/manual.html>
 
-## Roadmap
+## Road Map
 This is a list of planned future features:
 * Support for Timestamp and Calendar
 * Spring Integration
 * Support for nested smileyVars brackets.
-* Built-in support for additional datatypes:
+* Built-in support for additional data types:
     * BitSet
     * TimeDuration
     * Money

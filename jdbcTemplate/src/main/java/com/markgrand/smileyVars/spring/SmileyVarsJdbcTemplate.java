@@ -25,7 +25,7 @@ import java.util.*;
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class SmileyVarsJdbcTemplate extends JdbcTemplate {
-    private static Logger logger = LoggerFactory.getLogger(SmileyVarsJdbcTemplate.class);
+    private static final Logger logger = LoggerFactory.getLogger(SmileyVarsJdbcTemplate.class);
 
     private Optional<DatabaseType> dbType = Optional.empty();
 

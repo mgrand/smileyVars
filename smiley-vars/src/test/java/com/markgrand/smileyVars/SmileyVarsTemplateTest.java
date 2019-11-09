@@ -25,7 +25,7 @@ class SmileyVarsTemplateTest {
 
     @Test
     void emptyAllBracketed() {
-        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.SQL_SERVER, "(: foo :bar sadfoij :)");
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.SQL_SERVER, "(: foo :bar sadist :)");
         assertEquals("", template.apply(new HashMap<>()));
     }
 

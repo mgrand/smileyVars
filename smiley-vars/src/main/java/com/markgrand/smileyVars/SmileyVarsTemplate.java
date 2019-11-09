@@ -72,7 +72,7 @@ import java.util.Stack;
  * SELECT item_number, quantity, aisle, level, bin_number FROM bin_tbl
  * WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
  * </pre>
- * <p>For more SimleyVars documentation, see <a href="https://github.com/mgrand/smileyVars">https://github.com/mgrand/smileyVars</a>.</p>
+ * <p>For more SmileyVars documentation, see <a href="https://github.com/mgrand/smileyVars">https://github.com/mgrand/smileyVars</a>.</p>
  *
  * @author Mark Grand
  */

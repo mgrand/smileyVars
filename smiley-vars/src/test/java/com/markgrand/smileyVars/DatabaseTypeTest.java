@@ -185,7 +185,7 @@ class DatabaseTypeTest {
     @Test
     void inferDatabaseTypeUnknown(@NotNull @Mocked DatabaseMetaData metaData, @NotNull @Capturing Logger logger) throws Exception {
         new Expectations() {{
-            metaData.getDatabaseProductName(); result = "xxxxxxxx";
+            metaData.getDatabaseProductName(); result = "constable";
         }};
         assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
         new Verifications() {{

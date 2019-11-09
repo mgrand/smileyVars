@@ -1501,7 +1501,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * <LI><B>SQL_DATA_TYPE</B> int  {@code =>} reserved for future use
      * <LI><B>SQL_DATETIME_SUB</B> int  {@code =>} reserved for future use
      * <LI><B>CHAR_OCTET_LENGTH</B> int  {@code =>} the maximum length of binary and character based columns.  For any
-     * other datatype the returned value is a
+     * other data type the returned value is a
      * NULL
      * <LI><B>ORDINAL_POSITION</B> int  {@code =>} the ordinal position, starting from 1, for the input and output
      * parameters for a procedure. A value of 0
@@ -1523,9 +1523,9 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      *
      * <p>The PRECISION column represents the specified column size for the given column.
      * For numeric data, this is the maximum precision.  For character data, this is the length in characters. For
-     * datetime datatypes, this is the length in characters of the String representation (assuming the maximum allowed
+     * datetime data types, this is the length in characters of the String representation (assuming the maximum allowed
      * precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID
-     * datatype, this is the length in bytes. Null is returned for data types where the column size is not applicable.
+     * data type, this is the length in bytes. Null is returned for data types where the column size is not applicable.
      *
      * @param catalog              a catalog name; must match the catalog name as it is stored in the database; ""
      *                             retrieves those without a catalog;
@@ -1716,9 +1716,9 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      *
      * <p>The COLUMN_SIZE column specifies the column size for the given column.
      * For numeric data, this is the maximum precision.  For character data, this is the length in characters. For
-     * datetime datatypes, this is the length in characters of the String representation (assuming the maximum allowed
+     * datetime data types, this is the length in characters of the String representation (assuming the maximum allowed
      * precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID
-     * datatype, this is the length in bytes. Null is returned for data types where the column size is not applicable.
+     * data type, this is the length in bytes. Null is returned for data types where the column size is not applicable.
      *
      * @param catalog           a catalog name; must match the catalog name as it is stored in the database; ""
      *                          retrieves those without a catalog;
@@ -1754,7 +1754,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * <LI><B>GRANTOR</B> String {@code =>} grantor of access (may be <code>null</code>)
      * <LI><B>GRANTEE</B> String {@code =>} grantee of access
      * <LI><B>PRIVILEGE</B> String {@code =>} name of access (SELECT,
-     * INSERT, UPDATE, REFRENCES, ...)
+     * INSERT, UPDATE, REFERENCES, ...)
      * <LI><B>IS_GRANTABLE</B> String {@code =>} "YES" if grantee is permitted
      * to grant to others; "NO" if not; <code>null</code> if unknown
      * </OL>
@@ -1797,7 +1797,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * <LI><B>GRANTOR</B> String {@code =>} grantor of access (may be <code>null</code>)
      * <LI><B>GRANTEE</B> String {@code =>} grantee of access
      * <LI><B>PRIVILEGE</B> String {@code =>} name of access (SELECT,
-     * INSERT, UPDATE, REFRENCES, ...)
+     * INSERT, UPDATE, REFERENCES, ...)
      * <LI><B>IS_GRANTABLE</B> String {@code =>} "YES" if grantee is permitted
      * to grant to others; "NO" if not; <code>null</code> if unknown
      * </OL>
@@ -1851,9 +1851,9 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      *
      * <p>The COLUMN_SIZE column represents the specified column size for the given column.
      * For numeric data, this is the maximum precision.  For character data, this is the length in characters. For
-     * datetime datatypes, this is the length in characters of the String representation (assuming the maximum allowed
+     * datetime data types, this is the length in characters of the String representation (assuming the maximum allowed
      * precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID
-     * datatype, this is the length in bytes. Null is returned for data types where the column size is not applicable.
+     * data type, this is the length in bytes. Null is returned for data types where the column size is not applicable.
      *
      * @param catalog  a catalog name; must match the catalog name as it is stored in the database; "" retrieves those
      *                 without a catalog;
@@ -1899,9 +1899,9 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      *
      * <p>The COLUMN_SIZE column represents the specified column size for the given column.
      * For numeric data, this is the maximum precision.  For character data, this is the length in characters. For
-     * datetime datatypes, this is the length in characters of the String representation (assuming the maximum allowed
+     * date time data types, this is the length in characters of the String representation (assuming the maximum allowed
      * precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID
-     * datatype, this is the length in bytes. Null is returned for data types where the column size is not applicable.
+     * data type, this is the length in bytes. Null is returned for data types where the column size is not applicable.
      *
      * @param catalog a catalog name; must match the catalog name as it is stored in the database; "" retrieves those
      *                without a catalog;
@@ -2245,11 +2245,11 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * <LI><B>NUM_PREC_RADIX</B> int {@code =>} usually 2 or 10
      * </OL>
      *
-     * <p>The PRECISION column represents the maximum column size that the server supports for the given datatype.
+     * <p>The PRECISION column represents the maximum column size that the server supports for the given data type.
      * For numeric data, this is the maximum precision.  For character data, this is the length in characters. For
-     * datetime datatypes, this is the length in characters of the String representation (assuming the maximum allowed
+     * datetime data types, this is the length in characters of the String representation (assuming the maximum allowed
      * precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID
-     * datatype, this is the length in bytes. Null is returned for data types where the column size is not applicable.
+     * data type, this is the length in bytes. Null is returned for data types where the column size is not applicable.
      *
      * @return a <code>ResultSet</code> object in which each row is an SQL type description
      * @throws SQLException if a database access error occurs
@@ -2277,7 +2277,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * <LI><B>TYPE</B> short {@code =>} index type:
      * <UL>
      * <LI> tableIndexStatistic - this identifies table statistics that are
-     * returned in conjuction with a table's index descriptions
+     * returned in conjunction with a table's index descriptions
      * <LI> tableIndexClustered - this is a clustered index
      * <LI> tableIndexHashed - this is a hashed index
      * <LI> tableIndexOther - this is some other style of index
@@ -2291,7 +2291,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * <code>null</code> when TYPE is tableIndexStatistic
      * <LI><B>CARDINALITY</B> long {@code =>} When TYPE is tableIndexStatistic, then
      * this is the number of rows in the table; otherwise, it is the number of unique values in the index.
-     * <LI><B>PAGES</B> long {@code =>} When TYPE is  tableIndexStatisic then
+     * <LI><B>PAGES</B> long {@code =>} When TYPE is  tableIndexStatistic then
      * this is the number of pages used for the table, otherwise it is the number of pages used for the current index.
      * <LI><B>FILTER_CONDITION</B> String {@code =>} Filter condition, if any.
      * (may be <code>null</code>)
@@ -2619,7 +2619,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      *
      * @return <code>true</code> if a <code>CallableStatement</code> object
      * can return multiple <code>ResultSet</code> objects simultaneously; <code>false</code> otherwise
-     * @throws SQLException if a datanase access error occurs
+     * @throws SQLException if a database access error occurs
      * @since 1.4
      */
     @Override
@@ -3111,7 +3111,7 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      * </UL>
      * <LI><B>REMARKS</B> String {@code =>} comment describing column/parameter
      * <LI><B>CHAR_OCTET_LENGTH</B> int  {@code =>} the maximum length of binary
-     * and character based parameters or columns.  For any other datatype the returned value is a NULL
+     * and character based parameters or columns.  For any other data type the returned value is a NULL
      * <LI><B>ORDINAL_POSITION</B> int  {@code =>} the ordinal position, starting
      * from 1, for the input and output parameters. A value of 0 is returned if this row describes the function's return
      * value. For result set columns, it is the ordinal position of the column in the result set starting from 1.
@@ -3130,9 +3130,9 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      *
      * <p>The PRECISION column represents the specified column size for the given
      * parameter or column. For numeric data, this is the maximum precision.  For character data, this is the length in
-     * characters. For datetime datatypes, this is the length in characters of the String representation (assuming the
+     * characters. For datetime data types, this is the length in characters of the String representation (assuming the
      * maximum allowed precision of the fractional seconds component). For binary data, this is the length in bytes.
-     * For the ROWID datatype, this is the length in bytes. Null is returned for data types where the column size is not
+     * For the ROWID data type, this is the length in bytes. Null is returned for data types where the column size is not
      * applicable.
      *
      * @param catalog             a catalog name; must match the catalog name as it is stored in the database; ""
@@ -3195,9 +3195,9 @@ public class MockDatabaseMetadata implements DatabaseMetaData {
      *
      * <p>The COLUMN_SIZE column specifies the column size for the given column.
      * For numeric data, this is the maximum precision.  For character data, this is the length in characters. For
-     * datetime datatypes, this is the length in characters of the String representation (assuming the maximum allowed
+     * datetime data types, this is the length in characters of the String representation (assuming the maximum allowed
      * precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID
-     * datatype, this is the length in bytes. Null is returned for data types where the column size is not applicable.
+     * data type, this is the length in bytes. Null is returned for data types where the column size is not applicable.
      *
      * @param catalog           a catalog name; must match the catalog name as it is stored in the database; ""
      *                          retrieves those without a catalog;

@@ -1,10 +1,18 @@
 package com.markgrand.smileyVars;
 
+import com.markgrand.smileyVars.util.CheckedContinuation;
+import com.markgrand.smileyVars.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
@@ -22,10 +30,23 @@ class ValueFormatterRegistry {
 
     private static final ValueFormatterRegistry ansiRegistry = new ValueFormatterRegistry("ANSI");
     private static final ValueFormatterRegistry postgresqlRegistry
-            = new ValueFormatterRegistry("PostgreSQL").registerFormatter("boolean", Boolean.class, bool -> ((Boolean) bool).toString());
+            = new ValueFormatterRegistry("PostgreSQL")
+                      .registerFormatter("boolean", Boolean.class,
+                              (preparedStatement, i, value)-> handleSqlException(()->preparedStatement.setBoolean(i, (boolean)value)),
+                              bool -> ((Boolean) bool).toString());
     private static final SimpleDateFormat timestampFormatNoZone = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private volatile static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
+    private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
+    private final String name;
+
+    private ValueFormatterRegistry(String name) {
+        ensureCommonBuiltinFormattersAreRegistered();
+        formatterMap.putAll(commonBuiltinFormatters);
+        this.name = name;
+        //TODO add formatter for BitSet, Time, Calendar, Duration, Money, unique identifier/GUID
+        //TODO need to account for national character set string literals and unicode string literals.
+    }
 
     private static void ensureCommonBuiltinFormattersAreRegistered() {
         if (commonBuiltinFormatters == null) {
@@ -41,21 +62,6 @@ class ValueFormatterRegistry {
                 }
             }
         }
-    }
-
-    private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
-    private final String name;
-
-    String getName() {
-        return name;
-    }
-
-    private ValueFormatterRegistry(String name) {
-        ensureCommonBuiltinFormattersAreRegistered();
-        formatterMap.putAll(commonBuiltinFormatters);
-        this.name = name;
-        //TODO add formatter for BitSet, Time, Calendar, Duration, Money, unique identifier/GUID
-        //TODO need to account for national character set string literals and unicode string literals.
     }
 
     @NotNull
@@ -84,7 +90,16 @@ class ValueFormatterRegistry {
             }
             return builder.append('\'').toString();
         };
-        registerFormatter(formatterName, predicate, formattingFunction, registryMap);
+        TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter = (preparedStatement, i, value) -> {
+            final Timestamp timestamp =
+                    (value instanceof Date) ? new Timestamp(((Date) value).getTime())
+                            : value instanceof Calendar ? new Timestamp(((Calendar) value).getTimeInMillis())
+                                      : value instanceof TemporalAccessor ? new Timestamp(((TemporalAccessor) value).getLong(ChronoField.EPOCH_DAY)
+                                                                                                  + ((TemporalAccessor) value).getLong(ChronoField.MILLI_OF_DAY))
+                                                : handleInapplicableValue(formatterName, value);
+            handleSqlException(() -> preparedStatement.setTimestamp(i, timestamp));
+        };
+        registerFormatter(formatterName, predicate, formattingFunction, preparedStatementSetter, registryMap);
     }
 
     private static void registerDateFormatter(@NotNull @SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
@@ -103,7 +118,17 @@ class ValueFormatterRegistry {
             }
             return builder.append('\'').toString();
         };
-        registerFormatter(formatterName, predicate, formattingFunction, registryMap);
+        TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter = (preparedStatement, i, value) -> {
+            final java.sql.Date date =
+                    (value instanceof java.sql.Date) ? (java.sql.Date) value
+                            : value instanceof Date ? new java.sql.Date(((Date)value).getTime())
+                            : value instanceof Calendar ? new java.sql.Date(((Calendar) value).getTimeInMillis())
+                                      : value instanceof TemporalAccessor ? new java.sql.Date(((TemporalAccessor) value).getLong(ChronoField.EPOCH_DAY)
+                                                                                             + ((TemporalAccessor) value).getLong(ChronoField.MILLI_OF_DAY))
+                                                : handleInapplicableValue(formatterName, value);
+            handleSqlException(()->preparedStatement.setDate(i, date));
+        };
+        registerFormatter(formatterName, predicate, formattingFunction, preparedStatementSetter, registryMap);
     }
 
     private static void formatTemporalAccessorAsTimestamp(@NotNull TemporalAccessor accessor, @NotNull StringBuilder builder) {
@@ -124,7 +149,7 @@ class ValueFormatterRegistry {
     }
 
     private static void formatCalendarAsTimestamp(@NotNull Calendar calendar, @NotNull StringBuilder builder) {
-        builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)+1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH))
+        builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH) + 1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH))
                 .append(' ').append(calendar.get(Calendar.HOUR_OF_DAY)).append(':').append(calendar.get(Calendar.MINUTE)).append(':').append(calendar.get(Calendar.SECOND));
         int zoneOffsetMinutes = calendar.get(Calendar.ZONE_OFFSET) / (60 * 1000);
         if (zoneOffsetMinutes >= 0) {
@@ -134,7 +159,7 @@ class ValueFormatterRegistry {
     }
 
     private static void formatCalendarAsDate(@NotNull Calendar calendar, @NotNull StringBuilder builder) {
-        builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH)+1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH));
+        builder.append(calendar.get(Calendar.YEAR)).append('-').append(calendar.get(Calendar.MONTH) + 1).append('-').append(calendar.get(Calendar.DAY_OF_MONTH));
     }
 
     private static void doTimestampFormatNoZone(Date date, @NotNull StringBuilder builder) {
@@ -150,67 +175,119 @@ class ValueFormatterRegistry {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void handleInapplicableValue(String formatterName, @NotNull Object value) {
+    private static <T> T handleInapplicableValue(String formatterName, @NotNull Object value) {
         @NotNull String msg = "Formatter named " + formatterName + " cannot be applied to object of class " + value.getClass().getName();
         throw new IllegalArgumentException(msg);
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void registerStringFormatter(@NotNull LinkedHashMap<String, ValueFormatter> registryMap) {
-        registerFormatter("string", String.class, string -> "'" + ((String) string).replace("'", "''") + "'", registryMap);
+        TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter
+                = (preparedStatement, i, value) -> handleSqlException(() -> preparedStatement.setString(i, (String) value));
+        registerFormatter("string",
+                String.class, string -> "'" + ((String) string).replace("'", "''") + "'",
+                preparedStatementSetter, registryMap);
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void registerNumberFormatter(@NotNull LinkedHashMap<String, ValueFormatter> registryMap) {
-        registerFormatter("number", Number.class, Object::toString, registryMap);
+        final String formatterName = "number";
+        TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter = (preparedStatement, i, value) -> {
+            if (value == null) {
+                handleSqlException(() -> preparedStatement.setNull(i, Types.TINYINT));
+            } else if (value instanceof Integer || value instanceof Short || value instanceof Byte) {
+                handleSqlException(() -> preparedStatement.setInt(i, ((Number)value).intValue()));
+            } else if (value instanceof Long) {
+                handleSqlException(() -> preparedStatement.setLong(i, (Long) value));
+            } else if (value instanceof BigDecimal) {
+                handleSqlException(() -> preparedStatement.setBigDecimal(i, (BigDecimal) value));
+            } else if (value instanceof BigInteger) {
+                handleSqlException(() -> preparedStatement.setBigDecimal(i, new BigDecimal((BigInteger) value)));
+            } else if (value instanceof Double) {
+                handleSqlException(() -> preparedStatement.setDouble(i, (Double) value));
+            } else if (value instanceof Float) {
+                handleSqlException(() -> preparedStatement.setDouble(i, (Float) value));
+            } else {
+                handleInapplicableValue(formatterName, value);
+            }
+        };
+
+        registerFormatter(formatterName, Number.class, Object::toString, preparedStatementSetter, registryMap);
+    }
+
+    private static void registerFormatter(@NotNull String name,
+                                          @NotNull Class clazz,
+                                          @NotNull Function<Object, String> formatter,
+                                          @NotNull TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                                          @NotNull LinkedHashMap<String, ValueFormatter> map) {
+        map.put(name, new ValueFormatter(clazz::isInstance, formatter, preparedStatementSetter, name));
+    }
+
+    private static void registerFormatter(@NotNull String name, @NotNull Predicate<Object> predicate,
+                                          @NotNull Function<Object, String> formatter,
+                                          @NotNull TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                                          @NotNull LinkedHashMap<String, ValueFormatter> map) {
+        map.put(name, new ValueFormatter(predicate, formatter, preparedStatementSetter, name));
+    }
+
+    private static void handleSqlException(CheckedContinuation<SQLException> continuation) {
+        try {
+            continuation.apply();
+        } catch (SQLException e) {
+            throw new SmileyVarsSqlException("Error while setting a PreparedStatement parameter.", e);
+        }
+    }
+
+    String getName() {
+        return name;
     }
 
     /**
      * Use the given formatter to return an SQL literal that will represent that object in the SQL if the object is an
      * instance of the given class.
      *
-     * @param name      The name of this formatter. If the given name is specified with a smileyVar, then this formatter
-     *                  will be used to format the smileyVar's value; otherwise the formatter will be used if it is the
-     *                  first one registered whose class or predicate match the value of the smileyVar.
-     * @param clazz     The class that a value must be an instance of for the given formatter function to be used to
-     *                  format it.
-     * @param formatter A function to return a representation of an object as an SQL literal.
+     * @param name                    The name of this formatter. If the given name is specified with a smileyVar, then
+     *                                this formatter will be used to format the smileyVar's value; otherwise the
+     *                                formatter will be used if it is the first one registered whose class or predicate
+     *                                match the value of the smileyVar.
+     * @param clazz                   The class that a value must be an instance of for the given formatter function to
+     *                                be used to format it.
+     * @param preparedStatementSetter A function that can be used to set a prepared statement parameter. The arguments
+     *                                of the function must be the prepared statement, the parameter index and the value
+     *                                for the parameter.
+     * @param formatter               A function to return a representation of an object as an SQL literal.
      * @return this object
      */
     @NotNull
     @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
-    ValueFormatterRegistry registerFormatter(String name, @NotNull Class clazz, Function<Object, String> formatter) {
-        return registerFormatter(name, clazz::isInstance, formatter);
+    ValueFormatterRegistry registerFormatter(String name, @NotNull Class clazz,
+                                             TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                                             Function<Object, String> formatter) {
+        return registerFormatter(name, clazz::isInstance, preparedStatementSetter, formatter);
     }
 
     /**
      * If the given predicate returns true when passed the value of a Smiley Var, then use the given formatter to return
      * an SQL literal that will represent that object in the SQL.
      *
-     * @param name      The name of this formatter. If the given name is specified with a smileyVar, then this formatter
-     *                  will be used to format the smileyVar's value; otherwise the formatter will be used if it is the
-     *                  first one registered whose class or predicate match the value of the smileyVar.
-     * @param predicate The predicate to determine if the formatter can be applied to a given value.
-     * @param formatter A function to return a representation of an object as an SQL literal.
+     * @param name                    The name of this formatter. If the given name is specified with a smileyVar, then
+     *                                this formatter will be used to format the smileyVar's value; otherwise the
+     *                                formatter will be used if it is the first one registered whose class or predicate
+     *                                match the value of the smileyVar.
+     * @param predicate               The predicate to determine if the formatter can be applied to a given value.
+     * @param preparedStatementSetter A function that can be used to set a prepared statement parameter. The arguments
+     *                                of the function must be the prepared statement, the parameter index and the value
+     *                                for the parameter.
+     * @param formatter               A function to return a representation of an object as an SQL literal.
      * @return this object
      */
     @NotNull
     @SuppressWarnings("WeakerAccess")
-    ValueFormatterRegistry registerFormatter(String name, Predicate<Object> predicate, Function<Object, String> formatter) {
-        registerFormatter(name, predicate, formatter, formatterMap);
+    ValueFormatterRegistry registerFormatter(String name, Predicate<Object> predicate,
+                                             TriConsumer<PreparedStatement, Integer, Object> preparedStatementSetter,
+                                             Function<Object, String> formatter) {
+        registerFormatter(name, predicate, formatter, preparedStatementSetter, formatterMap);
         return this;
-    }
-
-    private static void registerFormatter(String name, @NotNull Class clazz,
-                                          Function<Object, String> formatter,
-                                          @NotNull LinkedHashMap<String, ValueFormatter> map) {
-        map.put(name, new ValueFormatter(clazz::isInstance, formatter, name));
-    }
-
-    private static void registerFormatter(String name, Predicate<Object> predicate,
-                                          Function<Object, String> formatter,
-                                          @NotNull LinkedHashMap<String, ValueFormatter> map) {
-        map.put(name, new ValueFormatter(predicate, formatter, name));
     }
 
     /**
