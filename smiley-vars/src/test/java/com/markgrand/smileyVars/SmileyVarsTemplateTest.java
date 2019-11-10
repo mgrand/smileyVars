@@ -165,7 +165,7 @@ class SmileyVarsTemplateTest {
 
     @Test
     void CalendarAsTimestamp() {
-        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:)");
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:timestamp:)");
         @NotNull Calendar calendar = new GregorianCalendar(2020, Calendar.FEBRUARY, 18, 13, 43, 56);
         calendar.setTimeZone(TimeZone.getTimeZone("EST"));
         @NotNull Map<String, Object> map = new HashMap<>();
@@ -177,7 +177,7 @@ class SmileyVarsTemplateTest {
 
     @Test
     void CalendarAsDate() {
-        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:date :)");
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x :)");
         @NotNull Calendar calendar = new GregorianCalendar(2020, Calendar.FEBRUARY, 18, 13, 43, 56);
         calendar.setTimeZone(TimeZone.getTimeZone("EST"));
         @NotNull Map<String, Object> map = new HashMap<>();
@@ -203,7 +203,7 @@ class SmileyVarsTemplateTest {
 
     @Test
     void temporalAccessorAsTimestamp() {
-        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:)");
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:timestamp:)");
         @NotNull ZonedDateTime instant = ZonedDateTime.of(2020,2, 18, 13, 43, 56, 0, ZoneId.of("-5"));
         @NotNull Map<String, Object> map = new HashMap<>();
         map.put("x", instant);
@@ -214,7 +214,7 @@ class SmileyVarsTemplateTest {
 
     @Test
     void temporalAccessorAsDate() {
-        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:date:)");
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:)");
         @NotNull ZonedDateTime instant = ZonedDateTime.of(2020,2, 18, 13, 43, 56, 0, ZoneId.of("-5"));
         @NotNull Map<String, Object> map = new HashMap<>();
         map.put("x", instant);
