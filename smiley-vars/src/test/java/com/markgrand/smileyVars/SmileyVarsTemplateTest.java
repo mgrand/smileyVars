@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -131,12 +132,21 @@ class SmileyVarsTemplateTest {
     }
 
     @Test
+    void timestamp() {
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI, "Select * from foo where 1=1 (:and x=:x :)");
+        @NotNull Timestamp timestamp = new Timestamp(new GregorianCalendar(2020, Calendar.APRIL, 18, 13, 43, 56).getTimeInMillis());
+        @NotNull Map<String, Object> map = new HashMap<>();
+        map.put("x", timestamp);
+        assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-04-18 13:43:56' ", template.apply(map));
+    }
+
+    @Test
     void dateAsTimestamp() {
-        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI, "Select * from foo where 1=1 (:and x=:x:)");
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI, "Select * from foo where 1=1 (:and x=:x:timestamp :)");
         @NotNull Date date = new GregorianCalendar(2020, Calendar.APRIL, 18, 13, 43, 56).getTime();
         @NotNull Map<String, Object> map = new HashMap<>();
         map.put("x", date);
-        assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-04-18 13:43:56'", template.apply(map));
+        assertEquals("Select * from foo where 1=1 and x=TIMESTAMP '2020-04-18 13:43:56' ", template.apply(map));
     }
 
     @Test
