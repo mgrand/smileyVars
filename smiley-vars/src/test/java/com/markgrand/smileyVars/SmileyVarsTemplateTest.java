@@ -312,4 +312,16 @@ class SmileyVarsTemplateTest {
         map.put("x", "42");
         assertEquals("Select * from foo where 1=1", template.apply(map));
     }
+
+    @Test
+    void bracketedNull() {
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ORACLE,"Select * from foo where 1=1(: and x=:x:)");
+        assertEquals("Select * from foo where 1=1 and x=null", template.apply(new HashMap<>()));
+    }
+
+    @Test
+    void unbracketedNull() {
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ORACLE,"Select * from foo where 1=1 and x=:x");
+        assertEquals("Select * from foo where 1=1 and x=null", template.apply(new HashMap<>()));
+    }
 }
