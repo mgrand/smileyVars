@@ -57,7 +57,7 @@ class ValueFormatter {
      * @return {@code true} if the this object can formatting the given value, otherwise {@code false}.
      */
     boolean isApplicable(Object value) {
-        return appliesTo.test(value);
+        return isDefaultFor(value)  || appliesTo.test(value);
     }
 
     /**
