@@ -231,19 +231,30 @@ SmileyVars uses slf4j for its logging.  Slf4j integrates with all of the popular
 slf4j at <https://www.slf4j.org/manual.html>
 
 ## Road Map
-This is a list of planned future features:
-* Support for Timestamp and Calendar
+This is a list of planned future features, in no particular order:
+* Support Prepared Statements
 * Spring Integration
 * Support for nested smileyVars brackets.
 * Built-in support for additional data types:
-    * BitSet
-    * TimeDuration
-    * Money
-    * unique identifier/GUID 
-    * boolean
+  * BitSet
+  * TimeDuration
+  * Time
+  * Money
+  * unique identifier/GUID 
+  * Arrays (PostgreSQL and Oracle)
 * Integration with Spring JdbcTemplate
-* Support for parsing national character set string literals.
+* Support for BLOBs.
+* Support for parsing national character set strings.
 * Support for parsing unicode string literals.
+* Support for ASCII input streams.
+* Support for binary input streams.
+* Support for Character Streams and NCharacter Streams.
+* Support for CLOBs and NCLOBs
+* Support for Objects
+* Support for REFs
+* Support for RowIds
+* Support for SQLXML
+* Support for URLs
 
 ## Appendix: smileyVars Syntax
 
