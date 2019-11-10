@@ -109,8 +109,9 @@ public class SmileyVarsTemplate {
      * Create a template for the type of database associated with the given data source.
      *
      * @param conn a database connection to the database that the template will be used with.
-     * @param sql The template body.
+     * @param sql  The template body.
      * @return the template.
+     * @throws SQLException if there is a problem using the connection to determine the type of database being used.
      */
     @SuppressWarnings("WeakerAccess")
     @NotNull
@@ -121,9 +122,11 @@ public class SmileyVarsTemplate {
     /**
      * Create a template for the type of database associated with the given data source.
      *
-     * @param ds the data source that the template will be used with.
+     * @param ds  the data source that the template will be used with.
      * @param sql The template body.
      * @return the template.
+     * @throws SQLException if there is a problem getting a connection from the data source or if there is a problem
+     *                      using the connection to determine the type of database.
      */
     @org.jetbrains.annotations.NotNull
     @SuppressWarnings({"unused", "WeakerAccess"})
@@ -134,8 +137,8 @@ public class SmileyVarsTemplate {
     }
 
     /**
-     * <p>Create a template for ANSI-compliant SQL. ANSI SQL is a standard that all relational databases conform to to some
-     * extent. This type of template is best when you are planning to write SQL that is portable between different
+     * <p>Create a template for ANSI-compliant SQL. ANSI SQL is a standard that all relational databases conform to to
+     * some extent. This type of template is best when you are planning to write SQL that is portable between different
      * database engines or if you are working with a relational database for which there is no specific template
      * creation method.</p>
      * <p>ANSI templates ignore any smileyVars that are inside of string literals, quoted identifiers or comments. Note
