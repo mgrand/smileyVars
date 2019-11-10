@@ -320,17 +320,21 @@ public class SmileyVarsTemplate {
      * @param values    A map of variable names to their assigned value.
      * @param tokenizer The tokenizer to use for getting an explicit formatter name if given.
      * @param varToken  The token that is the variable.
-     * @return The value of the variable formatted as an SQL literal
+     * @return The value of the variable formatted as an SQL literal or null if the variable does not have a value.
      * @throws NoFormatterException if there is no applicable formatter registered to format the variable's value.
      */
-    private String getVarValue(@org.jetbrains.annotations.NotNull Map<String, Object> values, @org.jetbrains.annotations.NotNull Tokenizer tokenizer, @org.jetbrains.annotations.NotNull Token varToken) {
-        @org.jetbrains.annotations.NotNull String varName = varToken.getTokenchars();
+    private String getVarValue(@NotNull Map<String, Object> values, @NotNull Tokenizer tokenizer, @NotNull Token varToken) {
+        @NotNull String varName = varToken.getTokenchars();
         if (tokenizer.peek() == TokenType.VAR) {
-            @org.jetbrains.annotations.NotNull String typeName = tokenizer.next().getTokenchars();
+            @NotNull String typeName = tokenizer.next().getTokenchars();
             return formatterRegistry.format(values.get(varName), typeName);
         }
         //No explicit type given for variable, so let the formatter predicates identify the correct formatter to use.
-        return formatterRegistry.format(values.get(varName));
+        if (values.containsKey(varName)) {
+            return formatterRegistry.format(values.get(varName));
+        } else {
+            return null;
+        }
     }
 
     private void skipToSmileyClose(@org.jetbrains.annotations.NotNull Tokenizer tokenizer) {

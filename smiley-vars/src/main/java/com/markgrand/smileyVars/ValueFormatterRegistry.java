@@ -314,7 +314,7 @@ class ValueFormatterRegistry {
      */
     @Nullable String format(@Nullable Object value) {
         if (value == null) {
-            return null;
+            return "null";
         }
         for (@NotNull ValueFormatter valueFormatter : formatterMap.values()) {
             if (valueFormatter.isDefault(value)) {
