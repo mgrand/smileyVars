@@ -111,7 +111,8 @@ class ValueFormatterRegistry {
 
     private static void registerDateFormatter(@NotNull @SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {
         @NotNull final String formatterName = "date";
-        @NotNull Predicate<Object> isDefault = object -> object instanceof Date && !(object instanceof Timestamp);
+        @NotNull Predicate<Object> isDefault = object -> object instanceof Date && !(object instanceof Timestamp)
+                                                                 || object instanceof Calendar || object instanceof TemporalAccessor;
         @NotNull Predicate<Object> isApplicable = object -> object instanceof Date || object instanceof Calendar || object instanceof TemporalAccessor;
         @NotNull Function<Object, String> formattingFunction = value -> {
             @NotNull StringBuilder builder = new StringBuilder("DATE '");
@@ -320,7 +321,9 @@ class ValueFormatterRegistry {
                 return valueFormatter.format(value);
             }
         }
-        throw new NoFormatterException("No registered formatter for value that is an instance of " + value.getClass().getName());
+        throw new NoFormatterException("No default formatter for value that is an instance of "
+                                               + value.getClass().getName()
+                                               + "; try adding a explicit formatter name using the syntax \":var:formatterName\"");
     }
 
     /**
