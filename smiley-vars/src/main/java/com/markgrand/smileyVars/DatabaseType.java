@@ -8,7 +8,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 /**
- * Enumeration of database types that a SmileyVars can be specialized for.
+ * Enumeration of database types that a SmileyVar can be specialized for.
  */
 public enum DatabaseType {
     /**
