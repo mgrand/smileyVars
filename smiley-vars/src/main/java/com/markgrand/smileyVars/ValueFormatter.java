@@ -48,7 +48,7 @@ class ValueFormatter {
      * @param value an object to be formatted.
      * @return {@code true} if this object can format the given value, otherwise {@code false}.
      */
-    boolean isDefaultFor(Object value) { return isDefaultFor.test(value); }
+    boolean isDefault(Object value) { return isDefaultFor.test(value); }
 
     /**
      * Return {@code true} if this object can format the given value, otherwise {@code false}.
@@ -57,7 +57,7 @@ class ValueFormatter {
      * @return {@code true} if the this object can formatting the given value, otherwise {@code false}.
      */
     boolean isApplicable(Object value) {
-        return isDefaultFor(value)  || appliesTo.test(value);
+        return isDefault(value)  || appliesTo.test(value);
     }
 
     /**
