@@ -130,12 +130,13 @@ SELECT * FROM data WHERE 1=1 and day=DATE '2020-2-18'
 
 These are the currently supported formats:
 
-| Format name | Default Mapping | Applies to Java Types                 | Produces          | Included in Template Type |
-| ----------- |:---------------:| ------------------------------------- | ----------------- | ------------------------- |
-| number      | yes             | `Number`                              | numeric literal   | all                       |
-| string      | yes             | `String`                              | string literal    | all                       |
-| timestamp   | yes             | `Date`, `Calendar`, `TemporalAccessor`| TIMESTAMP literal | all                       |
-| date        | no              | `Date`, `Calendar`, `TemporalAccessor`| DATE literal      | all                       |
+| Format     | Default | Applies to Java Types                 | Produces          | Included in  Template |
+| ---------- |:-------:| ------------------------------------- | ----------------- | --------------------- |
+| number     | yes     | `Number`                              | numeric literal   | all                   |
+| string     | yes     | `String`                              | string literal    | all                   |
+| timestamp  | yes     | `Date`, `Calendar`, `TemporalAccessor`| TIMESTAMP literal | all                   |
+| date       | no      | `Date`, `Calendar`, `TemporalAccessor`| DATE literal      | all                   |
+| boolean    | yes     | `Boolean`                             | boolean literal   | PostgreSQL            |
 
 **Format name** is the name to use when explicitly specifying the format.
 
