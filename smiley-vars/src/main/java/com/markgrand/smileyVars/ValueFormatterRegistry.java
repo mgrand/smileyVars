@@ -313,12 +313,18 @@ class ValueFormatterRegistry {
      * @throws NoFormatterException if there is no registered applicable formatter.
      */
     @Nullable String format(@Nullable Object value) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Formatting variable value: " + value);
+        }
         if (value == null) {
+            logger.debug("Formatted value to null");
             return "null";
         }
         for (@NotNull ValueFormatter valueFormatter : formatterMap.values()) {
             if (valueFormatter.isDefault(value)) {
-                return valueFormatter.format(value);
+                String formattedValue = valueFormatter.format(value);
+                logger.debug("Formatted value to {}", value);
+                return formattedValue;
             }
         }
         throw new NoFormatterException("No default formatter for value that is an instance of "
