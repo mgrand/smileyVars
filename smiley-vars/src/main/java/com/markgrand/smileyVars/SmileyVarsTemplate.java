@@ -212,9 +212,12 @@ public class SmileyVarsTemplate {
     @org.jetbrains.annotations.NotNull
     @SuppressWarnings("unused")
     public String apply(@NotNull Map<String, Object> values) throws UnsupportedFeatureException {
-        @org.jetbrains.annotations.NotNull Tokenizer tokenizer = builder.build(sql);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Expanding \"" + sql + "\" with mappings: " + values);
+        }
+        @NotNull Tokenizer tokenizer = builder.build(sql);
         @Nullable StringBuilder segment = new StringBuilder(sql.length() * 2);
-        @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack = new Stack<>();
+        @NotNull Stack<StringBuilder> stack = new Stack<>();
         while (tokenizer.hasNext()) {
             Token token = tokenizer.next();
             switch (token.getTokenType()) {
@@ -242,8 +245,8 @@ public class SmileyVarsTemplate {
     }
 
     @Nullable
-    private StringBuilder processVar(@org.jetbrains.annotations.NotNull Map<String, Object> values, @org.jetbrains.annotations.NotNull Tokenizer tokenizer,
-                                     @Nullable StringBuilder segment, @org.jetbrains.annotations.NotNull Token token, @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack) {
+    private StringBuilder processVar(@NotNull Map<String, Object> values, @NotNull Tokenizer tokenizer,
+                                     @Nullable StringBuilder segment, @NotNull Token token, @NotNull Stack<StringBuilder> stack) {
         if (segment != null) {
             segment = doVarExpansion(values, tokenizer, segment, token);
             if (segment == null && stack.isEmpty()) {
@@ -300,7 +303,9 @@ public class SmileyVarsTemplate {
      * @throws NoFormatterException if there is no applicable formatter registered to format the variable's value.
      */
     @Nullable
-    private StringBuilder doVarExpansion(@org.jetbrains.annotations.NotNull Map<String, Object> values, @org.jetbrains.annotations.NotNull Tokenizer tokenizer, @org.jetbrains.annotations.NotNull StringBuilder segment, @org.jetbrains.annotations.NotNull Token varToken) {
+    private StringBuilder doVarExpansion(@NotNull Map<String, Object> values, @NotNull Tokenizer tokenizer,
+                                         @NotNull StringBuilder segment, @NotNull Token varToken) {
+
         String value = getVarValue(values, tokenizer, varToken);
         if (value == null) {
             skipToSmileyClose(tokenizer);
@@ -325,14 +330,17 @@ public class SmileyVarsTemplate {
      */
     private String getVarValue(@NotNull Map<String, Object> values, @NotNull Tokenizer tokenizer, @NotNull Token varToken) {
         @NotNull String varName = varToken.getTokenchars();
+        logger.debug("Formatting variable {}", varName);
         if (tokenizer.peek() == TokenType.VAR) {
             @NotNull String typeName = tokenizer.next().getTokenchars();
+            logger.debug("Found type {}", typeName);
             return formatterRegistry.format(values.get(varName), typeName);
         }
         //No explicit type given for variable, so let the formatter predicates identify the correct formatter to use.
         if (values.containsKey(varName)) {
             return formatterRegistry.format(values.get(varName));
         } else {
+            logger.debug("No value provided for {}", varName);
             return null;
         }
     }
