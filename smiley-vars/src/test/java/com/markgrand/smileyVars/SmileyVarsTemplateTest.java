@@ -14,8 +14,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SmileyVarsTemplateTest {
     @Test
@@ -327,5 +326,19 @@ class SmileyVarsTemplateTest {
         @NotNull Map<String, Object> map = new HashMap<>();
         map.put("n", null);
         assertEquals("Select * from foo where 1=1 and x=null", template.apply(map));
+    }
+
+    @Test
+    void getNoVarNames() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI, "select * from foo");
+        assertEquals(0, template.getVarNames().size());
+    }
+
+    @Test
+    void getVar2Names() {
+        SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI, "select * from foo where x = :x and y = :y");
+        assertEquals(2, template.getVarNames().size());
+        assertTrue(template.getVarNames().contains("x"));
+        assertTrue(template.getVarNames().contains("y"));
     }
 }

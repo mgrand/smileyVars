@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -354,5 +356,21 @@ public class SmileyVarsTemplate {
             // Ignore next token.
             tokenizer.next();
         }
+    }
+
+    /**
+     * Get the names of the variables in this SmileyVars template.
+     * @return the name of the variables as a Set.
+     */
+    public Set<String> getVarNames() {
+        final Set<String> varNames = new HashSet<>();
+        @NotNull Tokenizer tokenizer = builder.build(sql);
+        while (tokenizer.hasNext()) {
+            Token token = tokenizer.next();
+            if (TokenType.VAR.equals(token.getTokenType())) {
+                varNames.add(token.getTokenchars());
+            }
+        }
+        return varNames;
     }
 }
