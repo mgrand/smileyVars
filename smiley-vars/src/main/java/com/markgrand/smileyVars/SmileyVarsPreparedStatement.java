@@ -55,7 +55,7 @@ public class SmileyVarsPreparedStatement {
      */
     public ResultSet executeQuery() throws SQLException {
         //TODO finish this
-        return null;
+        throw new SQLFeatureNotSupportedException();
     }
 
     /**
@@ -75,7 +75,7 @@ public class SmileyVarsPreparedStatement {
      */
     public int executeUpdate() throws SQLException {
         //TODO finish this
-        return 0;
+        throw new SQLFeatureNotSupportedException();
     }
 
     /**
