@@ -64,6 +64,7 @@ class ValueFormatterRegistry {
                     registerTimestampFormatter(commonBuiltinFormatters);
                     registerStringFormatter(commonBuiltinFormatters);
                     registerDateFormatter(commonBuiltinFormatters);
+                    registerNullFormatter(commonBuiltinFormatters);
                     logger.debug("Registered common formatters: " + commonBuiltinFormatters);
                 }
             }
@@ -187,6 +188,13 @@ class ValueFormatterRegistry {
     private static <T> T handleInapplicableValue(String formatterName, @NotNull Object value) {
         @NotNull String msg = "Formatter named " + formatterName + " cannot be applied to object of class " + value.getClass().getName();
         throw new IllegalArgumentException(msg);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static void registerNullFormatter(@NotNull LinkedHashMap<String, ValueFormatter> registryMap) {
+        PreparedStatementSetter preparedStatementSetter
+                = (preparedStatement, i, value) -> handleSqlException(() -> preparedStatement.setNull(i, ((NullValue) value).getType()));
+        registerFormatter("null", NullValue.class, nullValue -> "null", preparedStatementSetter, registryMap);
     }
 
     @SuppressWarnings("SameParameterValue")
