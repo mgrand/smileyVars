@@ -360,7 +360,8 @@ public class SmileyVarsTemplate {
 
     /**
      * Get the names of the variables in this SmileyVars template.
-     * @return the name of the variables as a Set.
+     *
+     * @return the name of the variables as a Set. Each call to this method will return a new Set object.
      */
     public Set<String> getVarNames() {
         final Set<String> varNames = new HashSet<>();
