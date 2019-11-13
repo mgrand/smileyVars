@@ -88,8 +88,7 @@ public class SmileyVarsPreparedStatement {
      *
      * @param parameterName The name of the parameter.
      * @param sqlType       The SQL type code defined in <code>java.sql.Types</code>
-     * @throws SQLException                    If parameterName does not correspond to a variable in the SmilelyVars
-     *                                         template.
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNull(String parameterName, int sqlType) throws SQLException {
         if (valueMap.containsKey(parameterName)) {
@@ -104,9 +103,8 @@ public class SmileyVarsPreparedStatement {
      * Sets the designated parameter to the given Java <code>boolean</code> value.
      *
      * @param parameterName The name of the parameter.
-     * @param value              the parameter value
-     * @throws SQLException                    If parameterName does not correspond to a variable in the SmilelyVars
-     *                                         template.
+     * @param value         the parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBoolean(String parameterName, boolean value) throws SQLException {
         changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new BooleanValue(val)));
@@ -117,9 +115,8 @@ public class SmileyVarsPreparedStatement {
      * <code>TINYINT</code> value when it sends it to the database.
      *
      * @param parameterName The name of the parameter.
-     * @param value              the parameter value
-     * @throws SQLException                    If parameterName does not correspond to a variable in the SmilelyVars
-     *                                         template.
+     * @param value         the parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setByte(String parameterName, byte value) throws SQLException {
         changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ByteValue(val)));
@@ -130,9 +127,8 @@ public class SmileyVarsPreparedStatement {
      * <code>SMALLINT</code> value when it sends it to the database.
      *
      * @param parameterName The name of the parameter.
-     * @param value              the parameter value
-     * @throws SQLException                    If parameterName does not correspond to a variable in the SmilelyVars
-     *                                         template.
+     * @param value         the parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setShort(String parameterName, short value) throws SQLException {
         changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ShortValue(val)));
@@ -142,14 +138,12 @@ public class SmileyVarsPreparedStatement {
      * Sets the designated parameter to the given Java <code>int</code> value. The driver converts this to an SQL
      * <code>INTEGER</code> value when it sends it to the database.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the parameter value
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @param parameterName The name of the parameter.
+     * @param value         the parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setInt(int parameterIndex, int x) throws SQLException {
-        //TODO finish this
+    public void setInt(String parameterName, int value) throws SQLException {
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new IntValue(val)));
     }
 
     /**
