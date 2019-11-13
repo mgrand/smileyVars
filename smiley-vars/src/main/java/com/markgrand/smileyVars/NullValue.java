@@ -1,10 +1,12 @@
 package com.markgrand.smileyVars;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 /**
- * Singleton class used to represent a null value for variables that have a null value. This is useful for setting
- * parameters of PreparedStatement and CallableStatement objects, because we need to know the type of null value.
+ * Class used to represent a null value for a prepared statement parameter
  */
-class NullValue {
+class NullValue extends AbstactPstmtValue {
     private int type;
 
     /**
@@ -29,5 +31,16 @@ class NullValue {
     @Override
     public String toString() {
         return "null";
+    }
+
+    /**
+     * Set the Parameter of the given PreparedStatement at index <i>i</i> to the value in this object.
+     *
+     * @param pstmt The prepared statement whose parameter is to be set.
+     * @param i     The index of the parameter.
+     */
+    @Override
+    void setParameter(PreparedStatement pstmt, int i) throws SQLException {
+        pstmt.setNull(i, type);
     }
 }
