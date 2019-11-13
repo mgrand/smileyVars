@@ -4,18 +4,18 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Class to represent a boolean value that will be used to set the value of prepared statement parameter.
+ * Class to represent a byte value that will be used to set the value of prepared statement parameter.
  *
  * @author Mark Grand
  */
-class BooleanValue extends AbstactPreparedStatementValue {
-    private boolean value;
+class ByteValue extends AbstactPreparedStatementValue {
+    private byte value;
 
     /**
      * Constructor
      * @param value The value that this object will be used to set in a prepared statement.
      */
-    BooleanValue(boolean value) {
+    ByteValue(byte value) {
         this.value = value;
     }
 
@@ -28,6 +28,6 @@ class BooleanValue extends AbstactPreparedStatementValue {
      */
     @Override
     void setParameter(PreparedStatement pstmt, int i) throws SQLException {
-        pstmt.setBoolean(i, value);
+        pstmt.setByte(i, value);
     }
 }
