@@ -374,4 +374,12 @@ public class SmileyVarsTemplate {
         }
         return varNames;
     }
+
+    /**
+     * Get the String that this template is based on.
+     * @return the String that this template is based on.
+     */
+    public String getTemplateString() {
+        return sql;
+    }
 }

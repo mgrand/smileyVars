@@ -9,9 +9,11 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
+import java.util.BitSet;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * SmileyVars enabled version of a prepared statement.
@@ -23,9 +25,10 @@ public class SmileyVarsPreparedStatement {
 
     private final Connection connection;
     private final SmileyVarsTemplate template;
-    private final Map<String, Object> valueMap = new HashMap<>();
+    private final LinkedHashMap<String, Object> valueMap = new LinkedHashMap<>();
 
     private boolean closed = false;
+    private long changeCount = 0;
 
     /**
      * Constructor
@@ -83,35 +86,30 @@ public class SmileyVarsPreparedStatement {
      *
      * <P><B>Note:</B> You must specify the parameter's SQL type.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param sqlType        the SQL type code defined in <code>java.sql.Types</code>
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if <code>sqlType</code> is a <code>ARRAY</code>, <code>BLOB</code>,
-     *                                         <code>CLOB</code>,
-     *                                         <code>DATALINK</code>, <code>JAVA_OBJECT</code>, <code>NCHAR</code>,
-     *                                         <code>NCLOB</code>, <code>NVARCHAR</code>, <code>LONGNVARCHAR</code>,
-     *                                         <code>REF</code>, <code>ROWID</code>, <code>SQLXML</code>
-     *                                         or  <code>STRUCT</code> data type and the JDBC driver does not support
-     *                                         this data type
+     * @param parameterName The name of the parameter.
+     * @param sqlType       The SQL type code defined in <code>java.sql.Types</code>
+     * @throws SQLException                    If parameterName does not correspond to a variable in the SmilelyVars
+     *                                         template.
      */
-    public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        //TODO finish this
+    public void setNull(String parameterName, int sqlType) throws SQLException {
+        if (valueMap.containsKey(parameterName)) {
+            valueMap.put(parameterName, new NullValue(sqlType));
+            changeCount++;
+        } else {
+            throwForUnknownParameter(parameterName);
+        }
     }
 
     /**
-     * Sets the designated parameter to the given Java <code>boolean</code> value. The driver converts this to an SQL
-     * <code>BIT</code> or <code>BOOLEAN</code> value when it sends it to the database.
+     * Sets the designated parameter to the given Java <code>boolean</code> value.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the parameter value
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @param parameterName The name of the parameter.
+     * @param value              the parameter value
+     * @throws SQLException                    If parameterName does not correspond to a variable in the SmilelyVars
+     *                                         template.
      */
-    public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-        //TODO finish this
+    public void setBoolean(String parameterName, boolean value) throws SQLException {
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, val));
     }
 
     /**
@@ -215,8 +213,7 @@ public class SmileyVarsPreparedStatement {
     /**
      * Sets the designated parameter to the given Java <code>String</code> value. The driver converts this to an SQL
      * <code>VARCHAR</code> or <code>LONGVARCHAR</code> value (depending on the argument's size relative to the
-     * driver's
-     * limits on <code>VARCHAR</code> values) when it sends it to the database.
+     * driver's limits on <code>VARCHAR</code> values) when it sends it to the database.
      *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x              the parameter value
@@ -773,8 +770,7 @@ public class SmileyVarsPreparedStatement {
      * <code>PreparedStatement</code> is executed. This method differs from the <code>setCharacterStream (int, Reader,
      * int)</code> method because it informs the driver that the parameter value should be sent to the server as a
      * <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the driver may have to do extra
-     * work
-     * to determine whether the parameter data should be sent to the server as a <code>LONGVARCHAR</code> or a
+     * work to determine whether the parameter data should be sent to the server as a <code>LONGVARCHAR</code> or a
      * <code>CLOB</code>
      *
      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
@@ -794,11 +790,10 @@ public class SmileyVarsPreparedStatement {
      * Sets the designated parameter to a <code>InputStream</code> object.  The inputstream must contain  the number of
      * characters specified by length otherwise a <code>SQLException</code> will be generated when the
      * <code>PreparedStatement</code> is executed. This method differs from the <code>setBinaryStream (int,
-     * InputStream,
-     * int)</code> method because it informs the driver that the parameter value should be sent to the server as a
+     * InputStream, int)</code> method because it informs the driver that the parameter value should be sent to the
+     * server as a
      * <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used, the driver may have to do extra work
-     * to
-     * determine whether the parameter data should be sent to the server as a <code>LONGVARBINARY</code> or a
+     * to determine whether the parameter data should be sent to the server as a <code>LONGVARBINARY</code> or a
      * <code>BLOB</code>
      *
      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
@@ -1590,7 +1585,7 @@ public class SmileyVarsPreparedStatement {
      *                      <code>PreparedStatement</code> or <code>CallableStatement</code>
      * @see #executeBatch
      * @see DatabaseMetaData#supportsBatchUpdates
-    */
+     */
     public void addBatch(String sql) throws SQLException {
         //TODO finish this
     }
@@ -1624,9 +1619,8 @@ public class SmileyVarsPreparedStatement {
      * <p>
      * If one of the commands in a batch update fails to execute properly, this method throws a
      * <code>BatchUpdateException</code>, and a JDBC driver may or may not continue to process the remaining commands
-     * in
-     * the batch.  However, the driver's behavior must be consistent with a particular DBMS, either always continuing to
-     * process commands or never continuing to process commands.  If the driver continues processing after a failure,
+     * in the batch.  However, the driver's behavior must be consistent with a particular DBMS, either always continuing
+     * to process commands or never continuing to process commands.  If the driver continues processing after a failure,
      * the array returned by the method
      * <code>BatchUpdateException.getUpdateCounts</code>
      * will contain as many elements as there are commands in the batch, and at least one of the elements will be the
@@ -1644,8 +1638,7 @@ public class SmileyVarsPreparedStatement {
      * array are ordered according to the order in which commands were added to the batch.
      * @throws SQLException        if a database access error occurs, this method is called on a closed
      *                             <code>Statement</code> or the driver does not support batch statements. Throws
-     *                             {@link
-     *                             BatchUpdateException} (a subclass of <code>SQLException</code>) if one of the
+     *                             {@link BatchUpdateException} (a subclass of <code>SQLException</code>) if one of the
      *                             commands sent to the database fails to execute properly or attempts to return a
      *                             result set.
      * @throws SQLTimeoutException when the driver has determined that the timeout value that was specified by the
@@ -1784,8 +1777,7 @@ public class SmileyVarsPreparedStatement {
      * @throws SQLException                    if a database access error occurs, this method is called on a closed
      *                                         <code>Statement</code>, the SQL statement returns a
      *                                         <code>ResultSet</code> object,the second argument supplied to this
-     *                                         method
-     *                                         is not an
+     *                                         method is not an
      *                                         <code>int</code> array whose elements are valid column indexes, the
      *                                         method is called on a
      *                                         <code>PreparedStatement</code> or <code>CallableStatement</code>
@@ -1911,8 +1903,8 @@ public class SmileyVarsPreparedStatement {
      * object; <code>false</code> if it is an update count or there are no results
      * @throws SQLException                    if a database access error occurs, this method is called on a closed
      *                                         <code>Statement</code>, the elements in the <code>int</code> array
-     *                                         passed
-     *                                         to this method are not valid column indexes, the method is called on a
+     *                                         passed to this method are not valid column indexes, the method is called
+     *                                         on a
      *                                         <code>PreparedStatement</code> or <code>CallableStatement</code>
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
      * @throws SQLTimeoutException             when the driver has determined that the timeout value that was specified
@@ -2037,10 +2029,69 @@ public class SmileyVarsPreparedStatement {
      * @throws SQLException if this method is called on a closed
      *                      <code>Statement</code>
      *                      <p>
-     * @since 1.6
      */
-
     public void setPoolable(boolean poolable) throws SQLException {
         //TODO finish this
+    }
+
+    private BitSet computeParametersSignature() {
+        BitSet bitSet = new BitSet(valueMap.size());
+        int i = 0;
+        for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
+            if (entry.getValue() != null) {
+                bitSet.set(i);
+            }
+            i += 1;
+        }
+        return bitSet;
+    }
+
+    private <T> void changeWithCheckedName(String parameterName, T value, BiConsumer<String, T> setter) throws SQLException {
+        if (valueMap.containsKey(parameterName)) {
+            changeCount++;
+            setter.accept(parameterName, value);
+        } else {
+            throwForUnknownParameter(parameterName);
+            return;
+        }
+    }
+
+    private void throwForUnknownParameter(String parameterName) throws SQLException {
+        throw new SQLException("\"" + parameterName + "\" is not the name of a variable in " + template.getTemplateString());
+    }
+
+    /**
+     * Tag PreparedStatement objects with a signature so that we can reuse prepared statement objects with differents
+     * parameter settings.
+     */
+    private static class PreparedStatementTag {
+        BitSet signature;
+        PreparedStatement preparedStatement;
+
+        PreparedStatementTag(BitSet signature, PreparedStatement preparedStatement) {
+            this.signature = signature;
+            this.preparedStatement = preparedStatement;
+        }
+
+        BitSet getSignature() {
+            return signature;
+        }
+
+        PreparedStatement getPreparedStatement() {
+            return preparedStatement;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PreparedStatementTag that = (PreparedStatementTag) o;
+            return signature.equals(that.signature);
+        }
+
+        @Override
+        public int hashCode() {
+            return signature.hashCode();
+        }
     }
 }
