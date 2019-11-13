@@ -8,7 +8,7 @@ import java.sql.SQLException;
  *
  * @author Mark Grand
  */
-abstract class AbstactPstmtValue {
+abstract class AbstactPreparedStatementValue {
     /**
      * Set the Parameter of the given PreparedStatement at index <i>i</i> to the value in this object.
      *

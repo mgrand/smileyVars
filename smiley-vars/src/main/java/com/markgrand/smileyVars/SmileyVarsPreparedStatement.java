@@ -109,7 +109,7 @@ public class SmileyVarsPreparedStatement {
      *                                         template.
      */
     public void setBoolean(String parameterName, boolean value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, val));
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new BooleanValue(val)));
     }
 
     /**

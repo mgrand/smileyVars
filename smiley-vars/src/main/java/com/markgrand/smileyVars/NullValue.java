@@ -7,7 +7,7 @@ import java.sql.Types;
 /**
  * Class used to represent a null value for a prepared statement parameter
  */
-class NullValue extends AbstactPstmtValue {
+class NullValue extends AbstactPreparedStatementValue {
     private int type;
 
     /**
