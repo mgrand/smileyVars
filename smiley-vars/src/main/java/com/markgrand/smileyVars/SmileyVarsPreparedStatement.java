@@ -238,14 +238,12 @@ public class SmileyVarsPreparedStatement {
      * Sets the designated parameter to the given <code>java.sql.Time</code> value. The driver converts this to an SQL
      * <code>TIME</code> value when it sends it to the database.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the parameter value
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @param parameterName The name of the parameter.
+     * @param value         the parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setTime(int parameterIndex, Time x) throws SQLException {
-        //TODO finish this
+    public void setTime(String parameterName, Time value) throws SQLException {
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new TimeValue(val)));
     }
 
     /**
