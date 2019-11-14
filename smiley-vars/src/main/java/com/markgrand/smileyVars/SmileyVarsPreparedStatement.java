@@ -213,14 +213,12 @@ public class SmileyVarsPreparedStatement {
      * limits on
      * <code>VARBINARY</code> values) when it sends it to the database.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the parameter value
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @param parameterName The name of the parameter.
+     * @param value         the parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-        //TODO finish this
+    public void setBytes(String parameterName, byte[] value) throws SQLException {
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ByteArrayValue(val)));
     }
 
     /**
@@ -228,14 +226,12 @@ public class SmileyVarsPreparedStatement {
      * virtual machine that is running the application. The driver converts this to an SQL <code>DATE</code> value when
      * it sends it to the database.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the parameter value
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @param parameterName The name of the parameter.
+     * @param value         the parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setDate(int parameterIndex, Date x) throws SQLException {
-        //TODO finish this
+    public void setDate(String parameterName, Date value) throws SQLException {
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new DateValue(val)));
     }
 
     /**
