@@ -319,20 +319,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Clears the current parameter values immediately.
-     * <P>In general, parameter values remain in force for repeated use of a
-     * statement. Setting a parameter value automatically clears its previous value.  However, in some cases it is
-     * useful to immediately release the resources used by the current parameter values; this can be done by calling the
-     * method <code>clearParameters</code>.
-     *
-     * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
-     */
-    public void clearParameters() throws SQLException {
-        //TODO finish this
-    }
-
-    /**
      * Sets the value of the designated parameter with the given object.
      * <p>
      * This method is similar to {@link #setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength)},
@@ -1142,8 +1128,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * have been provided. It is generally good practice to close this object soon as you are finished with it to avoid
      * tying up database resources.
      *
-     * @see #clearParameters() 
      * @throws SQLException if a database access error occurs
+     * @see #clearParameters()
      */
     @Override
     public void close() throws SQLException {
@@ -1153,6 +1139,35 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             iterator.remove();
         }
         clearParameters();
+    }
+
+    /**
+     * Clears the current parameter values immediately. This just clears the values that have been set for SmileyVars.
+     * If this is being done to release resources, call {@link #deepClearParameters()}, which also clears the parameter
+     * values in the underlying {@link PreparedStatement} objects.
+     *
+     * @throws SQLException if a database access error occurs or this method is called on a closed
+     *                      <code>PreparedStatement</code>
+     * @see #deepClearParameters()
+     */
+    public void clearParameters() throws SQLException {
+        valueMap.entrySet().forEach(entry -> entry.setValue(null));
+    }
+
+    /**
+     * Clears the current parameter values immediately. This clears both the values that have been set for Smileyvars
+     * and the parameter values in the underlying {@link PreparedStatement} objects. This can be useful for releasing
+     * the resources used by the current parameter values.
+     *
+     * @throws SQLException if a database access error occurs or this method is called on a closed
+     *                      <code>PreparedStatement</code>
+     * @see #clearParameters()
+     */
+    public void deepClearParameters() throws SQLException {
+        clearParameters();
+        for (PreparedStatement pstmt : taggedPstmtMap.values()) {
+            pstmt.close();
+        }
     }
 
     /**
