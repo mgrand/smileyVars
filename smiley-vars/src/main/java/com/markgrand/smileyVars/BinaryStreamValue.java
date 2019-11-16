@@ -5,11 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Class to represent an ASCII input stream and a length that will be used to set the value of prepared statement parameter.
+ * Class to represent a binary input stream and a length that will be used to set the value of prepared statement parameter.
  *
  * @author Mark Grand
  */
-class AsciiStreamValue extends AbstactPreparedStatementValue {
+class BinaryStreamValue extends AbstactPreparedStatementValue {
     private final  InputStream inputStream;
     private final Long length;
 
@@ -17,7 +17,7 @@ class AsciiStreamValue extends AbstactPreparedStatementValue {
      * Constructor
      * @param inputStream The value that this object will be used to set in a prepared statement.
      */
-    AsciiStreamValue(InputStream inputStream) {
+    BinaryStreamValue(InputStream inputStream) {
         this.inputStream = inputStream;
         this.length = null;
     }
@@ -27,7 +27,7 @@ class AsciiStreamValue extends AbstactPreparedStatementValue {
      * @param inputStream The value that this object will be used to set in a prepared statement.
      * @param length The value that this object will be used to set in a prepared statement.
      */
-    AsciiStreamValue(InputStream inputStream, int length) {
+    BinaryStreamValue(InputStream inputStream, int length) {
         this.inputStream = inputStream;
         this.length = Long.valueOf(length);
     }
@@ -37,7 +37,7 @@ class AsciiStreamValue extends AbstactPreparedStatementValue {
      * @param inputStream The value that this object will be used to set in a prepared statement.
      * @param length The value that this object will be used to set in a prepared statement.
      */
-    AsciiStreamValue(InputStream inputStream, long length) {
+    BinaryStreamValue(InputStream inputStream, long length) {
         this.inputStream = inputStream;
         this.length = length;
     }
@@ -52,9 +52,9 @@ class AsciiStreamValue extends AbstactPreparedStatementValue {
     @Override
     void setParameter(PreparedStatement pstmt, int i) throws SQLException {
         if (length == null) {
-            pstmt.setAsciiStream(i, inputStream);
+            pstmt.setBinaryStream(i, inputStream);
         } else {
-            pstmt.setAsciiStream(i, inputStream, length);
+            pstmt.setBinaryStream(i, inputStream, length);
         }
     }
 }

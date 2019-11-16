@@ -14,14 +14,14 @@ class NullValue extends AbstactPreparedStatementValue {
      * Constructor
      *
      * @param type A type constant from {@link java.sql.Types}.
-     * @throws SQLException if the given types is not a value defined in java.sql.Types.
+     * @throws SmileyVarsSqlException if the given types is not a value defined in java.sql.Types.
      */
-    NullValue(int type) throws SQLException {
+    NullValue(int type) throws SmileyVarsSqlException {
         this.type = type;
         checkType(type);
     }
 
-    private void checkType(int type) throws SQLException {
+    private void checkType(int type) throws SmileyVarsSqlException {
         switch (type) {
             case Types.BOOLEAN:
             case Types.TINYINT:
@@ -65,7 +65,7 @@ class NullValue extends AbstactPreparedStatementValue {
                 break;
 
             default:
-                throw new SQLException("Invalid type code that is not a java.sql.Types code: " + type);
+                throw new SmileyVarsSqlException("Invalid type code that is not a java.sql.Types code: " + type);
         }
     }
 
