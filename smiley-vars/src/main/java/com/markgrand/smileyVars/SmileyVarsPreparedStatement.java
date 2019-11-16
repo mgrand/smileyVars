@@ -9,24 +9,43 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.Date;
 import java.sql.*;
-import java.util.BitSet;
-import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
  * SmileyVars enabled version of a prepared statement.
  *
+ * <p>This class uses {@link PreparedStatement} objects to implement database interactions. To the extent practical,
+ * it attempts to reuse the same {@code PreparedStatement} object for operations.</p>
+ *
+ * <p>If two operations are done with exactly the same SmileyVars having values (it can be different values from one
+ * operation to the next), then they will use the same {@code PreparedStatement} object. When different combinations of
+ * SmileyVars have values then different {@code PreparedStatement} objects will be used.</p>
+ *
+ * <p>The underlying {@code PreparedStatement} objects are closed when this object's close method is called. It is a
+ * recommended good practice to always close {@code SmileyVarsPreparedStatement} objects.</p>
+ *
  * @author Mark Grand
  */
-public class SmileyVarsPreparedStatement {
+public class SmileyVarsPreparedStatement implements AutoCloseable {
     private static Logger logger = LoggerFactory.getLogger(SmileyVarsPreparedStatement.class);
 
     private final Connection connection;
     private final SmileyVarsTemplate template;
+
+    /**
+     * Map SmileyVar names to parameter values. A null value means no value has been provided for the named SmileyVar.
+     * If a null value is provided for a SmileyVar, a {@link NullValue} object is used to represent the null value.
+     */
     private final LinkedHashMap<String, Object> valueMap = new LinkedHashMap<>();
+
+    /**
+     * PreparedStatement objects are collected in this map so they can be reused. The goal of the reuse is to use the
+     * same PreparedStatement object for operations that are done with the same SmileyVars having values.
+     */
+    private Map<PreparedStatementTag, PreparedStatement> taggedPstmtMap = new HashMap<>();
 
     private boolean closed = false;
     private long changeCount = 0;
@@ -272,8 +291,8 @@ public class SmileyVarsPreparedStatement {
      * Java stream object or your own subclass that implements the standard interface.
      *
      * @param parameterName The name of the parameter.
-     * @param inputStream    the Java input stream that contains the ASCII parameter value
-     * @param length         the number of bytes in the stream
+     * @param inputStream   the Java input stream that contains the ASCII parameter value
+     * @param length        the number of bytes in the stream
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setAsciiStream(String parameterName, InputStream inputStream, int length) throws SQLException {
@@ -291,8 +310,8 @@ public class SmileyVarsPreparedStatement {
      * Java stream object or your own subclass that implements the standard interface.
      *
      * @param parameterName The name of the parameter.
-     * @param inputStream    the Java input stream that contains the binary parameter value
-     * @param length         the number of bytes in the stream
+     * @param inputStream   the Java input stream that contains the binary parameter value
+     * @param length        the number of bytes in the stream
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBinaryStream(String parameterName, InputStream inputStream, int length) throws SQLException {
@@ -1119,19 +1138,21 @@ public class SmileyVarsPreparedStatement {
     }
 
     /**
-     * Releases this <code>Statement</code> object's database and JDBC resources immediately instead of waiting for this
-     * to happen when it is automatically closed. It is generally good practice to release resources as soon as you are
-     * finished with them to avoid tying up database resources.
-     * <p>
-     * Calling the method <code>close</code> on a <code>Statement</code> object that is already closed has no effect.
-     * <p>
-     * <B>Note:</B>When a <code>Statement</code> object is
-     * closed, its current <code>ResultSet</code> object, if one exists, is also closed.
+     * Releases the underlying <code>PreparedStatement</code> objects. This also clears all of the parameter values that
+     * have been provided. It is generally good practice to close this object soon as you are finished with it to avoid
+     * tying up database resources.
      *
+     * @see #clearParameters() 
      * @throws SQLException if a database access error occurs
      */
+    @Override
     public void close() throws SQLException {
-        //TODO finish this
+        Iterator<Map.Entry<PreparedStatementTag, PreparedStatement>> iterator = taggedPstmtMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            iterator.next().getValue().close();
+            iterator.remove();
+        }
+        clearParameters();
     }
 
     /**
