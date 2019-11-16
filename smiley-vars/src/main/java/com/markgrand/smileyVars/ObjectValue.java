@@ -1,6 +1,5 @@
 package com.markgrand.smileyVars;
 
-import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -11,16 +10,26 @@ import java.sql.SQLException;
  */
 class ObjectValue extends AbstactPreparedStatementValue {
     private final Object object;
-    private final int sqlType;
+    private final Integer sqlType;
     private final Integer scaleOrLength;
 
     /**
      * Constructor
      *
      * @param object  The value that this object will be used to set in a prepared statement.
-     * @param sqlType the SQL type (as defined in java.sql.Types) to be sent to the database
      */
-    ObjectValue(Object object, int sqlType) {
+    ObjectValue(Object object) throws SQLException {
+        this(object, null, null);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param object  The value that this object will be used to set in a prepared statement.
+     * @param sqlType the SQL type (as defined in java.sql.Types) to be sent to the database
+     * @Throws SQLException if sqlType is an unknown value.
+     */
+    ObjectValue(Object object, int sqlType) throws SQLException {
         this(object, sqlType, null);
     }
 
@@ -33,8 +42,10 @@ class ObjectValue extends AbstactPreparedStatementValue {
      *                      is the number of digits after the decimal point. For Java Object types
      *                      <code>InputStream</code> and <code>Reader</code>, this is the length of the data in the
      *                      stream or reader.  For all other types, this value will be ignored.
+     * @Throws SQLException if sqlType is an unknown value.
      */
-    ObjectValue(Object object, int sqlType, Integer scaleOrLength) {
+    ObjectValue(Object object, Integer sqlType, Integer scaleOrLength) throws SQLException {
+        checkType(sqlType);
         this.object = object;
         this.sqlType = sqlType;
         this.scaleOrLength = scaleOrLength;
@@ -50,7 +61,11 @@ class ObjectValue extends AbstactPreparedStatementValue {
     @Override
     void setParameter(PreparedStatement pstmt, int i) throws SQLException {
         if (scaleOrLength == null) {
-            pstmt.setObject(i, object, sqlType);
+            if (sqlType == null) {
+                pstmt.setObject(i, object);
+            } else {
+                pstmt.setObject(i, object, sqlType);
+            }
         } else {
             pstmt.setObject(i, object, sqlType, scaleOrLength);
         }

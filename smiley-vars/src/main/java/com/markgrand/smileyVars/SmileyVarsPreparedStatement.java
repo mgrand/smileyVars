@@ -1,7 +1,8 @@
 package com.markgrand.smileyVars;
 
+import com.markgrand.smileyVars.util.BiSqlConsumer;
 import com.markgrand.smileyVars.util.QuadConsumer;
-import com.markgrand.smileyVars.util.TriConsumer;
+import com.markgrand.smileyVars.util.TriSqlConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import java.net.URL;
 import java.sql.Date;
 import java.sql.*;
 import java.util.*;
-import java.util.function.BiConsumer;
 
 /**
  * SmileyVars enabled version of a prepared statement.
@@ -326,12 +326,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * except that it assumes a scale of zero.
      *
      * @param parameterName The name of the parameter.
-     * @param obj              the object containing the Object parameter value
-     * @param targetSqlType  the SQL type (as defined in java.sql.Types) to be sent to the database
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed PreparedStatement
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support the specified targetSqlType
+     * @param obj           the object containing the Object parameter value
+     * @param targetSqlType the SQL type (as defined in java.sql.Types) to be sent to the database
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      * @see Types
      */
     public void setObject(String parameterName, Object obj, int targetSqlType) throws SQLException {
@@ -341,32 +338,26 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     /**
      * <p>Sets the value of the designated parameter using the given object.
      *
-     * <p>The JDBC specification specifies a standard mapping from
-     * Java <code>Object</code> types to SQL types.  The given argument will be converted to the corresponding SQL type
-     * before being sent to the database.
+     * <p>The JDBC specification specifies a standard mapping from Java <code>Object</code> types to SQL types.  The
+     * given argument will be converted to the corresponding SQL type before being sent to the database.
      *
-     * <p>Note that this method may be used to pass datatabase-
-     * specific abstract data types, by using a driver-specific Java type.
      * <p>
      * If the object is of a class implementing the interface <code>SQLData</code>, the JDBC driver should call the
      * method <code>SQLData.writeSQL</code> to write it to the SQL data stream. If, on the other hand, the object is of
-     * a class implementing
-     * <code>Ref</code>, <code>Blob</code>, <code>Clob</code>,  <code>NClob</code>,
-     * <code>Struct</code>, <code>java.net.URL</code>, <code>RowId</code>, <code>SQLXML</code>
-     * or <code>Array</code>, the driver should pass it to the database as a value of the corresponding SQL type.
+     * a class implementing <code>Ref</code>, <code>Blob</code>, <code>Clob</code>,  <code>NClob</code>,
+     * <code>Struct</code>, <code>java.net.URL</code>, <code>RowId</code>, <code>SQLXML</code> or <code>Array</code>,
+     * the driver should pass it to the database as a value of the corresponding SQL type.
      * <p>
      * <b>Note:</b> Not all databases allow for a non-typed Null to be sent to
      * the backend. For maximum portability, the <code>setNull</code> or the
      * <code>setObject(int parameterIndex, Object x, int sqlType)</code>
      * method should be used instead of <code>setObject(int parameterIndex, Object x)</code>.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the object containing the input parameter value
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs; this method is called on a closed
-     *                      <code>PreparedStatement</code> or the type of the given object is ambiguous
+     * @param parameterName The name of the parameter.
+     * @param obj           the object containing the Object parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setObject(int parameterIndex, Object x) throws SQLException {
+    public void setObject(String parameterName, Object obj) throws SQLException {
         //TODO finish this
     }
 
@@ -2024,7 +2015,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         return bitSet;
     }
 
-    private <T> void changeWithCheckedName(String parameterName, T value, BiConsumer<String, T> setter) throws SQLException {
+    private <T> void changeWithCheckedName(String parameterName, T value, BiSqlConsumer<String, T> setter) throws SQLException {
         if (valueMap.containsKey(parameterName)) {
             changeCount++;
             setter.accept(parameterName, value);
@@ -2034,7 +2025,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         }
     }
 
-    private <T, U> void changeWithCheckedName(String parameterName, T value, U value2, TriConsumer<String, T, U> setter) throws SQLException {
+    private <T, U> void changeWithCheckedName(String parameterName, T value, U value2, TriSqlConsumer<String, T, U> setter) throws SQLException {
         if (valueMap.containsKey(parameterName)) {
             changeCount++;
             setter.accept(parameterName, value, value2);

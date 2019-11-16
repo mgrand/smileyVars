@@ -16,7 +16,7 @@ class NullValue extends AbstactPreparedStatementValue {
      * @param type A type constant from {@link java.sql.Types}.
      * @throws SmileyVarsSqlException if the given types is not a value defined in java.sql.Types.
      */
-    NullValue(int type) throws SmileyVarsSqlException {
+    NullValue(int type) throws SQLException {
         this.type = type;
         checkType(type);
     }
