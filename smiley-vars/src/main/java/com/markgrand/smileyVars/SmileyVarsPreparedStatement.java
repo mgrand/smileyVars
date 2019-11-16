@@ -1,5 +1,6 @@
 package com.markgrand.smileyVars;
 
+import com.markgrand.smileyVars.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,7 @@ public class SmileyVarsPreparedStatement {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNull(String parameterName, int sqlType) throws SQLException {
+        changeWithCheckedName(parameterName, sqlType, (name, type) -> valueMap.put(name, new NullValue(type)));
         if (valueMap.containsKey(parameterName)) {
             valueMap.put(parameterName, new NullValue(sqlType));
             changeCount++;
@@ -269,43 +271,13 @@ public class SmileyVarsPreparedStatement {
      * <P><B>Note:</B> This stream object can either be a standard
      * Java stream object or your own subclass that implements the standard interface.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the Java input stream that contains the ASCII parameter value
+     * @param parameterName The name of the parameter.
+     * @param inputStream    the Java input stream that contains the ASCII parameter value
      * @param length         the number of bytes in the stream
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        //TODO finish this
-    }
-
-    /**
-     * Sets the designated parameter to the given input stream, which will have the specified number of bytes.
-     * <p>
-     * When a very large Unicode value is input to a <code>LONGVARCHAR</code> parameter, it may be more practical to
-     * send it via a
-     * <code>java.io.InputStream</code> object. The data will be read from the
-     * stream as needed until end-of-file is reached.  The JDBC driver will do any necessary conversion from Unicode to
-     * the database char format.
-     * <p>
-     * The byte format of the Unicode stream must be a Java UTF-8, as defined in the Java Virtual Machine
-     * Specification.
-     *
-     * <P><B>Note:</B> This stream object can either be a standard
-     * Java stream object or your own subclass that implements the standard interface.
-     *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              a <code>java.io.InputStream</code> object that contains the Unicode parameter value
-     * @param length         the number of bytes in the stream
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
-     * @deprecated Use {@code setCharacterStream}
-     */
-    public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        //TODO finish this
+    public void setAsciiStream(String parameterName, InputStream inputStream, int length) throws SQLException {
+        changeWithCheckedName(parameterName, inputStream, length, (name, in, len) -> valueMap.put(name, new AsciiStreamValue(in, len)));
     }
 
     /**
@@ -2024,6 +1996,16 @@ public class SmileyVarsPreparedStatement {
         if (valueMap.containsKey(parameterName)) {
             changeCount++;
             setter.accept(parameterName, value);
+        } else {
+            throwForUnknownParameter(parameterName);
+            return;
+        }
+    }
+
+    private <T, U> void changeWithCheckedName(String parameterName, T value, U value2, TriConsumer<String, T, U> setter) throws SQLException {
+        if (valueMap.containsKey(parameterName)) {
+            changeCount++;
+            setter.accept(parameterName, value, value2);
         } else {
             throwForUnknownParameter(parameterName);
             return;
