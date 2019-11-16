@@ -1,5 +1,6 @@
 package com.markgrand.smileyVars;
 
+import com.markgrand.smileyVars.util.QuadConsumer;
 import com.markgrand.smileyVars.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -324,8 +325,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * This method is similar to {@link #setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength)},
      * except that it assumes a scale of zero.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the object containing the input parameter value
+     * @param parameterName The name of the parameter.
+     * @param obj              the object containing the Object parameter value
      * @param targetSqlType  the SQL type (as defined in java.sql.Types) to be sent to the database
      * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
      *                                         statement; if a database access error occurs or this method is called on
@@ -333,8 +334,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support the specified targetSqlType
      * @see Types
      */
-    public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-        //TODO finish this
+    public void setObject(String parameterName, Object obj, int targetSqlType) throws SQLException {
+        changeWithCheckedName(parameterName, obj, targetSqlType, (name, o, type) -> valueMap.put(name, new ObjectValue(o, type)));
     }
 
     /**
@@ -358,9 +359,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * the backend. For maximum portability, the <code>setNull</code> or the
      * <code>setObject(int parameterIndex, Object x, int sqlType)</code>
      * method should be used instead of <code>setObject(int parameterIndex, Object x)</code>.
-     * <p>
-     * <b>Note:</b> This method throws an exception if there is an ambiguity, for example, if the
-     * object is of a class implementing more than one of the interfaces named above.
      *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x              the object containing the input parameter value
@@ -2040,6 +2038,16 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         if (valueMap.containsKey(parameterName)) {
             changeCount++;
             setter.accept(parameterName, value, value2);
+        } else {
+            throwForUnknownParameter(parameterName);
+            return;
+        }
+    }
+
+    private <T, U, V> void changeWithCheckedName(String parameterName, T value, U value2, V value3, QuadConsumer<String, T, U, V> setter) throws SQLException {
+        if (valueMap.containsKey(parameterName)) {
+            changeCount++;
+            setter.accept(parameterName, value, value2, value3);
         } else {
             throwForUnknownParameter(parameterName);
             return;
