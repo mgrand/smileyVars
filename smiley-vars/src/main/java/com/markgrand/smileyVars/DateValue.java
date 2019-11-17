@@ -3,6 +3,7 @@ package com.markgrand.smileyVars;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Calendar;
 
 /**
  * Class to represent a Date value that will be used to set the value of prepared statement parameter.
@@ -10,14 +11,24 @@ import java.sql.SQLException;
  * @author Mark Grand
  */
 class DateValue extends AbstactPreparedStatementValue {
-    private Date value;
+    private final Date value;
+    private final Calendar calendar;
 
     /**
      * Constructor
      * @param value The value that this object will be used to set in a prepared statement.
      */
     DateValue(Date value) {
+        this(value, null);
+    }
+
+    /**
+     * Constructor
+     * @param value The value that this object will be used to set in a prepared statement.
+     */
+    DateValue(Date value, Calendar calendar) {
         this.value = value;
+        this.calendar = calendar;
     }
 
     /**
@@ -29,6 +40,10 @@ class DateValue extends AbstactPreparedStatementValue {
      */
     @Override
     void setParameter(PreparedStatement pstmt, int i) throws SQLException {
-        pstmt.setDate(i, value);
+        if (calendar == null) {
+            pstmt.setDate(i, value);
+        } else {
+            pstmt.setDate(i, value, calendar);
+        }
     }
 }

@@ -503,15 +503,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>Calendar</code> object is specified, the driver uses the default
      * timezone, which is that of the virtual machine running the application.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the parameter value
-     * @param cal            the <code>Calendar</code> object the driver will use to construct the date
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @param parameterName The name of the parameter.
+     * @param value              the parameter value
+     * @param calendar            the <code>Calendar</code> object the driver will use to construct the date
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
-        //TODO finish this
+    public void setDate(String parameterName, Date value, Calendar calendar) throws SQLException {
+        changeWithCheckedName(parameterName, value, calendar, (name, val, cal) -> valueMap.put(name, new DateValue(val, cal)));
     }
 
     /**
