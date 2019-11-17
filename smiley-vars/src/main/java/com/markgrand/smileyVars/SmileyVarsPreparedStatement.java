@@ -817,26 +817,21 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     /**
      * Sets the designated parameter to the given input stream. When a very large ASCII value is input to a
-     * <code>LONGVARCHAR</code> parameter, it may be more practical to send it via a
-     * <code>java.io.InputStream</code>. Data will be read from the stream
-     * as needed until end-of-file is reached.  The JDBC driver will do any necessary conversion from ASCII to the
-     * database char format.
+     * <code>LONGVARCHAR</code> parameter, it may be more practical to send it via a code>java.io.InputStream</code>.
+     * Data will be read from the stream as needed until end-of-file is reached.  The JDBC driver will do any necessary
+     * conversion from ASCII to the database char format.
      *
-     * <P><B>Note:</B> This stream object can either be a standard
-     * Java stream object or your own subclass that implements the standard interface.
-     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
-     * it might be more efficient to use a version of
-     * <code>setAsciiStream</code> which takes a length parameter.
+     * <P><B>Note:</B> This stream object can either be a standard Java stream object or your own subclass that
+     * implements the standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if it might be more efficient to use a
+     * version of <code>setAsciiStream</code> which takes a length parameter.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the Java input stream that contains the ASCII parameter value
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @param parameterName The name of the parameter.
+     * @param inputStream              the Java input stream that contains the ASCII parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
-        //TODO finish this
+    public void setAsciiStream(String parameterName, InputStream inputStream) throws SQLException {
+        changeWithCheckedName(parameterName, inputStream, (name, in) -> valueMap.put(name, new AsciiStreamValue(in)));
     }
 
     /**
