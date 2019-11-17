@@ -25,6 +25,7 @@ class DateValue extends AbstactPreparedStatementValue {
     /**
      * Constructor
      * @param value The value that this object will be used to set in a prepared statement.
+     * @param calendar A calendar to determine time zone.
      */
     DateValue(Date value, Calendar calendar) {
         this.value = value;
