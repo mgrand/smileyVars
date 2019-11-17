@@ -1,7 +1,7 @@
 package com.markgrand.smileyVars;
 
 import com.markgrand.smileyVars.util.BiSqlConsumer;
-import com.markgrand.smileyVars.util.QuadConsumer;
+import com.markgrand.smileyVars.util.QuadSqlConsumer;
 import com.markgrand.smileyVars.util.TriSqlConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -358,7 +358,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setObject(String parameterName, Object obj) throws SQLException {
-        //TODO finish this
+        changeWithCheckedName(parameterName, obj, (name, o) -> valueMap.put(name, new ObjectValue(o)));
     }
 
     /**
@@ -411,15 +411,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <P><B>Note:</B> This stream object can either be a standard
      * Java stream object or your own subclass that implements the standard interface.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterName The name of the parameter.
      * @param reader         the <code>java.io.Reader</code> object that contains the Unicode data
      * @param length         the number of characters in the stream
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-        //TODO finish this
+    public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
+        changeWithCheckedName(parameterName, reader, length, (name, in, len) -> valueMap.put(name, new ReaderValue(in, len)));
     }
 
     /**
@@ -2035,7 +2033,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         }
     }
 
-    private <T, U, V> void changeWithCheckedName(String parameterName, T value, U value2, V value3, QuadConsumer<String, T, U, V> setter) throws SQLException {
+    private <T, U, V> void changeWithCheckedName(String parameterName, T value, U value2, V value3, QuadSqlConsumer<String, T, U, V> setter) throws SQLException {
         if (valueMap.containsKey(parameterName)) {
             changeCount++;
             setter.accept(parameterName, value, value2, value3);
