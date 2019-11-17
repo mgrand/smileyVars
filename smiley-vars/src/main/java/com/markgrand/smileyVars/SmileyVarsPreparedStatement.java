@@ -827,7 +827,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * version of <code>setAsciiStream</code> which takes a length parameter.
      *
      * @param parameterName The name of the parameter.
-     * @param inputStream              the Java input stream that contains the ASCII parameter value
+     * @param inputStream   the Java input stream that contains the ASCII parameter value
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setAsciiStream(String parameterName, InputStream inputStream) throws SQLException {
@@ -846,15 +846,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * it might be more efficient to use a version of
      * <code>setBinaryStream</code> which takes a length parameter.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the java input stream which contains the binary parameter value
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @param parameterName The name of the parameter.
+     * @param inputStream   the java input stream which contains the binary parameter value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
-        //TODO finish this
+    public void setBinaryStream(String parameterName, InputStream inputStream) throws SQLException {
+        changeWithCheckedName(parameterName, inputStream, (name, in) -> valueMap.put(name, new BinaryStreamValue(in)));
     }
 
     /**
