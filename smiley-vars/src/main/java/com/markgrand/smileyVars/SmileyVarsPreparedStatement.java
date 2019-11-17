@@ -867,15 +867,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * it might be more efficient to use a version of
      * <code>setCharacterStream</code> which takes a length parameter.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param reader         the <code>java.io.Reader</code> object that contains the Unicode data
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @param parameterName The name of the parameter.
+     * @param reader        the <code>java.io.Reader</code> object that contains the Unicode data
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-        //TODO finish this
+    public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
+        changeWithCheckedName(parameterName, reader, (name, rdr) -> valueMap.put(name, new ReaderValue(rdr)));
     }
 
     /**
@@ -889,17 +886,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * it might be more efficient to use a version of
      * <code>setNCharacterStream</code> which takes a length parameter.
      *
-     * @param parameterIndex of the first parameter is 1, the second is 2, ...
-     * @param value          the parameter value
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if the driver does not support national character sets;  if
-     *                                         the driver can detect that a data conversion error could occur; if a
-     *                                         database access error occurs; or this method is called on a closed
-     *                                         <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @param parameterName The name of the parameter.
+     * @param reader          the parameter reader
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
-        //TODO finish this
+    public void setNCharacterStream(String parameterName, Reader reader) throws SQLException {
+        changeWithCheckedName(parameterName, reader, (name, rdr) -> valueMap.put(name, new NReaderValue(rdr)));
     }
 
     /**
