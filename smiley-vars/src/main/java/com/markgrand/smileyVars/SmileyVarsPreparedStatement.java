@@ -562,23 +562,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Although it is intended for user-defined and Ref parameters, this method may be used to set a null parameter of
      * any JDBC type. If the parameter does not have a user-defined or REF type, the given typeName is ignored.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterName The name of the parameter.
      * @param sqlType        a value from <code>java.sql.Types</code>
      * @param typeName       the fully-qualified name of an SQL user-defined type; ignored if the parameter is not a
      *                       user-defined type or REF
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if <code>sqlType</code> is a <code>ARRAY</code>, <code>BLOB</code>,
-     *                                         <code>CLOB</code>,
-     *                                         <code>DATALINK</code>, <code>JAVA_OBJECT</code>, <code>NCHAR</code>,
-     *                                         <code>NCLOB</code>, <code>NVARCHAR</code>, <code>LONGNVARCHAR</code>,
-     *                                         <code>REF</code>, <code>ROWID</code>, <code>SQLXML</code>
-     *                                         or  <code>STRUCT</code> data type and the JDBC driver does not support
-     *                                         this data type or if the JDBC driver does not support this method
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        //TODO finish this
+    public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
+        changeWithCheckedName(parameterName, sqlType, typeName, (name, type, tn) -> valueMap.put(name, new NullValue(type, tn)));
     }
 
     /**
