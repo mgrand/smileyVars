@@ -712,17 +712,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * SQL <code>XML</code> value when it sends it to the database.
      * <p>
      *
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterName The name of the parameter.
      * @param xmlObject      a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs; this method is called on a
-     *                                         closed <code>PreparedStatement</code> or the <code>java.xml.transform.Result</code>,
-     *                                         <code>Writer</code> or <code>OutputStream</code> has not been closed for
-     *                                         the <code>SQLXML</code> object
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
-        //TODO finish this
+    public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException {
+        changeWithCheckedName(parameterName, xmlObject, (name, xml) -> valueMap.put(name, new SQLXMLValue(xml)));
     }
 
     /**
