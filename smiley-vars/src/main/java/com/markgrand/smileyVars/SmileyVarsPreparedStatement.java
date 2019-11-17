@@ -440,7 +440,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param value         a <code>Blob</code> object that maps an SQL <code>BLOB</code> value
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
      */
     public void setBlob(String parameterName, Blob value) throws SQLException {
         changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new BlobValue(val)));
@@ -450,15 +449,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Sets the designated parameter to the given <code>java.sql.Clob</code> object. The driver converts this to an SQL
      * <code>CLOB</code> value when it sends it to the database.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              a <code>Clob</code> object that maps an SQL <code>CLOB</code> value
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @param parameterName The name of the parameter.
+     * @param value         a <code>Clob</code> object that maps an SQL <code>BLOB</code> value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setClob(int parameterIndex, Clob x) throws SQLException {
-        //TODO finish this
+    public void setClob(String parameterName, Clob value) throws SQLException {
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ClobValue(val)));
     }
 
     /**
