@@ -458,19 +458,15 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Sets the designated parameter to the given <code>java.sql.Array</code> object. The driver converts this to an
-     * SQL
+     * Sets the designated parameter to the given <code>java.sql.Array</code> object. The driver converts this to an SQL
      * <code>ARRAY</code> value when it sends it to the database.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              an <code>Array</code> object that maps an SQL <code>ARRAY</code> value
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @param parameterName The name of the parameter.
+     * @param value         an <code>Array</code> object that maps an SQL <code>ARRAY</code> value
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setArray(int parameterIndex, Array x) throws SQLException {
-        //TODO finish this
+    public void setArray(String parameterName, Array value) throws SQLException {
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ArrayValue(val)));
     }
 
     /**
