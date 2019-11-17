@@ -576,15 +576,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Sets the designated parameter to the given <code>java.net.URL</code> value. The driver converts this to an SQL
      * <code>DATALINK</code> value when it sends it to the database.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the <code>java.net.URL</code> object to be set
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs or this method is called on
-     *                                         a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @param parameterName The name of the parameter.
+     * @param url              the <code>java.net.URL</code> object to be set
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setURL(int parameterIndex, URL x) throws SQLException {
-        //TODO finish this
+    public void setURL(String parameterName, URL url) throws SQLException {
+        changeWithCheckedName(parameterName, url, (name, u) -> valueMap.put(name, new UrlValue(u)));
     }
 
     /**
