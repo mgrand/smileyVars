@@ -3,6 +3,7 @@ package com.markgrand.smileyVars;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 /**
  * Class to represent a Timestamp value that will be used to set the value of prepared statement parameter.
@@ -10,14 +11,25 @@ import java.sql.Timestamp;
  * @author Mark Grand
  */
 class TimestampValue extends AbstactPreparedStatementValue {
-    private Timestamp value;
+    private final Timestamp value;
+    private final Calendar calendar;
 
     /**
      * Constructor
      * @param value The value that this object will be used to set in a prepared statement.
      */
     TimestampValue(Timestamp value) {
+        this(value, null);
+    }
+
+    /**
+     * Constructor
+     * @param value The value that this object will be used to set in a prepared statement.
+     * @param calendar A calander to establish time zone.
+     */
+    TimestampValue(Timestamp value, Calendar calendar) {
         this.value = value;
+        this.calendar = calendar;
     }
 
     /**
@@ -29,6 +41,10 @@ class TimestampValue extends AbstactPreparedStatementValue {
      */
     @Override
     void setParameter(PreparedStatement pstmt, int i) throws SQLException {
-        pstmt.setTimestamp(i, value);
+        if (calendar == null) {
+            pstmt.setTimestamp(i, value);
+        } else {
+            pstmt.setTimestamp(i, value, calendar);
+        }
     }
 }
