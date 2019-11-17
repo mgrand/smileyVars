@@ -644,17 +644,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a SQL
      * <code>NCLOB</code> value when it sends it to the database.
      *
-     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param parameterName The name of the parameter.
      * @param value          the parameter value
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if the driver does not support national character sets;  if
-     *                                         the driver can detect that a data conversion error could occur; if a
-     *                                         database access error occurs; or this method is called on a closed
-     *                                         <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNClob(int parameterIndex, NClob value) throws SQLException {
-        //TODO finish this
+    public void setNClob(String parameterName, NClob value) throws SQLException {
+        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new NClobValue(val)));
     }
 
     /**
@@ -666,17 +661,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * work to determine whether the parameter data should be sent to the server as a <code>LONGVARCHAR</code> or a
      * <code>CLOB</code>
      *
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterName The name of the parameter.
      * @param reader         An object that contains the data to set the parameter value to.
      * @param length         the number of characters in the parameter data.
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs; this method is called on a
-     *                                         closed <code>PreparedStatement</code> or if the length specified is less
-     *                                         than zero.
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-        //TODO finish this
+    public void setClob(String parameterName, Reader reader, long length) throws SQLException {
+        changeWithCheckedName(parameterName, reader, length, (name, rdr, len) -> valueMap.put(name, new ClobValue(rdr, len)));
     }
 
     /**
@@ -689,18 +680,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * to determine whether the parameter data should be sent to the server as a <code>LONGVARBINARY</code> or a
      * <code>BLOB</code>
      *
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterName The name of the parameter.
      * @param inputStream    An object that contains the data to set the parameter value to.
      * @param length         the number of bytes in the parameter data.
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs; this method is called on a
-     *                                         closed <code>PreparedStatement</code>; if the length specified is less
-     *                                         than zero or if the number of bytes in the inputstream does not match the
-     *                                         specified length.
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-        //TODO finish this
+    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
+        changeWithCheckedName(parameterName, inputStream, length, (name, in, len) -> valueMap.put(name, new BlobValue(in, len)));
     }
 
     /**
@@ -712,18 +698,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * work to determine whether the parameter data should be sent to the server as a <code>LONGNVARCHAR</code> or a
      * <code>NCLOB</code>
      *
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterName The name of the parameter.
      * @param reader         An object that contains the data to set the parameter value to.
      * @param length         the number of characters in the parameter data.
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if the length specified is less than zero; if the driver does
-     *                                         not support national character sets; if the driver can detect that a data
-     *                                         conversion error could occur;  if a database access error occurs or this
-     *                                         method is called on a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
-        //TODO finish this
+    public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
+        changeWithCheckedName(parameterName, reader, length, (name, rdr, len) -> valueMap.put(name, new NClobValue(rdr, len)));
     }
 
     /**
