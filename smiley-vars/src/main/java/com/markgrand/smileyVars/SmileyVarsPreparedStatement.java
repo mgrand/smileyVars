@@ -924,17 +924,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * it might be more efficient to use a version of
      * <code>setBlob</code> which takes a length parameter.
      *
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterName The name of the parameter.
      * @param inputStream    An object that contains the data to set the parameter value to.
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs; this method is called on a
-     *                                         closed <code>PreparedStatement</code> or if parameterIndex does not
-     *                                         correspond to a parameter marker in the SQL statement,
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
-     * @since 1.6
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
-        //TODO finish this
+    public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
+        changeWithCheckedName(parameterName, inputStream, (name, in) -> valueMap.put(name, new BlobValue(in)));
     }
 
     /**
