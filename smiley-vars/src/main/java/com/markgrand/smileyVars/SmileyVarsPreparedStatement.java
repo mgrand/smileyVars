@@ -645,7 +645,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>NCLOB</code> value when it sends it to the database.
      *
      * @param parameterName The name of the parameter.
-     * @param value          the parameter value
+     * @param value         the parameter value
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNClob(String parameterName, NClob value) throws SQLException {
@@ -662,8 +662,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>CLOB</code>
      *
      * @param parameterName The name of the parameter.
-     * @param reader         An object that contains the data to set the parameter value to.
-     * @param length         the number of characters in the parameter data.
+     * @param reader        An object that contains the data to set the parameter value to.
+     * @param length        the number of characters in the parameter data.
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setClob(String parameterName, Reader reader, long length) throws SQLException {
@@ -681,8 +681,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>BLOB</code>
      *
      * @param parameterName The name of the parameter.
-     * @param inputStream    An object that contains the data to set the parameter value to.
-     * @param length         the number of bytes in the parameter data.
+     * @param inputStream   An object that contains the data to set the parameter value to.
+     * @param length        the number of bytes in the parameter data.
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
@@ -699,8 +699,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>NCLOB</code>
      *
      * @param parameterName The name of the parameter.
-     * @param reader         An object that contains the data to set the parameter value to.
-     * @param length         the number of characters in the parameter data.
+     * @param reader        An object that contains the data to set the parameter value to.
+     * @param length        the number of characters in the parameter data.
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
@@ -713,7 +713,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <p>
      *
      * @param parameterName The name of the parameter.
-     * @param xmlObject      a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
+     * @param xmlObject     a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException {
@@ -742,24 +742,19 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <p>Note that this method may be used to pass database-specific
      * abstract data types.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the object containing the input parameter value
-     * @param targetSqlType  the SQL type (as defined in java.sql.Types) to be sent to the database. The scale argument
-     *                       may further qualify this type.
-     * @param scaleOrLength  for <code>java.sql.Types.DECIMAL</code> or <code>java.sql.Types.NUMERIC types</code>, this
-     *                       is the number of digits after the decimal point. For Java Object types
-     *                       <code>InputStream</code> and <code>Reader</code>, this is the length of the data in the
-     *                       stream or reader.  For all other types, this value will be ignored.
-     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL
-     *                                         statement; if a database access error occurs; this method is called on a
-     *                                         closed <code>PreparedStatement</code> or if the Java Object specified by
-     *                                         x is an InputStream or Reader object and the value of the scale parameter
-     *                                         is less than zero
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support the specified targetSqlType
+     * @param parameterName The name of the parameter.
+     * @param object        the object containing the input parameter value
+     * @param targetSqlType the SQL type (as defined in java.sql.Types) to be sent to the database. The scale argument
+     *                      may further qualify this type.
+     * @param scaleOrLength for <code>java.sql.Types.DECIMAL</code> or <code>java.sql.Types.NUMERIC types</code>, this
+     *                      is the number of digits after the decimal point. For Java Object types
+     *                      <code>InputStream</code> and <code>Reader</code>, this is the length of the data in the
+     *                      stream or reader.  For all other types, this value will be ignored.
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      * @see Types
      */
-    public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
-        //TODO finish this
+    public void setObject(String parameterName, Object object, int targetSqlType, int scaleOrLength) throws SQLException {
+        changeWithCheckedName(parameterName, object, targetSqlType, scaleOrLength, (name, obj, type, scale) -> valueMap.put(name, new ObjectValue(obj, type, scale)));
     }
 
     /**
@@ -773,15 +768,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <P><B>Note:</B> This stream object can either be a standard
      * Java stream object or your own subclass that implements the standard interface.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param x              the Java input stream that contains the ASCII parameter value
+     * @param parameterName The name of the parameter.
+     * @param inputStream              the Java input stream that contains the ASCII parameter value
      * @param length         the number of bytes in the stream
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement; if a
-     *                      database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
+     * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
-        //TODO finish this
+    public void setAsciiStream(String parameterName, InputStream inputStream, long length) throws SQLException {
+        changeWithCheckedName(parameterName, inputStream, length, (name, in, len) -> valueMap.put(name, new AsciiStreamValue(in, len)));
     }
 
     /**
