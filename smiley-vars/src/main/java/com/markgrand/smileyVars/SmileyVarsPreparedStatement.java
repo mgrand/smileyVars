@@ -390,17 +390,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Adds a set of parameters to this <code>PreparedStatement</code> object's batch of commands.
-     *
-     * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>PreparedStatement</code>
-     * @see Statement#addBatch
-     */
-    public void addBatch() throws SQLException {
-        //TODO finish this
-    }
-
-    /**
      * Sets the designated parameter to the given <code>Reader</code> object, which is the given number of characters
      * long. When a very large UNICODE value is input to a <code>LONGVARCHAR</code> parameter, it may be more practical
      * to send it via a
@@ -1183,18 +1172,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Cancels this <code>Statement</code> object if both the DBMS and driver support aborting an SQL statement. This
-     * method can be used by one thread to cancel a statement that is being executed by another thread.
-     *
-     * @throws SQLException                    if a database access error occurs or this method is called on a closed
-     *                                         <code>Statement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
-     */
-    public void cancel() throws SQLException {
-        //TODO finish this
-    }
-
-    /**
      * Retrieves the first warning reported by calls on this <code>Statement</code> object. Subsequent
      * <code>Statement</code> object warnings will be chained to this
      * <code>SQLWarning</code> object.
@@ -1429,95 +1406,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Adds the given SQL command to the current list of commands for this
-     * <code>Statement</code> object. The commands in this list can be
-     * executed as a batch by calling the method <code>executeBatch</code>.
-     * <p>
-     * <strong>Note:</strong>This method cannot be called on a
-     * <code>PreparedStatement</code> or <code>CallableStatement</code>.
-     *
-     * @param sql typically this is a SQL <code>INSERT</code> or
-     *            <code>UPDATE</code> statement
-     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>,
-     *                      the driver does not support batch updates, the method is called on a
-     *                      <code>PreparedStatement</code> or <code>CallableStatement</code>
-     * @see #executeBatch
-     * @see DatabaseMetaData#supportsBatchUpdates
-     */
-    public void addBatch(String sql) throws SQLException {
-        //TODO finish this
-    }
-
-    /**
-     * Empties this <code>Statement</code> object's current list of SQL commands.
-     * <p>
-     *
-     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
-     *                      or the driver does not support batch updates
-     * @see #addBatch
-     * @see DatabaseMetaData#supportsBatchUpdates
-     * @since 1.2
-     */
-
-    public void clearBatch() throws SQLException {
-        //TODO finish this
-    }
-
-    /**
-     * Submits a batch of commands to the database for execution and if all commands execute successfully, returns an
-     * array of update counts. The <code>int</code> elements of the array that is returned are ordered to correspond to
-     * the commands in the batch, which are ordered according to the order in which they were added to the batch. The
-     * elements in the array returned by the method <code>executeBatch</code> may be one of the following:
-     * <OL>
-     * <LI>A number greater than or equal to zero -- indicates that the
-     * command was processed successfully and is an update count giving the number of rows in the database that were
-     * affected by the command's execution
-     * <LI>A value of <code>SUCCESS_NO_INFO</code> -- indicates that the command was
-     * processed successfully but that the number of rows affected is unknown
-     * <p>
-     * If one of the commands in a batch update fails to execute properly, this method throws a
-     * <code>BatchUpdateException</code>, and a JDBC driver may or may not continue to process the remaining commands
-     * in the batch.  However, the driver's behavior must be consistent with a particular DBMS, either always continuing
-     * to process commands or never continuing to process commands.  If the driver continues processing after a failure,
-     * the array returned by the method
-     * <code>BatchUpdateException.getUpdateCounts</code>
-     * will contain as many elements as there are commands in the batch, and at least one of the elements will be the
-     * following:
-     *
-     * <LI>A value of <code>EXECUTE_FAILED</code> -- indicates that the command failed
-     * to execute successfully and occurs only if a driver continues to process commands after a command fails
-     * </OL>
-     * <p>
-     * The possible implementations and return values have been modified in the Java 2 SDK, Standard Edition, version
-     * 1.3 to accommodate the option of continuing to process commands in a batch update after a
-     * <code>BatchUpdateException</code> object has been thrown.
-     *
-     * @return an array of update counts containing one element for each command in the batch.  The elements of the
-     * array are ordered according to the order in which commands were added to the batch.
-     * @throws SQLException        if a database access error occurs, this method is called on a closed
-     *                             <code>Statement</code> or the driver does not support batch statements. Throws
-     *                             {@link BatchUpdateException} (a subclass of <code>SQLException</code>) if one of the
-     *                             commands sent to the database fails to execute properly or attempts to return a
-     *                             result set.
-     * @throws SQLTimeoutException when the driver has determined that the timeout value that was specified by the
-     *                             {@code setQueryTimeout} method has been exceeded and has at least attempted to cancel
-     *                             the currently running {@code Statement}
-     * @see #addBatch
-     * @see DatabaseMetaData#supportsBatchUpdates
-     */
-    public int[] executeBatch() throws SQLException {
-        //TODO finish this
-        return new int[0];
-    }
-
-    /**
      * Retrieves the <code>Connection</code> object that produced this <code>Statement</code> object.
      *
      * @return the connection that produced this statement
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      */
-
     public Connection getConnection() throws SQLException {
         return connection;
     }
@@ -1910,7 +1804,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             setter.accept(parameterName, value);
         } else {
             throwForUnknownParameter(parameterName);
-            return;
         }
     }
 
@@ -1920,7 +1813,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             setter.accept(parameterName, value, value2);
         } else {
             throwForUnknownParameter(parameterName);
-            return;
         }
     }
 
@@ -1930,7 +1822,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             setter.accept(parameterName, value, value2, value3);
         } else {
             throwForUnknownParameter(parameterName);
-            return;
         }
     }
 
@@ -1939,7 +1830,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Tag PreparedStatement objects with a signature so that we can reuse prepared statement objects with differents
+     * Tag PreparedStatement objects with a signature so that we can reuse prepared statement objects with different
      * parameter settings.
      */
     private static class PreparedStatementTag {
