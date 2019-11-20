@@ -31,7 +31,7 @@ import java.util.*;
  * @author Mark Grand
  */
 public class SmileyVarsPreparedStatement implements AutoCloseable {
-    private static Logger logger = LoggerFactory.getLogger(SmileyVarsPreparedStatement.class);
+    private static final Logger logger = LoggerFactory.getLogger(SmileyVarsPreparedStatement.class);
 
     private final Connection connection;
     private final SmileyVarsTemplate template;
@@ -46,7 +46,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * PreparedStatement objects are collected in this map so they can be reused. The goal of the reuse is to use the
      * same PreparedStatement object for operations that are done with the same SmileyVars having values.
      */
-    private Map<PreparedStatementTag, PreparedStatement> taggedPstmtMap = new HashMap<>();
+    private final Map<PreparedStatementTag, PreparedStatement> taggedPstmtMap = new HashMap<>();
 
     private boolean closed = false;
     private long changeCount = 0;
@@ -1006,6 +1006,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             iterator.remove();
         }
         clearParameters();
+        closed = true;
     }
 
     /**
@@ -1725,7 +1726,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
-     * @since 1.4
      */
     public int getResultSetHoldability() throws SQLException {
         //TODO finish this
@@ -1733,15 +1733,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Retrieves whether this <code>Statement</code> object has been closed. A <code>Statement</code> is closed if the
-     * method close has been called on it, or if it is automatically closed.
+     * Retrieves whether this object has been closed.
      *
-     * @return true if this <code>Statement</code> object is closed; false if it is still open
-     * @throws SQLException if a database access error occurs
-     * @since 1.6
+     * @return true if this object is closed; false if it is still open
      */
-
-    public boolean isClosed() throws SQLException {
+    public boolean isClosed() {
         return closed;
     }
 
@@ -1799,6 +1795,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     private <T> void changeWithCheckedName(String parameterName, T value, BiSqlConsumer<String, T> setter) throws SQLException {
+        ensureNotClosed();
         if (valueMap.containsKey(parameterName)) {
             changeCount++;
             setter.accept(parameterName, value);
@@ -1808,6 +1805,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     private <T, U> void changeWithCheckedName(String parameterName, T value, U value2, TriSqlConsumer<String, T, U> setter) throws SQLException {
+        ensureNotClosed();
         if (valueMap.containsKey(parameterName)) {
             changeCount++;
             setter.accept(parameterName, value, value2);
@@ -1817,11 +1815,18 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     private <T, U, V> void changeWithCheckedName(String parameterName, T value, U value2, V value3, QuadSqlConsumer<String, T, U, V> setter) throws SQLException {
+        ensureNotClosed();
         if (valueMap.containsKey(parameterName)) {
             changeCount++;
             setter.accept(parameterName, value, value2, value3);
         } else {
             throwForUnknownParameter(parameterName);
+        }
+    }
+
+    private void ensureNotClosed() throws SQLException{
+        if (closed) {
+            throw new SQLException("Unable to modify a " + this.getClass().getSimpleName() + " after it is closed.");
         }
     }
 
@@ -1836,10 +1841,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     private static class PreparedStatementTag {
         BitSet signature;
         PreparedStatement preparedStatement;
+        long changeCount;
 
-        PreparedStatementTag(BitSet signature, PreparedStatement preparedStatement) {
+        PreparedStatementTag(BitSet signature, PreparedStatement preparedStatement, long changeCount) {
             this.signature = signature;
             this.preparedStatement = preparedStatement;
+            this.changeCount = changeCount;
         }
 
         BitSet getSignature() {
@@ -1848,6 +1855,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
         PreparedStatement getPreparedStatement() {
             return preparedStatement;
+        }
+
+        public long getChangeCount() {
+            return changeCount;
+        }
+
+        public void setChangeCount(long changeCount) {
+            this.changeCount = changeCount;
         }
 
         @Override
