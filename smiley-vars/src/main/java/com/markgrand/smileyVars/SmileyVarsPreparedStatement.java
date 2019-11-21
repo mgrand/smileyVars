@@ -78,8 +78,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                             the currently running {@code Statement}
      */
     public ResultSet executeQuery() throws SQLException {
-        //TODO finish this
-        throw new SQLFeatureNotSupportedException();
+        return getPreparedStatement().executeQuery();
     }
 
     /**
@@ -98,8 +97,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                             the currently running {@code Statement}
      */
     public int executeUpdate() throws SQLException {
-        //TODO finish this
-        throw new SQLFeatureNotSupportedException();
+        return getPreparedStatement().executeUpdate();
     }
 
     /**
@@ -385,8 +383,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see Statement#getMoreResults
      */
     public boolean execute() throws SQLException {
-        //TODO finish this
-        return false;
+        return getPreparedStatement().execute();
     }
 
     /**
@@ -481,8 +478,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
      */
     public ResultSetMetaData getMetaData() throws SQLException {
-        //TODO finish this
-        return null;
+        return getPreparedStatement().getMetaData();
     }
 
     /**
@@ -581,11 +577,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * for each parameter marker of this <code>PreparedStatement</code> object
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>PreparedStatement</code>
-     * @see ParameterMetaData
      */
     public ParameterMetaData getParameterMetaData() throws SQLException {
-        //TODO finish this
-        return null;
+        return getPreparedStatement().getParameterMetaData();
     }
 
     /**
@@ -940,8 +934,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Executes the given SQL statement, which returns a single
-     * <code>ResultSet</code> object.
+     * Executes the given SQL statement, which returns a single <code>ResultSet</code> object.
      * <p>
      * <strong>Note:</strong>This method cannot be called on a
      * <code>PreparedStatement</code> or <code>CallableStatement</code>.
@@ -951,16 +944,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>null</code>
      * @throws SQLException        if a database access error occurs, this method is called on a closed
      *                             <code>Statement</code>, the given SQL statement produces anything other than a
-     *                             single
-     *                             <code>ResultSet</code> object, the method is called on a
+     *                             single <code>ResultSet</code> object, the method is called on a
      *                             <code>PreparedStatement</code> or <code>CallableStatement</code>
      * @throws SQLTimeoutException when the driver has determined that the timeout value that was specified by the
      *                             {@code setQueryTimeout} method has been exceeded and has at least attempted to cancel
      *                             the currently running {@code Statement}
      */
     public ResultSet executeQuery(String sql) throws SQLException {
-        //TODO finish this
-        return null;
+        return getPreparedStatement().executeQuery(sql);
     }
 
     /**
@@ -986,8 +977,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                             the currently running {@code Statement}
      */
     public int executeUpdate(String sql) throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().executeUpdate(sql);
     }
 
     /**
@@ -1039,9 +1029,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     /**
      * Retrieves the maximum number of bytes that can be returned for character and binary column values in a
      * <code>ResultSet</code> object produced by this <code>Statement</code> object. This limit applies only to
-     * <code>BINARY</code>, <code>VARBINARY</code>,
-     * <code>LONGVARBINARY</code>, <code>CHAR</code>, <code>VARCHAR</code>,
-     * <code>NCHAR</code>, <code>NVARCHAR</code>, <code>LONGNVARCHAR</code>
+     * <code>BINARY</code>, <code>VARBINARY</code>, <code>LONGVARBINARY</code>, <code>CHAR</code>,
+     * <code>VARCHAR</code>,  <code>NCHAR</code>, <code>NVARCHAR</code>, <code>LONGNVARCHAR</code>
      * and <code>LONGVARCHAR</code> columns.  If the limit is exceeded, the excess data is silently discarded.
      *
      * @return the current column size limit for columns storing character and binary values; zero means there is no
@@ -1051,8 +1040,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #setMaxFieldSize
      */
     public int getMaxFieldSize() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getMaxFieldSize();
     }
 
     /**
@@ -1075,10 +1063,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Retrieves the maximum number of rows that a
-     * <code>ResultSet</code> object produced by this
-     * <code>Statement</code> object can contain.  If this limit is exceeded,
-     * the excess rows are silently dropped.
+     * Retrieves the maximum number of rows that a <code>ResultSet</code> object produced by this
+     * <code>Statement</code> object can contain.  If this limit is exceeded, the excess rows are silently dropped.
      *
      * @return the current maximum number of rows for a <code>ResultSet</code> object produced by this
      * <code>Statement</code> object;
@@ -1088,8 +1074,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #setMaxRows
      */
     public int getMaxRows() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getMaxRows();
     }
 
     /**
@@ -1140,8 +1125,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #setQueryTimeout
      */
     public int getQueryTimeout() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getQueryTimeout();
     }
 
     /**
@@ -1258,8 +1242,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #getMoreResults
      */
     public boolean execute(String sql) throws SQLException {
-        //TODO finish this
-        return false;
+        return getPreparedStatement().execute(sql);
     }
 
     /**
@@ -1273,8 +1256,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #execute
      */
     public ResultSet getResultSet() throws SQLException {
-        //TODO finish this
-        return null;
+        return getPreparedStatement().getResultSet();
     }
 
     /**
@@ -1288,8 +1270,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #execute
      */
     public int getUpdateCount() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getUpdateCount();
     }
 
     /**
@@ -1309,8 +1290,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #execute
      */
     public boolean getMoreResults() throws SQLException {
-        //TODO finish this
-        return false;
+        return getPreparedStatement().getMoreResults();
     }
 
     /**
@@ -1324,8 +1304,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #setFetchDirection
      */
     public int getFetchDirection() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getFetchDirection();
     }
 
     /**
@@ -1356,8 +1335,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #setFetchSize
      */
     public int getFetchSize() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getFetchSize();
     }
 
     /**
@@ -1371,6 +1349,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      or the condition {@code rows >= 0} is not satisfied.
      * @see #getFetchSize
      */
+    @SuppressWarnings("WeakerAccess")
     public void setFetchSize(int rows) throws SQLException {
         //TODO finish this
     }
@@ -1385,8 +1364,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      <code>Statement</code>
      */
     public int getResultSetConcurrency() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getResultSetConcurrency();
     }
 
     /**
@@ -1400,8 +1378,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      <code>Statement</code>
      */
     public int getResultSetType() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getResultSetType();
     }
 
     /**
@@ -1447,8 +1424,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #execute
      */
     public boolean getMoreResults(int current) throws SQLException {
-        //TODO finish this
-        return false;
+        return getPreparedStatement().getMoreResults(current);
     }
 
     /**
@@ -1467,8 +1443,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @since 1.4
      */
     public ResultSet getGeneratedKeys() throws SQLException {
-        //TODO finish this
-        return null;
+        return getPreparedStatement().getGeneratedKeys();
     }
 
     /**
@@ -1500,11 +1475,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLTimeoutException             when the driver has determined that the timeout value that was specified
      *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
      *                                         attempted to cancel the currently running {@code Statement}
-     * @since 1.4
      */
     public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().executeUpdate(sql, autoGeneratedKeys);
     }
 
     /**
@@ -1536,12 +1509,10 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLTimeoutException             when the driver has determined that the timeout value that was specified
      *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
      *                                         attempted to cancel the currently running {@code Statement}
-     * @since 1.4
      */
 
     public int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().executeUpdate(sql, columnIndexes);
     }
 
     /**
@@ -1571,12 +1542,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLTimeoutException             when the driver has determined that the timeout value that was specified
      *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
      *                                         attempted to cancel the currently running {@code Statement}
-     * @since 1.4
      */
-
     public int executeUpdate(String sql, String[] columnNames) throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().executeUpdate(sql, columnNames);
     }
 
     /**
@@ -1623,8 +1591,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #getGeneratedKeys
      */
     public boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
-        //TODO finish this
-        return false;
+        return getPreparedStatement().execute(sql, autoGeneratedKeys);
     }
 
     /**
@@ -1663,11 +1630,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #getResultSet
      * @see #getUpdateCount
      * @see #getMoreResults
-     * @since 1.4
      */
     public boolean execute(String sql, int[] columnIndexes) throws SQLException {
-        //TODO finish this
-        return false;
+        return getPreparedStatement().execute(sql, columnIndexes);
     }
 
     /**
@@ -1707,12 +1672,10 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #getUpdateCount
      * @see #getMoreResults
      * @see #getGeneratedKeys
-     * @since 1.4
      */
 
     public boolean execute(String sql, String[] columnNames) throws SQLException {
-        //TODO finish this
-        return false;
+        return getPreparedStatement().execute(sql, columnNames);
     }
 
     /**
@@ -1725,8 +1688,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      <code>Statement</code>
      */
     public int getResultSetHoldability() throws SQLException {
-        //TODO finish this
-        return 0;
+        return getPreparedStatement().getResultSetHoldability();
     }
 
     /**
@@ -1749,12 +1711,10 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      <code>Statement</code>
      *                      <p>
      * @see Statement#setPoolable(boolean) setPoolable(boolean)
-     * @since 1.6
      * <p>
      */
     public boolean isPoolable() throws SQLException {
-        //TODO finish this
-        return false;
+        return getPreparedStatement().isPoolable();
     }
 
     /**
@@ -1859,6 +1819,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         return ptag.getPreparedStatement();
     }
 
+    @SuppressWarnings("unused")
     private void updatePreparedStatement(PreparedStatement preparedStatement) {
         //TODO finish this
         throw new UnsupportedOperationException();
@@ -1869,8 +1830,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * parameter settings.
      */
     private static class PreparedStatementTag {
-        private BitSet signature;
-        private PreparedStatement preparedStatement;
+        private final BitSet signature;
+        private final PreparedStatement preparedStatement;
         private long changeCount;
 
         PreparedStatementTag(BitSet signature, PreparedStatement preparedStatement, long changeCount) {
