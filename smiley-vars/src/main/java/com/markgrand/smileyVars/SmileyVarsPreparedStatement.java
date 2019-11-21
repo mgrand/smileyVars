@@ -876,7 +876,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>setNCharacterStream</code> which takes a length parameter.
      *
      * @param parameterName The name of the parameter.
-     * @param reader          the parameter reader
+     * @param reader        the parameter reader
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNCharacterStream(String parameterName, Reader reader) throws SQLException {
@@ -895,7 +895,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>setClob</code> which takes a length parameter.
      *
      * @param parameterName The name of the parameter.
-     * @param reader         An object that contains the data to set the parameter value to.
+     * @param reader        An object that contains the data to set the parameter value to.
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setClob(String parameterName, Reader reader) throws SQLException {
@@ -914,7 +914,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>setBlob</code> which takes a length parameter.
      *
      * @param parameterName The name of the parameter.
-     * @param inputStream    An object that contains the data to set the parameter value to.
+     * @param inputStream   An object that contains the data to set the parameter value to.
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
@@ -932,7 +932,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>setNClob</code> which takes a length parameter.
      *
      * @param parameterName The name of the parameter.
-     * @param reader         An object that contains the data to set the parameter value to.
+     * @param reader        An object that contains the data to set the parameter value to.
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNClob(String parameterName, Reader reader) throws SQLException {
@@ -1821,7 +1821,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         }
     }
 
-    private void ensureNotClosed() throws SQLException{
+    private void ensureNotClosed() throws SQLException {
         if (closed) {
             throw new SQLException("Unable to modify a " + this.getClass().getSimpleName() + " after it is closed.");
         }
@@ -1831,16 +1831,47 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         throw new SQLException("\"" + parameterName + "\" is not the name of a variable in " + template.getTemplateString());
     }
 
-    
+    /**
+     * Get a prepared statement that is configured with the SQL that is an expansion of this object's SmileyVars
+     * template based on the parameters that are or are not set.  If this is the first time this prepared statement is
+     * being used, all the of previously provided parameter values and configuration values (concurrency, holdability,
+     * maxRows, ...) will be set during this method call.
+     * <p>Prepared statement objects are reused if the set of parameter values that have and do not have values is the
+     * same as the last time the prepared statement was used. If any parameter or configuration values have changed
+     * since the last time that the prepared statement was used, this method call will update the prepared statement
+     * with those changes.
+     * </p>
+     *
+     * @return a prepared statement that will be configured based the the SmileyVars template that this object was
+     * created with and any parameter or configuration values that have been specified since this object's creation.
+     */
+    public PreparedStatement getPreparedStatement() {
+        BitSet signature = computeParametersSignature();
+        PreparedStatementTag ptag = taggedPstmtMap.get(signature);
+        if (ptag == null) {
+            //TODO Finish this
+            throw new UnsupportedOperationException();
+        }
+        if (ptag.getChangeCount() != changeCount) {
+            updatePreparedStatement(ptag.getPreparedStatement());
+            ptag.setChangeCount(changeCount);
+        }
+        return ptag.getPreparedStatement();
+    }
+
+    private void updatePreparedStatement(PreparedStatement preparedStatement) {
+        //TODO finish this
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Tag PreparedStatement objects with a signature so that we can reuse prepared statement objects with different
      * parameter settings.
      */
     private static class PreparedStatementTag {
-        BitSet signature;
-        PreparedStatement preparedStatement;
-        long changeCount;
+        private BitSet signature;
+        private PreparedStatement preparedStatement;
+        private long changeCount;
 
         PreparedStatementTag(BitSet signature, PreparedStatement preparedStatement, long changeCount) {
             this.signature = signature;
@@ -1856,11 +1887,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             return preparedStatement;
         }
 
-        public long getChangeCount() {
+        long getChangeCount() {
             return changeCount;
         }
 
-        public void setChangeCount(long changeCount) {
+        void setChangeCount(long changeCount) {
             this.changeCount = changeCount;
         }
 
