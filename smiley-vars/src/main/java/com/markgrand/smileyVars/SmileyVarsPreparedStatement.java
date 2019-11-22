@@ -2,6 +2,7 @@ package com.markgrand.smileyVars;
 
 import com.markgrand.smileyVars.util.BiSqlConsumer;
 import com.markgrand.smileyVars.util.QuadSqlConsumer;
+import com.markgrand.smileyVars.util.SqlConsumer;
 import com.markgrand.smileyVars.util.TriSqlConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import java.net.URL;
 import java.sql.Date;
 import java.sql.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * SmileyVars enabled version of a prepared statement.
@@ -1867,6 +1869,22 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         @Override
         public int hashCode() {
             return signature.hashCode();
+        }
+    }
+
+    /**
+     * A linked list of changes to be applied to PreparedStatement objects to bring them to the current configuration.
+     */
+    private static class Change {
+        private Change next;
+        private SqlConsumer<PreparedStatement> updater;
+
+        Change(SqlConsumer<PreparedStatement> updater) {
+            this.updater = updater;
+        }
+
+        void update(PreparedStatement pstmt) throws SQLException{
+            updater.accept(pstmt);
         }
     }
 }
