@@ -15,7 +15,6 @@ import java.net.URL;
 import java.sql.Date;
 import java.sql.*;
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * SmileyVars enabled version of a prepared statement.
