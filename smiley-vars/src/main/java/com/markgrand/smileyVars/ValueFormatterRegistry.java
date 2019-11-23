@@ -27,9 +27,18 @@ class ValueFormatterRegistry {
     private static final ValueFormatterRegistry postgresqlRegistry
             = new ValueFormatterRegistry("PostgreSQL")
                       .registerFormatter("boolean", Boolean.class, bool -> bool == null ? "null" : bool.toString());
+    private static final ValueFormatterRegistry preparedStatementRegistry = new ValueFormatterRegistry()
+            .registerFormatter("preparedStatementParameter", o -> true, o ->true, (o) -> "?");
     private volatile static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
     private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
     private final String name;
+
+    /**
+     * This constructor is for PreparedStatements only. It does not add any of the built-in formatters.
+     */
+    private ValueFormatterRegistry() {
+        this.name = "PreparedStatementFormatterRegistry";
+    }
 
     private ValueFormatterRegistry(String name) {
         ensureCommonBuiltinFormattersAreRegistered();
@@ -64,6 +73,11 @@ class ValueFormatterRegistry {
     @NotNull
     static ValueFormatterRegistry postgresqlInstance() {
         return postgresqlRegistry;
+    }
+
+    @NotNull
+    static ValueFormatterRegistry preparedStatementInstance() {
+        return preparedStatementRegistry;
     }
 
     private static void registerTimestampFormatter(@NotNull @SuppressWarnings("SameParameterValue") LinkedHashMap<String, ValueFormatter> registryMap) {

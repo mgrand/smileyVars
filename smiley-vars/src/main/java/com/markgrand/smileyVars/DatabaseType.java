@@ -26,7 +26,8 @@ public enum DatabaseType {
     /**
      * Template specialized for SQL Server.
      */
-    SQL_SERVER(Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiInstance());
+    SQL_SERVER(Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiInstance())
+    ;
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseType.class);
 

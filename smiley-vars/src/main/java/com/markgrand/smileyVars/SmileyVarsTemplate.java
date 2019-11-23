@@ -86,12 +86,30 @@ public class SmileyVarsTemplate {
     private final ValueFormatterRegistry formatterRegistry;
 
     /**
-     * Constructor
+     * Constructor for internal use.
+     *
+     * @param sql               The template body.
+     * @param builder           A builder to create a new tokenizer each time the template is to be expanded.
+     * @param formatterRegistry The formatter registry to use for formatting SmileyVar values.
      */
-    private SmileyVarsTemplate(@NotNull String sql, @NotNull Tokenizer.TokenizerBuilder builder, @NotNull ValueFormatterRegistry formatterRegistry) {
+    SmileyVarsTemplate(@NotNull String sql, @NotNull Tokenizer.TokenizerBuilder builder, @NotNull ValueFormatterRegistry formatterRegistry) {
         this.builder = builder;
         this.sql = sql;
         this.formatterRegistry = formatterRegistry;
+    }
+
+    /**
+     * Create a template for the given type of database, using a specified {@link ValueFormatterRegistry}.
+     *
+     * @param databaseType      The type of database that this template is for.
+     * @param sql               The template body.
+     * @param formatterRegistry The formatter registry that this template will use.
+     * @return the template.
+     */
+    @NotNull
+    private static SmileyVarsTemplate template(@NotNull DatabaseType databaseType, @NotNull String sql,
+                                               @NotNull ValueFormatterRegistry formatterRegistry) {
+        return new SmileyVarsTemplate(sql, databaseType.getTokenizerBuilder(), formatterRegistry);
     }
 
     /**
@@ -104,7 +122,21 @@ public class SmileyVarsTemplate {
     @SuppressWarnings("WeakerAccess")
     @NotNull
     public static SmileyVarsTemplate template(@NotNull DatabaseType databaseType, @NotNull String sql) {
-        return new SmileyVarsTemplate(sql, databaseType.getTokenizerBuilder(), databaseType.getValueFormatterRegistry());
+        return template(databaseType, sql, databaseType.getValueFormatterRegistry());
+    }
+
+    /**
+     * Create a template for the given type of database.
+     *
+     * @param conn a database connection to the database that the template will be used with.
+     * @param sql  The template body.
+     * @return the template.
+     */
+    @SuppressWarnings("WeakerAccess")
+    @NotNull
+    static SmileyVarsTemplate template(@NotNull Connection conn, @NotNull String sql,
+                                       @NotNull ValueFormatterRegistry formatterRegistry) throws SQLException {
+        return template(DatabaseType.inferDatabaseType(conn.getMetaData()), sql, formatterRegistry);
     }
 
     /**
@@ -167,7 +199,7 @@ public class SmileyVarsTemplate {
      * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.POSTGRESQL, sql)}
      */
     @org.jetbrains.annotations.NotNull
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings({"unused"})
     @Deprecated
     public static SmileyVarsTemplate postgresqlTemplate(String sql) {
         return template(DatabaseType.POSTGRESQL, sql);
@@ -182,7 +214,7 @@ public class SmileyVarsTemplate {
      * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.ORACLE, sql)}
      */
     @org.jetbrains.annotations.NotNull
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings({"unused"})
     @Deprecated
     public static SmileyVarsTemplate oracleTemplate(String sql) {
         return template(DatabaseType.ORACLE, sql);
@@ -197,7 +229,7 @@ public class SmileyVarsTemplate {
      * @deprecated Use {@code SmileyVarsTemplate.template(DatabaseType.SQL_SERVER, sql)}
      */
     @NotNull
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings({"unused"})
     @Deprecated
     public static SmileyVarsTemplate sqlServerTemplate(String sql) {
         return template(DatabaseType.SQL_SERVER, sql);
@@ -363,6 +395,7 @@ public class SmileyVarsTemplate {
      *
      * @return the name of the variables as a Set. Each call to this method will return a new Set object.
      */
+    @SuppressWarnings("WeakerAccess")
     public Set<String> getVarNames() {
         final Set<String> varNames = new HashSet<>();
         @NotNull Tokenizer tokenizer = builder.build(sql);
@@ -377,8 +410,10 @@ public class SmileyVarsTemplate {
 
     /**
      * Get the String that this template is based on.
+     *
      * @return the String that this template is based on.
      */
+    @SuppressWarnings("WeakerAccess")
     public String getTemplateString() {
         return sql;
     }

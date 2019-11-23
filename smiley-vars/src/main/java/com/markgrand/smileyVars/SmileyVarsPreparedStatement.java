@@ -62,7 +62,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     public SmileyVarsPreparedStatement(@NotNull Connection conn, @NotNull String sql) throws SQLException {
         logger.trace("Constructing SmileyVars prepared statement for {}", sql);
         connection = conn;
-        template = SmileyVarsTemplate.template(conn, sql);
+        template = SmileyVarsTemplate.template(conn, sql, ValueFormatterRegistry.preparedStatementInstance());
         template.getVarNames().forEach(name -> valueMap.put(name, null));
     }
 
