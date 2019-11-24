@@ -52,6 +52,15 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     private boolean closed = false;
     private long changeCount = 0;
 
+    // Fields related to prepared statement configuration values.
+    private Optional<Integer> maxFieldSize = Optional.empty();
+    private Optional<Integer> maxRows = Optional.empty();
+    private Optional<Integer> queryTimeout = Optional.empty();
+    private Optional<String> cursorName = Optional.empty();
+    private Optional<Integer> fetchDirection = Optional.empty();
+    private Optional<Integer> fetchSize = Optional.empty();
+    private Optional<Boolean> poolable = Optional.empty();
+
     /**
      * Constructor
      *
@@ -1009,6 +1018,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      */
     public void clearParameters() {
         valueMap.entrySet().forEach(entry -> entry.setValue(null));
+        changeCount++;
     }
 
     /**
@@ -1060,7 +1070,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #getMaxFieldSize
      */
     public void setMaxFieldSize(int max) throws SQLException {
-        //TODO finish this
+        maxFieldSize = Optional.of(max);
+        changeCount++;
     }
 
     /**
@@ -1089,30 +1100,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #getMaxRows
      */
     public void setMaxRows(int max) throws SQLException {
-        //TODO finish this
-    }
-
-    /**
-     * Sets escape processing on or off. If escape scanning is on (the default), the driver will do escape substitution
-     * before sending the SQL statement to the database.
-     * <p>
-     * The {@code Connection} and {@code DataSource} property {@code escapeProcessing} may be used to change the default
-     * escape processing behavior.  A value of true (the default) enables escape Processing for all {@code Statement}
-     * objects. A value of false disables escape processing for all {@code Statement} objects.  The {@code
-     * setEscapeProcessing} method may be used to specify the escape processing behavior for an individual {@code
-     * Statement} object.
-     * <p>
-     * Note: Since prepared statements have usually been parsed prior to making this call, disabling escape processing
-     * for
-     * <code>PreparedStatements</code> objects will have no effect.
-     *
-     * @param enable <code>true</code> to enable escape processing;
-     *               <code>false</code> to disable it
-     * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>Statement</code>
-     */
-    public void setEscapeProcessing(boolean enable) throws SQLException {
-        //TODO finish this
+        maxRows = Optional.of(max);
     }
 
     /**
@@ -1152,7 +1140,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #getQueryTimeout
      */
     public void setQueryTimeout(int seconds) throws SQLException {
-        //TODO finish this
+        queryTimeout = Optional.of(seconds);
+        changeCount++;
     }
 
     /**
@@ -1212,7 +1201,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
      */
     public void setCursorName(String name) throws SQLException {
-        //TODO finish this
+        cursorName = Optional.of(name);
+        changeCount++;
     }
 
     /**
@@ -1322,7 +1312,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #getFetchDirection
      */
     public void setFetchDirection(int direction) throws SQLException {
-        //TODO finish this
+        fetchDirection = Optional.of(direction);
+        changeCount++;
     }
 
     /**
@@ -1352,7 +1343,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      */
     @SuppressWarnings("WeakerAccess")
     public void setFetchSize(int rows) throws SQLException {
-        //TODO finish this
+        if (rows < 0) {
+            throw new SQLException("fetchSize as specified as "+ rows +". It may not be negative");
+        }
+        fetchSize = Optional.of(rows);
+        changeCount++;
     }
 
     /**
@@ -1732,7 +1727,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException if this method is called on a closed <code>Statement</code>
      */
     public void setPoolable(boolean poolable) throws SQLException {
-        //TODO finish this
+        this.poolable = Optional.of(poolable);
+        changeCount++;
     }
 
     private BitSet computeParametersSignature() {
