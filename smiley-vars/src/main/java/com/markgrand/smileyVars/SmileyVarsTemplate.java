@@ -92,7 +92,7 @@ public class SmileyVarsTemplate {
      * @param builder           A builder to create a new tokenizer each time the template is to be expanded.
      * @param formatterRegistry The formatter registry to use for formatting SmileyVar values.
      */
-    SmileyVarsTemplate(@NotNull String sql, @NotNull Tokenizer.TokenizerBuilder builder, @NotNull ValueFormatterRegistry formatterRegistry) {
+    private SmileyVarsTemplate(@NotNull String sql, @NotNull Tokenizer.TokenizerBuilder builder, @NotNull ValueFormatterRegistry formatterRegistry) {
         this.builder = builder;
         this.sql = sql;
         this.formatterRegistry = formatterRegistry;
@@ -132,7 +132,6 @@ public class SmileyVarsTemplate {
      * @param sql  The template body.
      * @return the template.
      */
-    @SuppressWarnings("WeakerAccess")
     @NotNull
     static SmileyVarsTemplate template(@NotNull Connection conn, @NotNull String sql,
                                        @NotNull ValueFormatterRegistry formatterRegistry) throws SQLException {
@@ -245,7 +244,7 @@ public class SmileyVarsTemplate {
      */
     @org.jetbrains.annotations.NotNull
     @SuppressWarnings("unused")
-    public String apply(@NotNull Map<String, Object> values) throws UnsupportedFeatureException {
+    public String apply(@NotNull Map<String, ?> values) throws UnsupportedFeatureException {
         if (logger.isDebugEnabled()) {
             logger.debug("Expanding \"" + sql + "\" with mappings: " + values);
         }
@@ -279,7 +278,7 @@ public class SmileyVarsTemplate {
     }
 
     @Nullable
-    private StringBuilder processVar(@NotNull Map<String, Object> values, @NotNull Tokenizer tokenizer,
+    private StringBuilder processVar(@NotNull Map<String, ?> values, @NotNull Tokenizer tokenizer,
                                      @Nullable StringBuilder segment, @NotNull Token token, @NotNull Stack<StringBuilder> stack) {
         if (segment != null) {
             segment = doVarExpansion(values, tokenizer, segment, token);
@@ -337,7 +336,7 @@ public class SmileyVarsTemplate {
      * @throws NoFormatterException if there is no applicable formatter registered to format the variable's value.
      */
     @Nullable
-    private StringBuilder doVarExpansion(@NotNull Map<String, Object> values, @NotNull Tokenizer tokenizer,
+    private StringBuilder doVarExpansion(@NotNull Map<String, ?> values, @NotNull Tokenizer tokenizer,
                                          @NotNull StringBuilder segment, @NotNull Token varToken) {
 
         String value = getVarValue(values, tokenizer, varToken);
@@ -362,7 +361,7 @@ public class SmileyVarsTemplate {
      * @return The value of the variable formatted as an SQL literal or null if the variable does not have a value.
      * @throws NoFormatterException if there is no applicable formatter registered to format the variable's value.
      */
-    private String getVarValue(@NotNull Map<String, Object> values, @NotNull Tokenizer tokenizer, @NotNull Token varToken) {
+    private String getVarValue(@NotNull Map<String, ?> values, @NotNull Tokenizer tokenizer, @NotNull Token varToken) {
         @NotNull String varName = varToken.getTokenchars();
         logger.debug("Formatting variable {}", varName);
         if (tokenizer.peek() == TokenType.VAR) {

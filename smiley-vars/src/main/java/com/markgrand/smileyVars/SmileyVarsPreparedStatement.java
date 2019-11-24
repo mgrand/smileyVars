@@ -1,9 +1,7 @@
 package com.markgrand.smileyVars;
 
 import com.markgrand.smileyVars.util.BiSqlConsumer;
-import com.markgrand.smileyVars.util.QuadSqlConsumer;
 import com.markgrand.smileyVars.util.SqlConsumer;
-import com.markgrand.smileyVars.util.TriSqlConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Map SmileyVar names to parameter values. A null value means no value has been provided for the named SmileyVar.
      * If a null value is provided for a SmileyVar, a {@link NullValue} object is used to represent the null value.
      */
-    private final LinkedHashMap<String, Object> valueMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, BiSqlConsumer<PreparedStatement, Integer>> valueMap = new LinkedHashMap<>();
 
     /**
      * PreparedStatement objects are collected in this map so they can be reused. The goal of the reuse is to use the
@@ -55,11 +53,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     // Fields related to prepared statement configuration values.
     private Optional<Integer> maxFieldSize = Optional.empty();
     private Optional<Integer> maxRows = Optional.empty();
+    private Optional<Long> largeMaxRows = Optional.empty();
     private Optional<Integer> queryTimeout = Optional.empty();
     private Optional<String> cursorName = Optional.empty();
     private Optional<Integer> fetchDirection = Optional.empty();
     private Optional<Integer> fetchSize = Optional.empty();
     private Optional<Boolean> poolable = Optional.empty();
+
 
     /**
      * Constructor
@@ -120,13 +120,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNull(String parameterName, int sqlType) throws SQLException {
-        changeWithCheckedName(parameterName, sqlType, (name, type) -> valueMap.put(name, new NullValue(type)));
-        if (valueMap.containsKey(parameterName)) {
-            valueMap.put(parameterName, new NullValue(sqlType));
-            changeCount++;
-        } else {
-            throwForUnknownParameter(parameterName);
-        }
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNull(i, sqlType));
     }
 
     /**
@@ -137,7 +131,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBoolean(String parameterName, boolean value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new BooleanValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBoolean(i, value));
     }
 
     /**
@@ -149,7 +143,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setByte(String parameterName, byte value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ByteValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setByte(i, value));
     }
 
     /**
@@ -161,7 +155,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setShort(String parameterName, short value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ShortValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setShort(i, value));
     }
 
     /**
@@ -173,7 +167,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setInt(String parameterName, int value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new IntValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setInt(i, value));
     }
 
     /**
@@ -185,7 +179,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setLong(String parameterName, long value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new LongValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setLong(i, value));
     }
 
     /**
@@ -197,7 +191,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setFloat(String parameterName, float value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new FloatValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setFloat(i, value));
     }
 
     /**
@@ -209,7 +203,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setDouble(String parameterName, double value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new DoubleValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setDouble(i, value));
     }
 
     /**
@@ -221,7 +215,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBigDecimal(String parameterName, BigDecimal value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new BigDecimalValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBigDecimal(i, value));
     }
 
     /**
@@ -234,7 +228,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setString(String parameterName, String value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new StringValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setString(i, value));
     }
 
     /**
@@ -248,7 +242,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBytes(String parameterName, byte[] value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ByteArrayValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBytes(i, value));
     }
 
     /**
@@ -261,7 +255,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setDate(String parameterName, Date value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new DateValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setDate(i, value));
     }
 
     /**
@@ -273,7 +267,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setTime(String parameterName, Time value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new TimeValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setTime(i, value));
     }
 
     /**
@@ -285,7 +279,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setTimestamp(String parameterName, Timestamp value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new TimestampValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setTimestamp(i, value));
     }
 
     /**
@@ -305,7 +299,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setAsciiStream(String parameterName, InputStream inputStream, int length) throws SQLException {
-        changeWithCheckedName(parameterName, inputStream, length, (name, in, len) -> valueMap.put(name, new AsciiStreamValue(in, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setAsciiStream(i, inputStream, length));
     }
 
     /**
@@ -324,7 +318,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBinaryStream(String parameterName, InputStream inputStream, int length) throws SQLException {
-        changeWithCheckedName(parameterName, inputStream, length, (name, in, len) -> valueMap.put(name, new BinaryStreamValue(in, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBinaryStream(i, inputStream, length));
     }
 
     /**
@@ -340,7 +334,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see Types
      */
     public void setObject(String parameterName, Object obj, int targetSqlType) throws SQLException {
-        changeWithCheckedName(parameterName, obj, targetSqlType, (name, o, type) -> valueMap.put(name, new ObjectValue(o, type)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setObject(i, obj, targetSqlType));
     }
 
     /**
@@ -362,11 +356,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * method should be used instead of <code>setObject(int parameterIndex, Object x)</code>.
      *
      * @param parameterName The name of the parameter.
-     * @param obj           the object containing the Object parameter value
+     * @param value           the object containing the Object parameter value
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setObject(String parameterName, Object obj) throws SQLException {
-        changeWithCheckedName(parameterName, obj, (name, o) -> valueMap.put(name, new ObjectValue(o)));
+    public void setObject(String parameterName, Object value) throws SQLException {
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setObject(i, value));
     }
 
     /**
@@ -413,7 +407,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
-        changeWithCheckedName(parameterName, reader, length, (name, in, len) -> valueMap.put(name, new ReaderValue(in, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setCharacterStream(i, reader, length));
     }
 
     /**
@@ -426,7 +420,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setRef(String parameterName, Ref value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new RefValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setRef(i, value));
     }
 
     /**
@@ -438,7 +432,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBlob(String parameterName, Blob value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new BlobValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBlob(i, value));
     }
 
     /**
@@ -450,7 +444,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setClob(String parameterName, Clob value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ClobValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setClob(i, value));
     }
 
     /**
@@ -463,7 +457,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setArray(String parameterName, Array value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new ArrayValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setArray(i, value));
     }
 
     /**
@@ -505,7 +499,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setDate(String parameterName, Date value, Calendar calendar) throws SQLException {
-        changeWithCheckedName(parameterName, value, calendar, (name, val, cal) -> valueMap.put(name, new DateValue(val, cal)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setDate(i, value, calendar));
     }
 
     /**
@@ -522,7 +516,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setTime(String parameterName, Time time, Calendar calendar) throws SQLException {
-        changeWithCheckedName(parameterName, time, calendar, (name, tm, cal) -> valueMap.put(name, new TimeValue(tm, cal)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setTime(i, time, calendar));
     }
 
     /**
@@ -540,7 +534,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setTimestamp(String parameterName, Timestamp timestamp, Calendar calendar) throws SQLException {
-        changeWithCheckedName(parameterName, timestamp, calendar, (name, ts, cal) -> valueMap.put(name, new TimestampValue(ts, cal)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setTimestamp(i, timestamp, calendar));
     }
 
     /**
@@ -564,7 +558,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
-        changeWithCheckedName(parameterName, sqlType, typeName, (name, type, tn) -> valueMap.put(name, new NullValue(type, tn)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNull(i, sqlType, typeName));
     }
 
     /**
@@ -576,7 +570,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setURL(String parameterName, URL url) throws SQLException {
-        changeWithCheckedName(parameterName, url, (name, u) -> valueMap.put(name, new UrlValue(u)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setURL(i, url));
     }
 
     /**
@@ -597,11 +591,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>ROWID</code> value when it sends it to the database
      *
      * @param parameterName The name of the parameter.
-     * @param rowId         the parameter value
+     * @param value         the parameter value
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setRowId(String parameterName, RowId rowId) throws SQLException {
-        changeWithCheckedName(parameterName, rowId, (name, id) -> valueMap.put(name, new RowIdValue(id)));
+    public void setRowId(String parameterName, RowId value) throws SQLException {
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setRowId(i, value));
     }
 
     /**
@@ -616,7 +610,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNString(String parameterName, String value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new NStringValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNString(i, value));
     }
 
     /**
@@ -630,7 +624,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
-        changeWithCheckedName(parameterName, reader, length, (name, in, len) -> valueMap.put(name, new NReaderValue(in, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNCharacterStream(i, reader, length));
     }
 
     /**
@@ -642,7 +636,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNClob(String parameterName, NClob value) throws SQLException {
-        changeWithCheckedName(parameterName, value, (name, val) -> valueMap.put(name, new NClobValue(val)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNClob(i, value));
     }
 
     /**
@@ -660,7 +654,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setClob(String parameterName, Reader reader, long length) throws SQLException {
-        changeWithCheckedName(parameterName, reader, length, (name, rdr, len) -> valueMap.put(name, new ClobValue(rdr, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setClob(i, reader, length));
     }
 
     /**
@@ -679,7 +673,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
-        changeWithCheckedName(parameterName, inputStream, length, (name, in, len) -> valueMap.put(name, new BlobValue(in, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBlob(i, inputStream, length));
     }
 
     /**
@@ -697,7 +691,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
-        changeWithCheckedName(parameterName, reader, length, (name, rdr, len) -> valueMap.put(name, new NClobValue(rdr, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNClob(i, reader, length));
     }
 
     /**
@@ -706,11 +700,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <p>
      *
      * @param parameterName The name of the parameter.
-     * @param xmlObject     a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
+     * @param value     a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException {
-        changeWithCheckedName(parameterName, xmlObject, (name, xml) -> valueMap.put(name, new SQLXMLValue(xml)));
+    public void setSQLXML(String parameterName, SQLXML value) throws SQLException {
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setSQLXML(i, value));
     }
 
     /**
@@ -747,7 +741,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see Types
      */
     public void setObject(String parameterName, Object object, int targetSqlType, int scaleOrLength) throws SQLException {
-        changeWithCheckedName(parameterName, object, targetSqlType, scaleOrLength, (name, obj, type, scale) -> valueMap.put(name, new ObjectValue(obj, type, scale)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setObject(i, object, targetSqlType, scaleOrLength));
     }
 
     /**
@@ -767,7 +761,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setAsciiStream(String parameterName, InputStream inputStream, long length) throws SQLException {
-        changeWithCheckedName(parameterName, inputStream, length, (name, in, len) -> valueMap.put(name, new AsciiStreamValue(in, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setAsciiStream(i, inputStream, length));
     }
 
     /**
@@ -786,7 +780,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBinaryStream(@NotNull String parameterName, @NotNull InputStream inputStream, long length) throws SQLException {
-        changeWithCheckedName(parameterName, inputStream, length, (name, in, len) -> valueMap.put(name, new BinaryStreamValue(in, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBinaryStream(i, inputStream, length));
     }
 
     /**
@@ -805,14 +799,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
-        changeWithCheckedName(parameterName, reader, length, (name, rdr, len) -> valueMap.put(name, new ReaderValue(rdr, len)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setCharacterStream(i, reader, length));
     }
 
     /**
-     * Sets the designated parameter to the given input stream. When a very large ASCII value is input to a
-     * {@code LONGVARCHAR} parameter, it may be more practical to send it via a {@code java.io.InputStream}.
-     * Data will be read from the stream as needed until end-of-file is reached.  The JDBC driver will do any necessary
-     * conversion from ASCII to the database char format.
+     * Sets the designated parameter to the given input stream. When a very large ASCII value is input to a {@code
+     * LONGVARCHAR} parameter, it may be more practical to send it via a {@code java.io.InputStream}. Data will be read
+     * from the stream as needed until end-of-file is reached.  The JDBC driver will do any necessary conversion from
+     * ASCII to the database char format.
      *
      * <P><B>Note:</B> This stream object can either be a standard Java stream object or your own subclass that
      * implements the standard interface.
@@ -824,7 +818,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setAsciiStream(String parameterName, InputStream inputStream) throws SQLException {
-        changeWithCheckedName(parameterName, inputStream, (name, in) -> valueMap.put(name, new AsciiStreamValue(in)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setAsciiStream(i, inputStream));
     }
 
     /**
@@ -844,7 +838,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBinaryStream(String parameterName, InputStream inputStream) throws SQLException {
-        changeWithCheckedName(parameterName, inputStream, (name, in) -> valueMap.put(name, new BinaryStreamValue(in)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBinaryStream(i, inputStream));
     }
 
     /**
@@ -865,7 +859,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
-        changeWithCheckedName(parameterName, reader, (name, rdr) -> valueMap.put(name, new ReaderValue(rdr)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setCharacterStream(i, reader));
     }
 
     /**
@@ -884,7 +878,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNCharacterStream(String parameterName, Reader reader) throws SQLException {
-        changeWithCheckedName(parameterName, reader, (name, rdr) -> valueMap.put(name, new NReaderValue(rdr)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNCharacterStream(i, reader));
     }
 
     /**
@@ -903,7 +897,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setClob(String parameterName, Reader reader) throws SQLException {
-        changeWithCheckedName(parameterName, reader, (name, rdr) -> valueMap.put(name, new ClobValue(rdr)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setClob(i, reader));
     }
 
     /**
@@ -922,7 +916,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
-        changeWithCheckedName(parameterName, inputStream, (name, in) -> valueMap.put(name, new BlobValue(in)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBlob(i, inputStream));
     }
 
     /**
@@ -940,7 +934,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
     public void setNClob(String parameterName, Reader reader) throws SQLException {
-        changeWithCheckedName(parameterName, reader, (name, rdr) -> valueMap.put(name, new NClobValue(rdr)));
+        changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNClob(i, reader));
     }
 
     /**
@@ -1101,6 +1095,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      */
     public void setMaxRows(int max) throws SQLException {
         maxRows = Optional.of(max);
+        largeMaxRows = Optional.empty();
+        changeCount++;
     }
 
     /**
@@ -1128,11 +1124,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <p>
      * <strong>Note:</strong> JDBC driver implementations may also apply this
      * limit to {@code ResultSet} methods (consult your driver vendor documentation for details).
-     * <p>
-     * <strong>Note:</strong> In the case of {@code Statement} batching, it is
-     * implementation defined as to whether the time-out is applied to individual SQL commands added via the {@code
-     * addBatch} method or to the entire batch of SQL commands invoked by the {@code executeBatch} method (consult your
-     * driver vendor documentation for details).
      *
      * @param seconds the new query timeout limit in seconds; zero means there is no limit
      * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
@@ -1344,7 +1335,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     @SuppressWarnings("WeakerAccess")
     public void setFetchSize(int rows) throws SQLException {
         if (rows < 0) {
-            throw new SQLException("fetchSize as specified as "+ rows +". It may not be negative");
+            throw new SQLException("fetchSize as specified as " + rows + ". It may not be negative");
         }
         fetchSize = Optional.of(rows);
         changeCount++;
@@ -1731,10 +1722,211 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         changeCount++;
     }
 
+    /**
+     * Retrieves the current result as an update count; if the result is a <code>ResultSet</code> object or there are no
+     * more results, -1 is returned. This method should be called only once per result.
+     * <p>
+     * This method should be used when the returned row count may exceed {@link Integer#MAX_VALUE}.
+     * <p>
+     * The default implementation will throw {@code UnsupportedOperationException}
+     *
+     * @return the current result as an update count; -1 if the current result is a <code>ResultSet</code> object or
+     * there are no more results
+     * @throws SQLException if a database access error occurs or this method is called on a closed
+     *                      <code>Statement</code>
+     * @see #execute
+     */
+    long getLargeUpdateCount() throws SQLException {
+        return getPreparedStatement().getLargeUpdateCount();
+    }
+
+    /**
+     * Retrieves the maximum number of rows that a
+     * <code>ResultSet</code> object produced by this
+     * <code>Statement</code> object can contain.  If this limit is exceeded,
+     * the excess rows are silently dropped.
+     * <p>
+     * This method should be used when the returned row limit may exceed {@link Integer#MAX_VALUE}.
+     * <p>
+     * The default implementation will return {@code 0}
+     *
+     * @return the current maximum number of rows for a <code>ResultSet</code> object produced by this
+     * <code>Statement</code> object;
+     * zero means there is no limit
+     * @throws SQLException if a database access error occurs or this method is called on a closed
+     *                      <code>Statement</code>
+     * @see #setMaxRows
+     */
+    long getLargeMaxRows() throws SQLException {
+        return getPreparedStatement().getLargeMaxRows();
+    }
+
+    /**
+     * Sets the limit for the maximum number of rows that any
+     * <code>ResultSet</code> object  generated by this <code>Statement</code>
+     * object can contain to the given number. If the limit is exceeded, the excess rows are silently dropped.
+     * <p>
+     * This method should be used when the row limit may exceed {@link Integer#MAX_VALUE}.
+     * <p>
+     * The default implementation will throw {@code UnsupportedOperationException}
+     *
+     * @param max the new max rows limit; zero means there is no limit
+     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
+     *                      or the condition {@code max >= 0} is not satisfied
+     * @see #getMaxRows
+     */
+    void setLargeMaxRows(long max) throws SQLException {
+        largeMaxRows = Optional.of(max);
+        maxRows = Optional.empty();
+        changeCount++;
+    }
+
+    /**
+     * Executes the given SQL statement, which may be an <code>INSERT</code>,
+     * <code>UPDATE</code>, or <code>DELETE</code> statement or an
+     * SQL statement that returns nothing, such as an SQL DDL statement.
+     * <p>
+     * This method should be used when the returned row count may exceed {@link Integer#MAX_VALUE}.
+     * <p>
+     * <strong>Note:</strong>This method cannot be called on a
+     * <code>PreparedStatement</code> or <code>CallableStatement</code>.
+     * <p>
+     * The default implementation will throw {@code UnsupportedOperationException}
+     *
+     * @param sql an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>, <code>UPDATE</code>
+     *            or
+     *            <code>DELETE</code>; or an SQL statement that returns nothing,
+     *            such as a DDL statement.
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements
+     * that return nothing
+     * @throws SQLException        if a database access error occurs, this method is called on a closed
+     *                             <code>Statement</code>, the given SQL statement produces a <code>ResultSet</code>
+     *                             object, the method is called on a
+     *                             <code>PreparedStatement</code> or <code>CallableStatement</code>
+     * @throws SQLTimeoutException when the driver has determined that the timeout value that was specified by the
+     *                             {@code setQueryTimeout} method has been exceeded and has at least attempted to cancel
+     *                             the currently running {@code Statement}
+     */
+    long executeLargeUpdate(String sql) throws SQLException {
+        return getPreparedStatement().executeLargeUpdate(sql);
+    }
+
+    /**
+     * Executes the given SQL statement and signals the driver with the given flag about whether the auto-generated keys
+     * produced by this <code>Statement</code> object should be made available for retrieval.  The driver will ignore
+     * the flag if the SQL statement is not an <code>INSERT</code> statement, or an SQL statement able to return
+     * auto-generated keys (the list of such statements is vendor-specific).
+     * <p>
+     * This method should be used when the returned row count may exceed {@link Integer#MAX_VALUE}.
+     * <p>
+     * <strong>Note:</strong>This method cannot be called on a
+     * <code>PreparedStatement</code> or <code>CallableStatement</code>.
+     * <p>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param sql               an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>,
+     *                          <code>UPDATE</code> or
+     *                          <code>DELETE</code>; or an SQL statement that returns nothing,
+     *                          such as a DDL statement.
+     * @param autoGeneratedKeys a flag indicating whether auto-generated keys should be made available for retrieval;
+     *                          one of the following constants:
+     *                          <code>Statement.RETURN_GENERATED_KEYS</code>
+     *                          <code>Statement.NO_GENERATED_KEYS</code>
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements
+     * that return nothing
+     * @throws SQLException                    if a database access error occurs, this method is called on a closed
+     *                                         <code>Statement</code>, the given SQL statement returns a
+     *                                         <code>ResultSet</code> object, the given constant is not one of those
+     *                                         allowed, the method is called on a
+     *                                         <code>PreparedStatement</code> or <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method with a constant of
+     *                                         Statement.RETURN_GENERATED_KEYS
+     * @throws SQLTimeoutException             when the driver has determined that the timeout value that was specified
+     *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
+     *                                         attempted to cancel the currently running {@code Statement}
+     */
+    long executeLargeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
+        return getPreparedStatement().executeLargeUpdate(sql, autoGeneratedKeys);
+    }
+
+    /**
+     * Executes the given SQL statement and signals the driver that the auto-generated keys indicated in the given array
+     * should be made available for retrieval.   This array contains the indexes of the columns in the target table that
+     * contain the auto-generated keys that should be made available. The driver will ignore the array if the SQL
+     * statement is not an <code>INSERT</code> statement, or an SQL statement able to return auto-generated keys (the
+     * list of such statements is vendor-specific).
+     * <p>
+     * This method should be used when the returned row count may exceed {@link Integer#MAX_VALUE}.
+     * <p>
+     * <strong>Note:</strong>This method cannot be called on a
+     * <code>PreparedStatement</code> or <code>CallableStatement</code>.
+     * <p>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param sql           an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>,
+     *                      <code>UPDATE</code> or
+     *                      <code>DELETE</code>; or an SQL statement that returns nothing,
+     *                      such as a DDL statement.
+     * @param columnIndexes an array of column indexes indicating the columns that should be returned from the inserted
+     *                      row
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements
+     * that return nothing
+     * @throws SQLException                    if a database access error occurs, this method is called on a closed
+     *                                         <code>Statement</code>, the SQL statement returns a
+     *                                         <code>ResultSet</code> object,the second argument supplied to this method
+     *                                         is not an
+     *                                         <code>int</code> array whose elements are valid column indexes, the
+     *                                         method is called on a
+     *                                         <code>PreparedStatement</code> or <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @throws SQLTimeoutException             when the driver has determined that the timeout value that was specified
+     *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
+     *                                         attempted to cancel the currently running {@code Statement}
+     */
+    long executeLargeUpdate(String sql, int columnIndexes[]) throws SQLException {
+        return getPreparedStatement().executeLargeUpdate(sql, columnIndexes);
+    }
+
+    /**
+     * Executes the given SQL statement and signals the driver that the auto-generated keys indicated in the given array
+     * should be made available for retrieval.   This array contains the names of the columns in the target table that
+     * contain the auto-generated keys that should be made available. The driver will ignore the array if the SQL
+     * statement is not an <code>INSERT</code> statement, or an SQL statement able to return auto-generated keys (the
+     * list of such statements is vendor-specific).
+     * <p>
+     * This method should be used when the returned row count may exceed {@link Integer#MAX_VALUE}.
+     * <p>
+     * <strong>Note:</strong>This method cannot be called on a
+     * <code>PreparedStatement</code> or <code>CallableStatement</code>.
+     * <p>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param sql         an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>,
+     *                    <code>UPDATE</code> or
+     *                    <code>DELETE</code>; or an SQL statement that returns nothing,
+     *                    such as a DDL statement.
+     * @param columnNames an array of the names of the columns that should be returned from the inserted row
+     * @return either the row count for <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> statements, or
+     * 0 for SQL statements that return nothing
+     * @throws SQLException                    if a database access error occurs, this method is called on a closed
+     *                                         <code>Statement</code>, the SQL statement returns a
+     *                                         <code>ResultSet</code> object, the second argument supplied to this
+     *                                         method is not a <code>String</code> array whose elements are valid column
+     *                                         names, the method is called on a
+     *                                         <code>PreparedStatement</code> or <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
+     * @throws SQLTimeoutException             when the driver has determined that the timeout value that was specified
+     *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
+     *                                         attempted to cancel the currently running {@code Statement}
+     */
+    long executeLargeUpdate(String sql, String columnNames[]) throws SQLException {
+        return getPreparedStatement().executeLargeUpdate(sql, columnNames);
+    }
+
     private BitSet computeParametersSignature() {
         BitSet bitSet = new BitSet(valueMap.size());
         int i = 0;
-        for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
+        for (Map.Entry<String, BiSqlConsumer<PreparedStatement, Integer>> entry : valueMap.entrySet()) {
             if (entry.getValue() != null) {
                 bitSet.set(i);
             }
@@ -1743,34 +1935,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         return bitSet;
     }
 
-    private <T> void changeWithCheckedName(String parameterName, T value, BiSqlConsumer<String, T> setter) throws SQLException {
+    private void changeWithCheckedName(String parameterName, BiSqlConsumer<PreparedStatement, Integer> setter) throws SQLException {
         ensureNotClosed();
-        if (valueMap.containsKey(parameterName)) {
-            changeCount++;
-            setter.accept(parameterName, value);
-        } else {
+        if (valueMap.replace(parameterName, setter) == null) {
             throwForUnknownParameter(parameterName);
         }
-    }
-
-    private <T, U> void changeWithCheckedName(String parameterName, T value, U value2, TriSqlConsumer<String, T, U> setter) throws SQLException {
-        ensureNotClosed();
-        if (valueMap.containsKey(parameterName)) {
-            changeCount++;
-            setter.accept(parameterName, value, value2);
-        } else {
-            throwForUnknownParameter(parameterName);
-        }
-    }
-
-    private <T, U, V> void changeWithCheckedName(String parameterName, T value, U value2, V value3, QuadSqlConsumer<String, T, U, V> setter) throws SQLException {
-        ensureNotClosed();
-        if (valueMap.containsKey(parameterName)) {
-            changeCount++;
-            setter.accept(parameterName, value, value2, value3);
-        } else {
-            throwForUnknownParameter(parameterName);
-        }
+        changeCount++;
+        valueMap.replace(parameterName, setter);
     }
 
     private void ensureNotClosed() throws SQLException {
@@ -1810,8 +1981,30 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         return ptag.getPreparedStatement();
     }
 
-    @SuppressWarnings("unused")
-    private void updatePreparedStatement(PreparedStatement preparedStatement) {
+    private void updatePreparedStatement(PreparedStatement preparedStatement) throws SQLException {
+        if (maxFieldSize.isPresent()) {
+            preparedStatement.setMaxFieldSize(maxFieldSize.get());
+        }
+        if (maxRows.isPresent()) {
+            preparedStatement.setMaxRows(maxRows.get());
+        } else if (largeMaxRows.isPresent()) {
+            preparedStatement.setLargeMaxRows(largeMaxRows.get());
+        }
+        if (queryTimeout.isPresent()) {
+            preparedStatement.setQueryTimeout(queryTimeout.get());
+        }
+        if (cursorName.isPresent()) {
+            preparedStatement.setCursorName(cursorName.get());
+        }
+        if (fetchDirection.isPresent()) {
+            preparedStatement.setFetchDirection(fetchDirection.get());
+        }
+        if (fetchSize.isPresent()) {
+            preparedStatement.setFetchSize(fetchSize.get());
+        }
+        if (poolable.isPresent()) {
+            preparedStatement.setPoolable(poolable.get());
+        }
         //TODO finish this
         throw new UnsupportedOperationException();
     }
@@ -1872,7 +2065,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             this.updater = updater;
         }
 
-        void update(PreparedStatement pstmt) throws SQLException{
+        void update(PreparedStatement pstmt) throws SQLException {
             updater.accept(pstmt);
         }
     }
