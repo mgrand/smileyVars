@@ -1,12 +1,11 @@
 package com.markgrand.smileyVars;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
  * Class used to represent a null value for a prepared statement parameter
  */
-class NullValue extends AbstactPreparedStatementValue {
+class NullValue extends AbstractPreparedStatementValue {
     private final int type;
     private final String typeName;
 
@@ -34,33 +33,9 @@ class NullValue extends AbstactPreparedStatementValue {
         this.typeName = typeName;
     }
 
-    /**
-     * Return the type associated with this object, which should be one of the values defined in {@link
-     * java.sql.Types}.
-     *
-     * @return the type associate with this object.
-     */
-    int getType() {
-        return type;
-    }
-
     @Override
     public String toString() {
         return "null";
     }
 
-    /**
-     * Set the Parameter of the given PreparedStatement at index <i>i</i> to the value in this object.
-     *
-     * @param pstmt The prepared statement whose parameter is to be set.
-     * @param i     The index of the parameter.
-     */
-    @Override
-    void setParameter(PreparedStatement pstmt, int i) throws SQLException {
-        if (typeName == null) {
-            pstmt.setNull(i, type);
-        } else {
-            pstmt.setNull(i, type, typeName);
-        }
-    }
 }

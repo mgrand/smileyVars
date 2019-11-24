@@ -1,7 +1,6 @@
 package com.markgrand.smileyVars;
 
 import com.markgrand.smileyVars.util.BiSqlConsumer;
-import com.markgrand.smileyVars.util.SqlConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,7 @@ import java.util.*;
  *
  * @author Mark Grand
  */
+@SuppressWarnings("WeakerAccess")
 public class SmileyVarsPreparedStatement implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(SmileyVarsPreparedStatement.class);
 
@@ -658,7 +658,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Sets the designated parameter to a <code>InputStream</code> object.  The inputstream must contain  the number of
+     * Sets the designated parameter to a <code>InputStream</code> object.  The inputStream must contain  the number of
      * characters specified by length otherwise a <code>SQLException</code> will be generated when the
      * <code>PreparedStatement</code> is executed. This method differs from the <code>setBinaryStream (int,
      * InputStream, int)</code> method because it informs the driver that the parameter value should be sent to the
@@ -1016,7 +1016,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Clears the current parameter values immediately. This clears both the values that have been set for Smileyvars
+     * Clears the current parameter values immediately. This clears both the values that have been set for SmileyVars
      * and the parameter values in the underlying {@link PreparedStatement} objects. This can be useful for releasing
      * the resources used by the current parameter values.
      *
@@ -1059,11 +1059,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * is silently discarded. For maximum portability, use values greater than 256.
      *
      * @param max the new column size limit in bytes; zero means there is no limit
-     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
-     *                      or the condition {@code max >= 0} is not satisfied
      * @see #getMaxFieldSize
      */
-    public void setMaxFieldSize(int max) throws SQLException {
+    public void setMaxFieldSize(int max) {
         maxFieldSize = Optional.of(max);
         changeCount++;
     }
@@ -1089,11 +1087,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * object can contain to the given number. If the limit is exceeded, the excess rows are silently dropped.
      *
      * @param max the new max rows limit; zero means there is no limit
-     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
-     *                      or the condition {@code max >= 0} is not satisfied
      * @see #getMaxRows
      */
-    public void setMaxRows(int max) throws SQLException {
+    public void setMaxRows(int max) {
         maxRows = Optional.of(max);
         largeMaxRows = Optional.empty();
         changeCount++;
@@ -1126,11 +1122,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * limit to {@code ResultSet} methods (consult your driver vendor documentation for details).
      *
      * @param seconds the new query timeout limit in seconds; zero means there is no limit
-     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
-     *                      or the condition {@code seconds >= 0} is not satisfied
      * @see #getQueryTimeout
      */
-    public void setQueryTimeout(int seconds) throws SQLException {
+    public void setQueryTimeout(int seconds) {
         queryTimeout = Optional.of(seconds);
         changeCount++;
     }
@@ -1150,13 +1144,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>Statement</code> object that produced it.
      *
      * @return the first <code>SQLWarning</code> object or <code>null</code> if there are no warnings
-     * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>Statement</code>
+     * @exception SQLException if a database access error occurs or this method is called on a closed {@code Statement}
      */
 
     public SQLWarning getWarnings() throws SQLException {
-        //TODO finish this
-        return null;
+        return getPreparedStatement().getWarnings();
     }
 
     /**
@@ -1169,7 +1161,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      <code>Statement</code>
      */
     public void clearWarnings() throws SQLException {
-        //TODO finish this
+        getPreparedStatement().clearWarnings();
     }
 
     /**
@@ -1187,11 +1179,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <code>ResultSet</code> object being used for positioning. Also, cursor names must be unique within a connection.
      *
      * @param name the new cursor name, which must be unique within a connection
-     * @throws SQLException                    if a database access error occurs or this method is called on a closed
-     *                                         <code>Statement</code>
-     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
      */
-    public void setCursorName(String name) throws SQLException {
+    public void setCursorName(String name) {
         cursorName = Optional.of(name);
         changeCount++;
     }
@@ -1297,12 +1286,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * object. Each result set has its own methods for getting and setting its own fetch direction.
      *
      * @param direction the initial direction for processing rows
-     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
-     *                      or the given direction is not one of <code>ResultSet.FETCH_FORWARD</code>,
-     *                      <code>ResultSet.FETCH_REVERSE</code>, or <code>ResultSet.FETCH_UNKNOWN</code>
      * @see #getFetchDirection
      */
-    public void setFetchDirection(int direction) throws SQLException {
+    public void setFetchDirection(int direction) {
         fetchDirection = Optional.of(direction);
         changeCount++;
     }
@@ -1372,10 +1358,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Retrieves the <code>Connection</code> object that produced this <code>Statement</code> object.
      *
      * @return the connection that produced this statement
-     * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>Statement</code>
      */
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() {
         return connection;
     }
 
@@ -1714,10 +1698,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <p>
      *
      * @param poolable requests that the statement be pooled if true and that the statement not be pooled if false
-     *                 <p>
-     * @throws SQLException if this method is called on a closed <code>Statement</code>
      */
-    public void setPoolable(boolean poolable) throws SQLException {
+    public void setPoolable(boolean poolable) {
         this.poolable = Optional.of(poolable);
         changeCount++;
     }
@@ -1771,11 +1753,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * The default implementation will throw {@code UnsupportedOperationException}
      *
      * @param max the new max rows limit; zero means there is no limit
-     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
-     *                      or the condition {@code max >= 0} is not satisfied
      * @see #getMaxRows
      */
-    void setLargeMaxRows(long max) throws SQLException {
+    void setLargeMaxRows(long max) {
         largeMaxRows = Optional.of(max);
         maxRows = Optional.empty();
         changeCount++;
@@ -1883,7 +1863,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
      *                                         attempted to cancel the currently running {@code Statement}
      */
-    long executeLargeUpdate(String sql, int columnIndexes[]) throws SQLException {
+    long executeLargeUpdate(String sql, int[] columnIndexes) throws SQLException {
         return getPreparedStatement().executeLargeUpdate(sql, columnIndexes);
     }
 
@@ -1919,7 +1899,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
      *                                         attempted to cancel the currently running {@code Statement}
      */
-    long executeLargeUpdate(String sql, String columnNames[]) throws SQLException {
+    long executeLargeUpdate(String sql, String[] columnNames) throws SQLException {
         return getPreparedStatement().executeLargeUpdate(sql, columnNames);
     }
 
@@ -1997,6 +1977,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             preparedStatement.setCursorName(cursorName.get());
         }
         if (fetchDirection.isPresent()) {
+            //noinspection MagicConstant
             preparedStatement.setFetchDirection(fetchDirection.get());
         }
         if (fetchSize.isPresent()) {
@@ -2051,22 +2032,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         @Override
         public int hashCode() {
             return signature.hashCode();
-        }
-    }
-
-    /**
-     * A linked list of changes to be applied to PreparedStatement objects to bring them to the current configuration.
-     */
-    private static class Change {
-        private Change next;
-        private SqlConsumer<PreparedStatement> updater;
-
-        Change(SqlConsumer<PreparedStatement> updater) {
-            this.updater = updater;
-        }
-
-        void update(PreparedStatement pstmt) throws SQLException {
-            updater.accept(pstmt);
         }
     }
 }

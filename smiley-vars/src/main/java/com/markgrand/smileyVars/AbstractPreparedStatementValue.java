@@ -1,6 +1,5 @@
 package com.markgrand.smileyVars;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -9,7 +8,8 @@ import java.sql.Types;
  *
  * @author Mark Grand
  */
-abstract class AbstactPreparedStatementValue {
+@SuppressWarnings("RedundantThrows")
+abstract class AbstractPreparedStatementValue {
     void checkType(Integer type) throws SQLException {
         if (type != null) {
             switch (type) {
@@ -59,13 +59,4 @@ abstract class AbstactPreparedStatementValue {
             }
         }
     }
-
-    /**
-     * Set the Parameter of the given PreparedStatement at index <i>i</i> to the value in this object.
-     *
-     * @param pstmt The prepared statement whose parameter is to be set.
-     * @param i The index of the parameter.
-     * @throws SQLException if there is a problem.
-     */
-    abstract void setParameter(PreparedStatement pstmt, int i) throws SQLException;
 }

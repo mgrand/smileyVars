@@ -2,7 +2,7 @@ package com.markgrand.smileyVars.spring;
 
 import java.sql.*;
 
-@SuppressWarnings("RedundantThrows")
+@SuppressWarnings({"RedundantThrows", "WeakerAccess", "unused"})
 public class MockDatabaseMetadata implements DatabaseMetaData {
     private String databaseProductName;
 

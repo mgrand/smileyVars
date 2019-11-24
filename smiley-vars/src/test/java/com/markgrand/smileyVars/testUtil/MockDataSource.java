@@ -8,6 +8,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLTimeoutException;
 import java.util.logging.Logger;
 
+@SuppressWarnings("RedundantThrows")
 public class MockDataSource implements DataSource {
     private Connection connection;
 

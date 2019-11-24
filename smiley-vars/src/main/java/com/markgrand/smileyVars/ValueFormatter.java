@@ -49,6 +49,7 @@ class ValueFormatter {
      * @param value an object to be formatted.
      * @return {@code true} if the this object can formatting the given value, otherwise {@code false}.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isApplicable(Object value) {
         return isDefault(value)  || appliesTo.test(value);
     }
