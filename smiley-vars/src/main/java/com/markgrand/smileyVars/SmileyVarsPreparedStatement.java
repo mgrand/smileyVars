@@ -801,7 +801,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     /**
      * Sets the designated parameter to the given input stream. When a very large ASCII value is input to a
-     * <code>LONGVARCHAR</code> parameter, it may be more practical to send it via a code>java.io.InputStream</code>.
+     * {@code LONGVARCHAR} parameter, it may be more practical to send it via a {@code java.io.InputStream}.
      * Data will be read from the stream as needed until end-of-file is reached.  The JDBC driver will do any necessary
      * conversion from ASCII to the database char format.
      *
@@ -1708,11 +1708,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @return <code>true</code> if the <code>Statement</code>
      * is poolable; <code>false</code> otherwise
      * <p>
-     * @throws SQLException if this method is called on a closed
-     *                      <code>Statement</code>
-     *                      <p>
+     * @throws SQLException if this method is called on a closed <code>Statement</code>.
      * @see Statement#setPoolable(boolean) setPoolable(boolean)
-     * <p>
      */
     public boolean isPoolable() throws SQLException {
         return getPreparedStatement().isPoolable();
@@ -1732,9 +1729,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param poolable requests that the statement be pooled if true and that the statement not be pooled if false
      *                 <p>
-     * @throws SQLException if this method is called on a closed
-     *                      <code>Statement</code>
-     *                      <p>
+     * @throws SQLException if this method is called on a closed <code>Statement</code>
      */
     public void setPoolable(boolean poolable) throws SQLException {
         //TODO finish this
