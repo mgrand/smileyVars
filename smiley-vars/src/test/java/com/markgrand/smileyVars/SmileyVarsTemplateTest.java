@@ -53,7 +53,7 @@ class SmileyVarsTemplateTest {
                 = SmileyVarsTemplate.template(conn, "Select * from foo where 1=1 (:and x=:x:) and y=:y", ValueFormatterRegistry.preparedStatementInstance());
         @NotNull Map<String, Object> map = new HashMap<>();
         map.put("y", "qwerty");
-        assertEquals("Select * from foo where 1=1 and y=?", template.apply(new HashMap<>()));
+        assertEquals("Select * from foo where 1=1  and y=?", template.apply(map));
         map.put("x", 42);
         assertEquals("Select * from foo where 1=1 and x=? and y=?", template.apply(map));
     }
