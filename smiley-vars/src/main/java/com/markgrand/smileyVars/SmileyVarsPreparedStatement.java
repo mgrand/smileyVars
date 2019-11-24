@@ -1318,7 +1318,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      or the condition {@code rows >= 0} is not satisfied.
      * @see #getFetchSize
      */
-    @SuppressWarnings("WeakerAccess")
     public void setFetchSize(int rows) throws SQLException {
         if (rows < 0) {
             throw new SQLException("fetchSize as specified as " + rows + ". It may not be negative");
@@ -1954,14 +1953,32 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         PreparedStatementTag ptag = taggedPstmtMap.get(signature);
         if (ptag == null) {
             ptag = new PreparedStatementTag(signature, connection.prepareStatement(template.apply(valueMap)), changeCount);
+            taggedPstmtMap.put(signature, ptag);
         } else if (ptag.getChangeCount() != changeCount) {
-            updatePreparedStatement(ptag.getPreparedStatement());
+            updatePreparedStatement(ptag);
             ptag.setChangeCount(changeCount);
         }
         return ptag.getPreparedStatement();
     }
 
-    private void updatePreparedStatement(PreparedStatement preparedStatement) throws SQLException {
+    private void updatePreparedStatement(PreparedStatementTag ptag) throws SQLException {
+        PreparedStatement preparedStatement = ptag.getPreparedStatement();
+        updatePreparedStatementConfig(preparedStatement);
+        BitSet signature = ptag.getSignature();
+        updatePreparedStatementParams(preparedStatement, signature);
+    }
+
+    private void updatePreparedStatementParams(PreparedStatement preparedStatement, BitSet signature) throws SQLException {
+        int[] i={0};
+        template.forEachVariableInstance((name) -> {
+            if (signature.get(i[0])) {
+                valueMap.get(name).accept(preparedStatement, i[0]);
+            }
+            i[0] += 1;
+        });
+    }
+
+    private void updatePreparedStatementConfig(PreparedStatement preparedStatement) throws SQLException {
         if (maxFieldSize.isPresent()) {
             preparedStatement.setMaxFieldSize(maxFieldSize.get());
         }
@@ -1986,8 +2003,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         if (poolable.isPresent()) {
             preparedStatement.setPoolable(poolable.get());
         }
-        //TODO finish this
-        throw new UnsupportedOperationException();
     }
 
     /**

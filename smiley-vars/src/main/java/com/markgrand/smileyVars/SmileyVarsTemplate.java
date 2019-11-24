@@ -1,5 +1,6 @@
 package com.markgrand.smileyVars;
 
+import com.markgrand.smileyVars.util.SqlConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Consumer;
 
 /**
  * <p>SmileyVars is a lightweight template engine for SQL. It helps you avoid having to write similar SQL many times
@@ -390,6 +392,22 @@ public class SmileyVarsTemplate {
     }
 
     /**
+     * Iterate over the variable instances in this template.
+     *
+     * @param consumer A consumer that will be passed each variable instance in the templet exactly once, in order.
+     * @throws SQLException if the consumer throws an {@code SQLException}
+     */
+    public void forEachVariableInstance(SqlConsumer<String> consumer) throws SQLException {
+        @NotNull Tokenizer tokenizer = builder.build(sql);
+        while (tokenizer.hasNext()) {
+            Token token = tokenizer.next();
+            if (TokenType.VAR.equals(token.getTokenType())) {
+                consumer.accept(token.getTokenchars());
+            }
+        }
+    }
+
+    /**
      * Get the names of the variables in this SmileyVars template.
      *
      * @return the name of the variables as a Set. Each call to this method will return a new Set object.
@@ -397,12 +415,12 @@ public class SmileyVarsTemplate {
     @SuppressWarnings("WeakerAccess")
     public Set<String> getVarNames() {
         final Set<String> varNames = new HashSet<>();
-        @NotNull Tokenizer tokenizer = builder.build(sql);
-        while (tokenizer.hasNext()) {
-            Token token = tokenizer.next();
-            if (TokenType.VAR.equals(token.getTokenType())) {
-                varNames.add(token.getTokenchars());
-            }
+        try {
+            forEachVariableInstance((name) -> varNames.add(name));
+        } catch (SQLException e) {
+            String msg = "Unexpected SQLException from adding a variable name to a set.";
+            logger.error(msg, e);
+            throw new SmileyVarsSqlException(msg, e);
         }
         return varNames;
     }
