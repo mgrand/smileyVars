@@ -1805,15 +1805,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @return a prepared statement that will be configured based the the SmileyVars template that this object was
      * created with and any parameter or configuration values that have been specified since this object's creation.
+     * @throws SQLException if there is a problem creating a {@link PreparedStatement} object.
      */
-    public PreparedStatement getPreparedStatement() {
+    public PreparedStatement getPreparedStatement() throws SQLException {
         BitSet signature = computeParametersSignature();
         PreparedStatementTag ptag = taggedPstmtMap.get(signature);
         if (ptag == null) {
-            //TODO Finish this
-            throw new UnsupportedOperationException();
-        }
-        if (ptag.getChangeCount() != changeCount) {
+            ptag = new PreparedStatementTag(signature, connection.prepareStatement(template.apply(valueMap)), changeCount);
+        } else if (ptag.getChangeCount() != changeCount) {
             updatePreparedStatement(ptag.getPreparedStatement());
             ptag.setChangeCount(changeCount);
         }

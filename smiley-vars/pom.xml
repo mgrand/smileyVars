@@ -25,17 +25,17 @@
         <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
+            <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.jmockit</groupId>
-            <artifactId>jmockit</artifactId>
-            <version>${jmockit.version}</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jmockit</groupId>-->
+<!--            <artifactId>jmockit</artifactId>-->
+<!--            <version>${jmockit.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
     </dependencies>
 
     <parent>
@@ -48,6 +48,7 @@
         <jmockit.version>1.48</jmockit.version>
         <junit.version>5.5.2</junit.version>
         <logback.version>1.2.3</logback.version>
+        <maven.surefile.version>2.22.2</maven.surefile.version>
         <slf4j.version>1.7.28</slf4j.version>
     </properties>
 
@@ -58,9 +59,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefile.version}</version>
                 <configuration>
-                    <argLine>
-                        -Dcoverage-classes="com.markgrand.smileyVars.*" -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
-                    </argLine>
+<!--                    <argLine>-->
+<!--                        -Dcoverage-classes="com.markgrand.smileyVars.*" -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar-->
+<!--                    </argLine>-->
                 </configuration>
             </plugin>
             <plugin>

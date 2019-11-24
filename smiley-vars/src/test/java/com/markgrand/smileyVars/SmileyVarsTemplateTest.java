@@ -1,14 +1,14 @@
 package com.markgrand.smileyVars;
 
-import mockit.Expectations;
-import mockit.Mocked;
+import com.markgrand.smileyVars.testUtil.MockConnection;
+import com.markgrand.smileyVars.testUtil.MockDataSource;
+import com.markgrand.smileyVars.testUtil.MockDatabaseMetadata;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -43,6 +43,19 @@ class SmileyVarsTemplateTest {
         @NotNull Map<String, Object> map = new HashMap<>();
         map.put("x", 42);
         assertEquals("Select * from foo where 1=1 and x=42", template.apply(map));
+    }
+
+    @Test
+    void preparedStatementAnsiTemplate() throws Exception {
+        Connection conn = new MockConnection().metaData(new MockDatabaseMetadata().databaseProductName("H2"));
+        @NotNull
+        SmileyVarsTemplate template
+                = SmileyVarsTemplate.template(conn, "Select * from foo where 1=1 (:and x=:x:) and y=:y", ValueFormatterRegistry.preparedStatementInstance());
+        @NotNull Map<String, Object> map = new HashMap<>();
+        map.put("y", "qwerty");
+        assertEquals("Select * from foo where 1=1 and y=?", template.apply(new HashMap<>()));
+        map.put("x", 42);
+        assertEquals("Select * from foo where 1=1 and x=? and y=?", template.apply(map));
     }
 
     @Test
@@ -149,12 +162,8 @@ class SmileyVarsTemplateTest {
     }
 
     @Test
-    void dateAsDate(@NotNull @Mocked DatabaseMetaData metaData, @NotNull @Mocked Connection conn, @NotNull @Mocked DataSource ds) throws Exception {
-        new Expectations() {{
-           metaData.getDatabaseProductName();  result = "H2";
-           conn.getMetaData(); result = metaData;
-           ds.getConnection(); result = conn;
-        }};
+    void dateAsDate() throws Exception {
+        DataSource ds = new MockDataSource().connection(new MockConnection().metaData(new MockDatabaseMetadata().databaseProductName("H2")));
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(ds, "Select * from foo where 1=1 (:and x=:x:date:)");
         @NotNull Date date = new GregorianCalendar(2020, Calendar.APRIL, 18, 13, 43, 56).getTime();
         @NotNull Map<String, Object> map = new HashMap<>();
