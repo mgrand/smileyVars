@@ -36,8 +36,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     private final SmileyVarsTemplate template;
 
     /**
-     * Map SmileyVar names to parameter values. A null value means no value has been provided for the named SmileyVar.
-     * If a null value is provided for a SmileyVar, a {@link NullValue} object is used to represent the null value.
+     * Map SmileyVar names to BiSqlConsumer objects that set a value of a parameter in a PreparedStatement object.
      */
     private final LinkedHashMap<String, BiSqlConsumer<PreparedStatement, Integer>> valueMap = new LinkedHashMap<>();
 

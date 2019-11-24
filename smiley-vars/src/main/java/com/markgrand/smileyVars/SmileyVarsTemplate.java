@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.Consumer;
 
 /**
  * <p>SmileyVars is a lightweight template engine for SQL. It helps you avoid having to write similar SQL many times
@@ -394,10 +393,10 @@ public class SmileyVarsTemplate {
     /**
      * Iterate over the variable instances in this template.
      *
-     * @param consumer A consumer that will be passed each variable instance in the templet exactly once, in order.
+     * @param consumer A consumer that will be passed each variable instance in the template exactly once, in order.
      * @throws SQLException if the consumer throws an {@code SQLException}
      */
-    public void forEachVariableInstance(SqlConsumer<String> consumer) throws SQLException {
+    void forEachVariableInstance(SqlConsumer<String> consumer) throws SQLException {
         @NotNull Tokenizer tokenizer = builder.build(sql);
         while (tokenizer.hasNext()) {
             Token token = tokenizer.next();
@@ -416,7 +415,7 @@ public class SmileyVarsTemplate {
     public Set<String> getVarNames() {
         final Set<String> varNames = new HashSet<>();
         try {
-            forEachVariableInstance((name) -> varNames.add(name));
+            forEachVariableInstance(varNames::add);
         } catch (SQLException e) {
             String msg = "Unexpected SQLException from adding a variable name to a set.";
             logger.error(msg, e);
