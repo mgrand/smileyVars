@@ -29,6 +29,13 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <parent>
@@ -38,6 +45,7 @@
     </parent>
 
     <properties>
+        <h2.version>1.4.200</h2.version>
         <jmockit.version>1.48</jmockit.version>
         <junit.version>5.5.2</junit.version>
         <logback.version>1.2.3</logback.version>
