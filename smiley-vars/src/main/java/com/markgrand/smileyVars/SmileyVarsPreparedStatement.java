@@ -1977,9 +1977,10 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         if (ptag == null) {
             ptag = new PreparedStatementTag(signature, connection.prepareStatement(template.apply(valueMap)), changeCount);
             taggedPstmtMap.put(signature, ptag);
-        } else if (ptag.getChangeCount() != changeCount) {
             updatePreparedStatement(ptag);
+        } else if (ptag.getChangeCount() != changeCount) {
             ptag.setChangeCount(changeCount);
+            updatePreparedStatement(ptag);
         }
         return ptag.getPreparedStatement();
     }
@@ -1995,7 +1996,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         int[] i = {0};
         template.forEachVariableInstance((name) -> {
             if (signature.get(i[0])) {
-                valueMap.get(name).accept(preparedStatement, i[0]);
+                valueMap.get(name).accept(preparedStatement, i[0] + 1);
             }
             i[0] += 1;
         });
