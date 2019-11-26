@@ -1938,11 +1938,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     private void changeWithCheckedName(String parameterName, BiSqlConsumer<PreparedStatement, Integer> setter) throws SQLException {
         ensureNotClosed();
-        if (valueMap.replace(parameterName, setter) == null) {
+        if (valueMap.containsKey(parameterName)) {
+            valueMap.put(parameterName, setter);
+            changeCount++;
+        } else {
             throwForUnknownParameter(parameterName);
         }
-        changeCount++;
-        valueMap.replace(parameterName, setter);
     }
 
     private void ensureNotClosed() throws SQLException {

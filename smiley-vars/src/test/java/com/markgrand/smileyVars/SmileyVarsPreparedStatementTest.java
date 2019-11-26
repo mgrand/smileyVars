@@ -19,7 +19,7 @@ class SmileyVarsPreparedStatementTest {
     void setUp() throws Exception {
         h2Connection =  DriverManager.getConnection("jdbc:h2:mem:test", "sa", "");
         Statement stmt = h2Connection.createStatement();
-        stmt.execute("CREATE TABLE SQUARE (X INT PRIMARY KEY, Y INT)");
+        stmt.execute("CREATE TABLE IF NOT EXISTS SQUARE (X INT PRIMARY KEY, Y INT)");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (1,1);");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (2,4);");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (3,9);");
@@ -59,9 +59,17 @@ class SmileyVarsPreparedStatementTest {
         assertFalse(rs.next());
     }
 
-    @Ignore
     @Test
-    void executeUpdate() {
+    void executeUpdate() throws  Exception {
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO SQUARE (X,Y) VALUES ( :x,:y);");
+        svps.setInt("x", -1);
+        svps.setInt("y", 1);
+        assertEquals(1, svps.executeUpdate());
+        Statement stmt = h2Connection.createStatement();
+        ResultSet rs = stmt.executeQuery("Select y from square where x=-1");
+        assertTrue(rs.next());
+        assertEquals(1, rs.getInt("y"));
+        stmt.close();
     }
 
     @Ignore
