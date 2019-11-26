@@ -1,14 +1,62 @@
 package com.markgrand.smileyVars;
 
 import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SmileyVarsPreparedStatementTest {
-    @Ignore
+    private Connection h2Connection;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        h2Connection =  DriverManager.getConnection("jdbc:h2:mem:test", "sa", "");
+        Statement stmt = h2Connection.createStatement();
+        stmt.execute("CREATE TABLE SQUARE (X INT PRIMARY KEY, Y INT)");
+        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (1,1);");
+        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (2,4);");
+        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (3,9);");
+        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (4,16);");
+        h2Connection.commit();
+        stmt.close();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        h2Connection.close();
+    }
+
     @Test
-    void executeQuery() {
+    void connectionConstructor() throws Exception {
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "select x,y from square");
+        svps.close();
+    }
+
+    @Test
+    void executeQuery() throws Exception {
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "select x,y from square");
+        ResultSet rs = svps.executeQuery();
+        assertNotNull(rs);
+        assertTrue(rs.next());
+        assertEquals(1, rs.getInt(1));
+        assertEquals(1, rs.getInt("y"));
+        assertTrue(rs.next());
+        assertEquals(2, rs.getInt("x"));
+        assertEquals(4, rs.getInt(2));
+        assertTrue(rs.next());
+        assertEquals(3, rs.getInt("x"));
+        assertEquals(9, rs.getInt(2));
+        assertTrue(rs.next());
+        assertEquals(4, rs.getInt("x"));
+        assertEquals(16, rs.getInt(2));
+        assertFalse(rs.next());
     }
 
     @Ignore
