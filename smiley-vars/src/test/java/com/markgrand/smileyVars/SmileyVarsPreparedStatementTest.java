@@ -147,7 +147,7 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
-    void wrongName() throws Exception {
+    void wrongName() {
         assertThrows(SQLException.class, () -> {
             try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
                 svps.setLong("bogus", -92847568723456L);
@@ -192,9 +192,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setString() {
+    void setString() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setString("x", "Foobar");
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("Foobar", rs.getString(1));
+        }
     }
 
     @Ignore
