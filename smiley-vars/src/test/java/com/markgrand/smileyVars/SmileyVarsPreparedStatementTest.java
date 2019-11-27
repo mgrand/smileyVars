@@ -14,7 +14,7 @@ class SmileyVarsPreparedStatementTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        h2Connection =  DriverManager.getConnection("jdbc:h2:mem:test", "sa", "");
+        h2Connection = DriverManager.getConnection("jdbc:h2:mem:test", "sa", "");
         Statement stmt = h2Connection.createStatement();
         stmt.execute("CREATE TABLE IF NOT EXISTS SQUARE (X INT PRIMARY KEY, Y INT)");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (1,1);");
@@ -106,22 +106,22 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
-    void setByte() throws SQLException{
+    void setByte() throws SQLException {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
-            svps.setByte("x", (byte)25);
+            svps.setByte("x", (byte) 25);
             ResultSet rs = svps.executeQuery();
             assertTrue(rs.next());
-            assertEquals((byte)25, rs.getByte(1));
+            assertEquals((byte) 25, rs.getByte(1));
         }
     }
 
     @Test
     void setShort() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
-            svps.setShort("x", (short)23456);
+            svps.setShort("x", (short) 23456);
             ResultSet rs = svps.executeQuery();
             assertTrue(rs.next());
-            assertEquals((short)23456, rs.getShort(1));
+            assertEquals((short) 23456, rs.getShort(1));
         }
     }
 
@@ -143,6 +143,22 @@ class SmileyVarsPreparedStatementTest {
             assertTrue(rs.next());
             assertEquals(-92847568723456L, rs.getLong(1));
         }
+    }
+
+    @Test
+    void wrongName() throws Exception {
+        assertThrows(SQLException.class, () -> {
+            try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+                svps.setLong("bogus", -92847568723456L);
+            }
+        });
+    }
+
+    @Test
+    void setWhileClosed() throws Exception {
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x");
+        svps.close();
+        assertThrows(SQLException.class, () -> svps.setLong("x", -92847568723456L));
     }
 
     @Test
