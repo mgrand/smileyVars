@@ -105,9 +105,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setByte() {
+    void setByte() throws SQLException{
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setByte("x", (byte)25);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals((byte)25, rs.getByte(1));
+        }
     }
 
     @Ignore
