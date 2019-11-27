@@ -135,9 +135,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setLong() {
+    void setLong() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setLong("x", -92847568723456L);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(-92847568723456L, rs.getLong(1));
+        }
     }
 
     @Ignore
