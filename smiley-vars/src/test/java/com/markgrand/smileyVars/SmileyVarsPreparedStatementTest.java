@@ -115,9 +115,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setShort() {
+    void setShort() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setShort("x", (short)23456);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals((short)23456, rs.getShort(1));
+        }
     }
 
     @Ignore
