@@ -1,6 +1,7 @@
 package com.markgrand.smileyVars;
 
 import com.markgrand.smileyVars.util.BiSqlConsumer;
+import com.markgrand.smileyVars.util.VacuousBiSqlConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     private Optional<Integer> fetchSize = Optional.empty();
     private Optional<Boolean> poolable = Optional.empty();
 
-
     /**
      * Constructor
      *
@@ -80,7 +80,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         logger.trace("Constructing SmileyVars prepared statement for {}", sql);
         connection = conn;
         template = SmileyVarsTemplate.template(conn, sql, ValueFormatterRegistry.preparedStatementInstance());
-        template.getVarNames().forEach(name -> valueMap.put(name, null));
+        template.getVarNames().forEach(name -> valueMap.put(name, VacuousBiSqlConsumer.getInstance()));
     }
 
     /**
@@ -1033,7 +1033,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #deepClearParameters()
      */
     public void clearParameters() {
-        valueMap.entrySet().forEach(entry -> entry.setValue(null));
+        valueMap.entrySet().forEach(entry -> entry.setValue(VacuousBiSqlConsumer.getInstance()));
         changeCount++;
     }
 
@@ -1928,7 +1928,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         BitSet bitSet = new BitSet(valueMap.size());
         int i = 0;
         for (Map.Entry<String, BiSqlConsumer<PreparedStatement, Integer>> entry : valueMap.entrySet()) {
-            if (entry.getValue() != null) {
+            if (!entry.getValue().isVacuous()) {
                 bitSet.set(i);
             }
             i += 1;

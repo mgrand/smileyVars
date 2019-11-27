@@ -7,7 +7,21 @@ import java.sql.SQLException;
  */
 @FunctionalInterface
 public interface BiSqlConsumer<T, U> {
+    /**
+     * Prototype for lambdas.
+     *
+     * @param t the first parameter type
+     * @param u the second parameter type
+     * @throws SQLException
+     */
     void accept(T t, U u) throws SQLException;
 
-    default boolean isVacuous() { return false; }
+    /**
+     * Return false to indicate that this object represent an assigned value for a SmileyVar.
+     *
+     * @return false to indicate that this object represent an assigned value for a SmileyVar.
+     */
+    default boolean isVacuous() {
+        return false;
+    }
 }

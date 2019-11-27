@@ -107,6 +107,13 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void notSet() throws SQLException {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            assertThrows(SQLException.class,  () -> svps.executeQuery());
+        }
+    }
+
+    @Test
     void setByte() throws SQLException {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setByte("x", (byte) 25);
@@ -189,6 +196,16 @@ class SmileyVarsPreparedStatementTest {
             ResultSet rs = svps.executeQuery();
             assertTrue(rs.next());
             assertEquals(BigDecimal.valueOf(1234567890), rs.getBigDecimal(1));
+        }
+    }
+
+    @Test
+    void setNullString() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setString("x", null);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertNull(rs.getString(1));
         }
     }
 
