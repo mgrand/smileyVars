@@ -5,10 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,7 +57,7 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
-    void executeUpdate() throws  Exception {
+    void executeUpdate() throws Exception {
         SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO SQUARE (X,Y) VALUES ( :x,:y);");
         svps.setInt("x", -1);
         svps.setInt("y", 1);
@@ -70,11 +67,21 @@ class SmileyVarsPreparedStatementTest {
         assertTrue(rs.next());
         assertEquals(1, rs.getInt("y"));
         stmt.close();
+        h2Connection.rollback();
     }
 
-    @Ignore
     @Test
-    void setNull() {
+    void setNull() throws SQLException {
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO SQUARE (X,Y) VALUES ( 0,:y);");
+        svps.setNull("y", Types.INTEGER);
+        assertEquals(1, svps.executeUpdate());
+        Statement stmt = h2Connection.createStatement();
+        ResultSet rs = stmt.executeQuery("Select y from square where x=0");
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt("y"));
+        assertTrue(rs.wasNull());
+        stmt.close();
+        h2Connection.rollback();
     }
 
     @Ignore
