@@ -125,9 +125,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setInt() {
+    void setInt() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setInt("x", -98723456);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(-98723456, rs.getInt(1));
+        }
     }
 
     @Ignore
