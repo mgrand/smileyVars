@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -171,14 +172,24 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setDouble() {
+    void setDouble() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setDouble("x", -1234.125);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(-1234.125, rs.getDouble(1));
+        }
     }
 
-    @Ignore
     @Test
-    void setBigDecimal() {
+    void setBigDecimal() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBigDecimal("x", BigDecimal.valueOf(1234567890));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(BigDecimal.valueOf(1234567890), rs.getBigDecimal(1));
+        }
     }
 
     @Ignore
