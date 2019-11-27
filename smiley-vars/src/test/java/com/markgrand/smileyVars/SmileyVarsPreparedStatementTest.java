@@ -38,22 +38,23 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void executeQuery() throws Exception {
-        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "select x,y from square");
-        ResultSet rs = svps.executeQuery();
-        assertNotNull(rs);
-        assertTrue(rs.next());
-        assertEquals(1, rs.getInt(1));
-        assertEquals(1, rs.getInt("y"));
-        assertTrue(rs.next());
-        assertEquals(2, rs.getInt("x"));
-        assertEquals(4, rs.getInt(2));
-        assertTrue(rs.next());
-        assertEquals(3, rs.getInt("x"));
-        assertEquals(9, rs.getInt(2));
-        assertTrue(rs.next());
-        assertEquals(4, rs.getInt("x"));
-        assertEquals(16, rs.getInt(2));
-        assertFalse(rs.next());
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "select x,y from square")) {
+            ResultSet rs = svps.executeQuery();
+            assertNotNull(rs);
+            assertTrue(rs.next());
+            assertEquals(1, rs.getInt(1));
+            assertEquals(1, rs.getInt("y"));
+            assertTrue(rs.next());
+            assertEquals(2, rs.getInt("x"));
+            assertEquals(4, rs.getInt(2));
+            assertTrue(rs.next());
+            assertEquals(3, rs.getInt("x"));
+            assertEquals(9, rs.getInt(2));
+            assertTrue(rs.next());
+            assertEquals(4, rs.getInt("x"));
+            assertEquals(16, rs.getInt(2));
+            assertFalse(rs.next());
+        }
     }
 
     @Test
@@ -72,7 +73,7 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void setNull() throws SQLException {
-        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO SQUARE (X,Y) VALUES ( 0,:y);");
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO SQUARE (X,Y) VALUES ( 0,:y)");
         svps.setNull("y", Types.INTEGER);
         assertEquals(1, svps.executeUpdate());
         Statement stmt = h2Connection.createStatement();
@@ -84,9 +85,24 @@ class SmileyVarsPreparedStatementTest {
         h2Connection.rollback();
     }
 
-    @Ignore
     @Test
-    void setBoolean() {
+    void setBooleanTrue() throws SQLException {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBoolean("x", true);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertTrue(rs.getBoolean(1));
+        }
+    }
+
+    @Test
+    void setBooleanFalse() throws SQLException {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBoolean("x", false);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertFalse(rs.getBoolean(1));
+        }
     }
 
     @Ignore
