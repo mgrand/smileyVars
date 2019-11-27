@@ -145,9 +145,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setFloat() {
+    void setFloat() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setFloat("x", -234.125F);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(-234.125F, rs.getFloat(1));
+        }
     }
 
     @Ignore
