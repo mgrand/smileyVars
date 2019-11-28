@@ -115,7 +115,7 @@ class SmileyVarsPreparedStatementTest {
     @Test
     void notSet() throws SQLException {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
-            assertThrows(SQLException.class, svps::executeQuery);
+            assertThrows(UnboundVariableException.class, svps::executeQuery);
         }
     }
 
@@ -358,10 +358,18 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void clearParameter() {
-
+    void clearParameter() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            assertFalse(svps.clearParameter("bogus"));
+            assertTrue(svps.clearParameter("y"));
+            svps.setInt("y", 9);
+            assertTrue(svps.clearParameter("y"));
+            ResultSet rs = svps.executeQuery();
+            assertHasRows(rs, 6);
+            rs.close();
+        }
     }
 
     @Ignore
