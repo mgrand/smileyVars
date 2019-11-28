@@ -109,7 +109,7 @@ class SmileyVarsPreparedStatementTest {
     @Test
     void notSet() throws SQLException {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
-            assertThrows(SQLException.class, () -> svps.executeQuery());
+            assertThrows(SQLException.class, svps::executeQuery);
         }
     }
 
@@ -259,9 +259,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setTimestamp() {
+    void setTimestamp() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setTimestamp("x", new Timestamp(77589000));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(new Timestamp(77589000), rs.getTimestamp(1));
+        }
     }
 
     @Ignore
