@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -300,14 +301,24 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setObject() {
+    void setObject() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setObject("x", new Rectangle(5,7));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(new Rectangle(5,7), rs.getObject(1));
+        }
     }
 
-    @Ignore
     @Test
-    void testSetObject() {
+    void setObjectWithType() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setObject("x", new Rectangle(5,7), Types.OTHER);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(new Rectangle(5,7), rs.getObject(1));
+        }
     }
 
     @Ignore
