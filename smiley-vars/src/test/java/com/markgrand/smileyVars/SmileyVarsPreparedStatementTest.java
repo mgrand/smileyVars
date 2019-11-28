@@ -6,9 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.sql.*;
 
@@ -372,9 +370,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setCharacterStream() {
+    void setCharacterStream() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setCharacterStream("x", new StringReader("fubar"));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("fubar", new BufferedReader(rs.getCharacterStream(1)).readLine());
+        }
     }
 
     @Ignore
