@@ -289,9 +289,15 @@ class SmileyVarsPreparedStatementTest {
         return bytes;
     }
 
-    @Ignore
     @Test
-    void setBinaryStream() {
+    void setBinaryStream() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBinaryStream("x", new ByteArrayInputStream(new byte[]{6, 32, 44}));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals(inputStreamToBytes(new ByteArrayInputStream(new byte[]{6, 32, 44}), 3),
+                    inputStreamToBytes(rs.getBinaryStream(1), 3));
+        }
     }
 
     @Ignore
