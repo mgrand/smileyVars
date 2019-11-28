@@ -5,6 +5,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.*;
 
@@ -269,9 +272,21 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setAsciiStream() {
+    void setAsciiStream() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setAsciiStream("x", new ByteArrayInputStream("fubar".getBytes()));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals(inputStreamToBytes(new ByteArrayInputStream("fubar".getBytes()), 5),
+                    inputStreamToBytes(rs.getAsciiStream(1), 5));
+        }
+    }
+
+    private byte[] inputStreamToBytes(InputStream inputStream, int length) throws IOException {
+        byte[] bytes = new byte[length];
+        assertEquals(length, inputStream.read(bytes));
+        return bytes;
     }
 
     @Ignore
