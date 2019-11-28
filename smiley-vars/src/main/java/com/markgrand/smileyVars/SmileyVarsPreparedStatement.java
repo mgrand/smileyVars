@@ -1026,6 +1026,17 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
+     * Clear the value for the named SmileyVar.
+     *
+     * @param name The name of the SmileyVar whose value is to be cleared.
+     * @return true if the value was cleared or false if there is no SmileyVar in this object with the given name.
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public boolean clearParameter(String name) {
+        return null != valueMap.replace(name, VacuousBiSqlConsumer.getInstance());
+    }
+
+    /**
      * Clears the current parameter values immediately. This just clears the values that have been set for SmileyVars.
      * If this is being done to release resources, call {@link #deepClearParameters()}, which also clears the parameter
      * values in the underlying {@link PreparedStatement} objects.
@@ -1975,14 +1986,19 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         BitSet signature = computeParametersSignature();
         PreparedStatementTag ptag = taggedPstmtMap.get(signature);
         if (ptag == null) {
-            ptag = new PreparedStatementTag(signature, connection.prepareStatement(template.apply(valueMap)), changeCount);
+            ptag = new PreparedStatementTag(signature, connection.prepareStatement(template.apply(filterVacuousEntries(valueMap))), changeCount);
             taggedPstmtMap.put(signature, ptag);
-            updatePreparedStatement(ptag);
         } else if (ptag.getChangeCount() != changeCount) {
             ptag.setChangeCount(changeCount);
-            updatePreparedStatement(ptag);
         }
+        updatePreparedStatement(ptag);
         return ptag.getPreparedStatement();
+    }
+
+    private Map<String, BiSqlConsumer<PreparedStatement, Integer>> filterVacuousEntries(Map<String, BiSqlConsumer<PreparedStatement, Integer>> map) {
+        Map<String, BiSqlConsumer<PreparedStatement, Integer>> filteredMap = new HashMap<>();
+        map.forEach((key, value) -> {if (!value.isVacuous()) filteredMap.put(key, value);});
+        return filteredMap;
     }
 
     private void updatePreparedStatement(PreparedStatementTag ptag) throws SQLException {
@@ -1993,12 +2009,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     private void updatePreparedStatementParams(PreparedStatement preparedStatement, BitSet signature) throws SQLException {
-        int[] i = {0};
+        int[] sigIndex = {0};
+        int[] paramIndex = {1};
         template.forEachVariableInstance((name) -> {
-            if (signature.get(i[0])) {
-                valueMap.get(name).accept(preparedStatement, i[0] + 1);
+            if (signature.get(sigIndex[0])) {
+                valueMap.get(name).accept(preparedStatement, paramIndex[0]);
+                paramIndex[0] += 1;
             }
-            i[0] += 1;
+            sigIndex[0] += 1;
         });
     }
 

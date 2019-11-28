@@ -22,6 +22,8 @@ class SmileyVarsPreparedStatementTest {
         h2Connection = DriverManager.getConnection("jdbc:h2:mem:test", "sa", "");
         Statement stmt = h2Connection.createStatement();
         stmt.execute("CREATE TABLE IF NOT EXISTS SQUARE (X INT PRIMARY KEY, Y INT)");
+        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (-3,9);");
+        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (-2,4);");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (1,1);");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (2,4);");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (3,9);");
@@ -43,7 +45,7 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void executeQuery() throws Exception {
-        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "select x,y from square")) {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "select x,y from square WHERE x > 0")) {
             ResultSet rs = svps.executeQuery();
             assertNotNull(rs);
             assertTrue(rs.next());
@@ -321,9 +323,45 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
+    @Test
+    void execute() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            assertTrue(svps.execute());
+            ResultSet rs = svps.getResultSet();
+            assertHasRows(rs, 6);
+            rs.close();
+            svps.setInt("y", 9);
+            svps.execute();
+            rs = svps.getResultSet();
+            assertHasRows(rs, 2);
+            assertFalse(rs.next());
+            rs.close();
+            svps.setInt("x", 3);
+            svps.execute();
+            rs = svps.getResultSet();
+            assertTrue(rs.next());
+            assertFalse(rs.next());
+            rs.close();
+            svps.clearParameter("x");
+            svps.execute();
+            rs = svps.getResultSet();
+            assertHasRows(rs, 2);
+            assertFalse(rs.next());
+            rs.close();
+        }
+    }
+
+    private void assertHasRows(ResultSet rs, int rowCount) throws SQLException {
+        for (int i = rowCount; i > 0; i--) {
+            assertTrue(rs.next());
+        }
+    }
+
     @Ignore
     @Test
-    void execute() {
+    void clearParameter() {
+
     }
 
     @Ignore
