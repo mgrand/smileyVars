@@ -409,8 +409,13 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
-    @Ignore
-    void getMetaData() {
+    void getMetaData() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setInt("y", 9);
+            ResultSetMetaData resultSetMetaData = svps.getMetaData();
+            assertNotNull(resultSetMetaData);
+        }
     }
 
     @Ignore
