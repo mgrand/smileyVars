@@ -94,6 +94,20 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void testSetNull() throws Exception {
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO SQUARE (X,Y) VALUES ( 0,:y)");
+        svps.setNull("y", Types.INTEGER, "INT");
+        assertEquals(1, svps.executeUpdate());
+        Statement stmt = h2Connection.createStatement();
+        ResultSet rs = stmt.executeQuery("Select y from square where x=0");
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt("y"));
+        assertTrue(rs.wasNull());
+        stmt.close();
+        h2Connection.rollback();
+    }
+
+    @Test
     void setBooleanTrue() throws SQLException {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setBoolean("x", true);
@@ -297,6 +311,16 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void testSetTimestamp() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setTimestamp("x", new Timestamp(77589000), new GregorianCalendar());
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(new Timestamp(77589000), rs.getTimestamp(1));
+        }
+    }
+
+    @Test
     void setAsciiStream() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setAsciiStream("x", new ByteArrayInputStream("fubar".getBytes()));
@@ -447,16 +471,6 @@ class SmileyVarsPreparedStatementTest {
             assertTrue(rs.next());
             assertArrayEquals(new String[]{"two", "four", "six", "eight"}, (String[])rs.getArray(1).getArray());
         }
-    }
-
-    @Ignore
-    @Test
-    void testSetTimestamp() {
-    }
-
-    @Ignore
-    @Test
-    void testSetNull() {
     }
 
     @Ignore
