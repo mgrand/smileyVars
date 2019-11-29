@@ -277,6 +277,16 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void testSetTime() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setTime("x", new Time(77589000), new GregorianCalendar());
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(new Time(77589000), rs.getTime(1));
+        }
+    }
+
+    @Test
     void setTimestamp() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setTimestamp("x", new Timestamp(77589000));
@@ -437,11 +447,6 @@ class SmileyVarsPreparedStatementTest {
             assertTrue(rs.next());
             assertArrayEquals(new String[]{"two", "four", "six", "eight"}, (String[])rs.getArray(1).getArray());
         }
-    }
-
-    @Ignore
-    @Test
-    void testSetTime() {
     }
 
     @Ignore
