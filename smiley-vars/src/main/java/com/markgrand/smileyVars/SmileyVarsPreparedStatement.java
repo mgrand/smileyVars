@@ -125,11 +125,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param sqlType       The SQL type code defined in <code>java.sql.Types</code>
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setNull(String parameterName, int sqlType) throws SQLException {
+    public SmileyVarsPreparedStatement setNull(String parameterName, int sqlType) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNull(i, sqlType));
+        return this;
     }
 
     /**
@@ -137,11 +139,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setBoolean(String parameterName, boolean value) throws SQLException {
+    public SmileyVarsPreparedStatement setBoolean(String parameterName, boolean value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBoolean(i, value));
+        return this;
     }
 
     /**
@@ -150,11 +154,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setByte(String parameterName, byte value) throws SQLException {
+    public SmileyVarsPreparedStatement setByte(String parameterName, byte value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setByte(i, value));
+        return this;
     }
 
     /**
@@ -163,11 +169,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setShort(String parameterName, short value) throws SQLException {
+    public SmileyVarsPreparedStatement setShort(String parameterName, short value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setShort(i, value));
+        return this;
     }
 
     /**
@@ -176,11 +184,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setInt(String parameterName, int value) throws SQLException {
+    public SmileyVarsPreparedStatement setInt(String parameterName, int value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setInt(i, value));
+        return this;
     }
 
     /**
@@ -189,11 +199,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setLong(String parameterName, long value) throws SQLException {
+    public SmileyVarsPreparedStatement setLong(String parameterName, long value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setLong(i, value));
+        return this;
     }
 
     /**
@@ -202,11 +214,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setFloat(String parameterName, float value) throws SQLException {
+    public SmileyVarsPreparedStatement setFloat(String parameterName, float value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setFloat(i, value));
+        return this;
     }
 
     /**
@@ -215,11 +229,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setDouble(String parameterName, double value) throws SQLException {
+    public SmileyVarsPreparedStatement setDouble(String parameterName, double value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setDouble(i, value));
+        return this;
     }
 
     /**
@@ -228,11 +244,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setBigDecimal(String parameterName, BigDecimal value) throws SQLException {
+    public SmileyVarsPreparedStatement setBigDecimal(String parameterName, BigDecimal value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBigDecimal(i, value));
+        return this;
     }
 
     /**
@@ -242,11 +260,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setString(String parameterName, String value) throws SQLException {
+    public SmileyVarsPreparedStatement setString(String parameterName, String value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setString(i, value));
+        return this;
     }
 
     /**
@@ -256,11 +276,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setBytes(String parameterName, byte[] value) throws SQLException {
+    public SmileyVarsPreparedStatement setBytes(String parameterName, byte[] value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBytes(i, value));
+        return this;
     }
 
     /**
@@ -270,11 +292,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setDate(String parameterName, Date value) throws SQLException {
+    public SmileyVarsPreparedStatement setDate(String parameterName, Date value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setDate(i, value));
+        return this;
     }
 
     /**
@@ -283,11 +307,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setTime(String parameterName, Time value) throws SQLException {
+    public SmileyVarsPreparedStatement setTime(String parameterName, Time value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setTime(i, value));
+        return this;
     }
 
     /**
@@ -296,11 +322,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setTimestamp(String parameterName, Timestamp value) throws SQLException {
+    public SmileyVarsPreparedStatement setTimestamp(String parameterName, Timestamp value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setTimestamp(i, value));
+        return this;
     }
 
     /**
@@ -315,11 +343,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param inputStream   the Java input stream that contains the ASCII parameter value
      * @param length        the number of bytes in the stream
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setAsciiStream(String parameterName, InputStream inputStream, int length) throws SQLException {
+    public SmileyVarsPreparedStatement setAsciiStream(String parameterName, InputStream inputStream, int length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setAsciiStream(i, inputStream, length));
+        return this;
     }
 
     /**
@@ -334,11 +364,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param inputStream   the Java input stream that contains the binary parameter value
      * @param length        the number of bytes in the stream
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setBinaryStream(String parameterName, InputStream inputStream, int length) throws SQLException {
+    public SmileyVarsPreparedStatement setBinaryStream(String parameterName, InputStream inputStream, int length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBinaryStream(i, inputStream, length));
+        return this;
     }
 
     /**
@@ -350,12 +382,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param obj           the object containing the Object parameter value
      * @param targetSqlType the SQL type (as defined in java.sql.Types) to be sent to the database
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      * @see Types
      */
-    public void setObject(String parameterName, Object obj, int targetSqlType) throws SQLException {
+    public SmileyVarsPreparedStatement setObject(String parameterName, Object obj, int targetSqlType) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setObject(i, obj, targetSqlType));
+        return this;
     }
 
     /**
@@ -378,11 +412,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the object containing the Object parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template or this
      *                      object has been closed.
      */
-    public void setObject(String parameterName, Object value) throws SQLException {
+    public SmileyVarsPreparedStatement setObject(String parameterName, Object value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setObject(i, value));
+        return this;
     }
 
     /**
@@ -426,10 +462,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param reader        the <code>java.io.Reader</code> object that contains the Unicode data
      * @param length        the number of characters in the stream
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
+    public SmileyVarsPreparedStatement setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setCharacterStream(i, reader, length));
+        return this;
     }
 
     /**
@@ -439,10 +477,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         an SQL <code>REF</code> value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setRef(String parameterName, Ref value) throws SQLException {
+    public SmileyVarsPreparedStatement setRef(String parameterName, Ref value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setRef(i, value));
+        return this;
     }
 
     /**
@@ -451,10 +491,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         a <code>Blob</code> object that maps an SQL <code>BLOB</code> value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBlob(String parameterName, Blob value) throws SQLException {
+    public SmileyVarsPreparedStatement setBlob(String parameterName, Blob value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBlob(i, value));
+        return this;
     }
 
     /**
@@ -463,10 +505,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         a <code>Clob</code> object that maps an SQL <code>BLOB</code> value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setClob(String parameterName, Clob value) throws SQLException {
+    public SmileyVarsPreparedStatement setClob(String parameterName, Clob value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setClob(i, value));
+        return this;
     }
 
     /**
@@ -476,10 +520,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         an <code>Array</code> object that maps an SQL <code>ARRAY</code> value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setArray(String parameterName, Array value) throws SQLException {
+    public SmileyVarsPreparedStatement setArray(String parameterName, Array value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setArray(i, value));
+        return this;
     }
 
     /**
@@ -518,10 +564,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
      * @param calendar      the <code>Calendar</code> object the driver will use to construct the date
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setDate(String parameterName, Date value, Calendar calendar) throws SQLException {
+    public SmileyVarsPreparedStatement setDate(String parameterName, Date value, Calendar calendar) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setDate(i, value, calendar));
+        return this;
     }
 
     /**
@@ -535,10 +583,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param time          the parameter value
      * @param calendar      the <code>Calendar</code> object the driver will use to construct the time
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setTime(String parameterName, Time time, Calendar calendar) throws SQLException {
+    public SmileyVarsPreparedStatement setTime(String parameterName, Time time, Calendar calendar) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setTime(i, time, calendar));
+        return this;
     }
 
     /**
@@ -553,10 +603,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param timestamp     the parameter value
      * @param calendar      the <code>Calendar</code> object the driver will use to construct the timestamp
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setTimestamp(String parameterName, Timestamp timestamp, Calendar calendar) throws SQLException {
+    public SmileyVarsPreparedStatement setTimestamp(String parameterName, Timestamp timestamp, Calendar calendar) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setTimestamp(i, timestamp, calendar));
+        return this;
     }
 
     /**
@@ -577,10 +629,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param sqlType       a value from <code>java.sql.Types</code>
      * @param typeName      the fully-qualified name of an SQL user-defined type; ignored if the parameter is not a
      *                      user-defined type or REF
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
+    public SmileyVarsPreparedStatement setNull(String parameterName, int sqlType, String typeName) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNull(i, sqlType, typeName));
+        return this;
     }
 
     /**
@@ -589,10 +643,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param url           the <code>java.net.URL</code> object to be set
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setURL(String parameterName, URL url) throws SQLException {
+    public SmileyVarsPreparedStatement setURL(String parameterName, URL url) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setURL(i, url));
+        return this;
     }
 
     /**
@@ -614,10 +670,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setRowId(String parameterName, RowId value) throws SQLException {
+    public SmileyVarsPreparedStatement setRowId(String parameterName, RowId value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setRowId(i, value));
+        return this;
     }
 
     /**
@@ -629,10 +687,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNString(String parameterName, String value) throws SQLException {
+    public SmileyVarsPreparedStatement setNString(String parameterName, String value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNString(i, value));
+        return this;
     }
 
     /**
@@ -643,10 +703,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param reader        the <code>java.io.Reader</code> object that contains the Unicode data
      * @param length        the number of characters in the stream
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
+    public SmileyVarsPreparedStatement setNCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNCharacterStream(i, reader, length));
+        return this;
     }
 
     /**
@@ -655,10 +717,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         the parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNClob(String parameterName, NClob value) throws SQLException {
+    public SmileyVarsPreparedStatement setNClob(String parameterName, NClob value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNClob(i, value));
+        return this;
     }
 
     /**
@@ -673,10 +737,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param reader        An object that contains the data to set the parameter value to.
      * @param length        the number of characters in the parameter data.
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setClob(String parameterName, Reader reader, long length) throws SQLException {
+    public SmileyVarsPreparedStatement setClob(String parameterName, Reader reader, long length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setClob(i, reader, length));
+        return this;
     }
 
     /**
@@ -692,10 +758,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param inputStream   An object that contains the data to set the parameter value to.
      * @param length        the number of bytes in the parameter data.
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
+    public SmileyVarsPreparedStatement setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBlob(i, inputStream, length));
+        return this;
     }
 
     /**
@@ -710,10 +778,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param reader        An object that contains the data to set the parameter value to.
      * @param length        the number of characters in the parameter data.
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
+    public SmileyVarsPreparedStatement setNClob(String parameterName, Reader reader, long length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNClob(i, reader, length));
+        return this;
     }
 
     /**
@@ -723,10 +793,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param value         a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setSQLXML(String parameterName, SQLXML value) throws SQLException {
+    public SmileyVarsPreparedStatement setSQLXML(String parameterName, SQLXML value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setSQLXML(i, value));
+        return this;
     }
 
     /**
@@ -759,11 +831,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      is the number of digits after the decimal point. For Java Object types
      *                      <code>InputStream</code> and <code>Reader</code>, this is the length of the data in the
      *                      stream or reader.  For all other types, this value will be ignored.
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      * @see Types
      */
-    public void setObject(String parameterName, Object object, int targetSqlType, int scaleOrLength) throws SQLException {
+    public SmileyVarsPreparedStatement setObject(String parameterName, Object object, int targetSqlType, int scaleOrLength) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setObject(i, object, targetSqlType, scaleOrLength));
+        return this;
     }
 
     /**
@@ -780,10 +854,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param inputStream   the Java input stream that contains the ASCII parameter value
      * @param length        the number of bytes in the stream
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setAsciiStream(String parameterName, InputStream inputStream, long length) throws SQLException {
+    public SmileyVarsPreparedStatement setAsciiStream(String parameterName, InputStream inputStream, long length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setAsciiStream(i, inputStream, length));
+        return this;
     }
 
     /**
@@ -799,10 +875,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param inputStream   the java input stream which contains the binary parameter value
      * @param length        the number of bytes in the stream
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBinaryStream(@NotNull String parameterName, @NotNull InputStream inputStream, long length) throws SQLException {
+    public SmileyVarsPreparedStatement setBinaryStream(@NotNull String parameterName, @NotNull InputStream inputStream, long length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBinaryStream(i, inputStream, length));
+        return this;
     }
 
     /**
@@ -818,10 +896,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param parameterName The name of the parameter.
      * @param reader        the <code>java.io.Reader</code> object that contains the Unicode data
      * @param length        the number of characters in the stream
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
+    public SmileyVarsPreparedStatement setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setCharacterStream(i, reader, length));
+        return this;
     }
 
     /**
@@ -837,10 +917,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param inputStream   the Java input stream that contains the ASCII parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setAsciiStream(String parameterName, InputStream inputStream) throws SQLException {
+    public SmileyVarsPreparedStatement setAsciiStream(String parameterName, InputStream inputStream) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setAsciiStream(i, inputStream));
+        return this;
     }
 
     /**
@@ -857,10 +939,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param inputStream   the java input stream which contains the binary parameter value
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBinaryStream(String parameterName, InputStream inputStream) throws SQLException {
+    public SmileyVarsPreparedStatement setBinaryStream(String parameterName, InputStream inputStream) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBinaryStream(i, inputStream));
+        return this;
     }
 
     /**
@@ -878,10 +962,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param reader        the <code>java.io.Reader</code> object that contains the Unicode data
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
+    public SmileyVarsPreparedStatement setCharacterStream(String parameterName, Reader reader) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setCharacterStream(i, reader));
+        return this;
     }
 
     /**
@@ -897,10 +983,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param reader        the parameter reader
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNCharacterStream(String parameterName, Reader reader) throws SQLException {
+    public SmileyVarsPreparedStatement setNCharacterStream(String parameterName, Reader reader) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNCharacterStream(i, reader));
+        return this;
     }
 
     /**
@@ -1997,7 +2085,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     private Map<String, BiSqlConsumer<PreparedStatement, Integer>> filterVacuousEntries(Map<String, BiSqlConsumer<PreparedStatement, Integer>> map) {
         Map<String, BiSqlConsumer<PreparedStatement, Integer>> filteredMap = new HashMap<>();
-        map.forEach((key, value) -> {if (!value.isVacuous()) filteredMap.put(key, value);});
+        map.forEach((key, value) -> {
+            if (!value.isVacuous()) filteredMap.put(key, value);
+        });
         return filteredMap;
     }
 
