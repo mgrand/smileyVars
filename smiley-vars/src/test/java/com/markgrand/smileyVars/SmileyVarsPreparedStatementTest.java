@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.rowset.serial.SerialBlob;
+import javax.sql.rowset.serial.SerialClob;
 import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
@@ -397,9 +398,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setClob() {
+    void setClob() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setClob("x", new SerialClob(new char[]{'f', 'u', 'b', 'a', 'r'}));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("fubar", rs.getClob(1).getSubString(1, 5));
+        }
     }
 
     @Test
