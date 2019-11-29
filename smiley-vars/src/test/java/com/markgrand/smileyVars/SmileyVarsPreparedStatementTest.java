@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.rowset.serial.SerialBlob;
 import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
@@ -383,11 +384,17 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void setRef() {
+        // H2 does not support Ref, so need to find a different way to unit test.
     }
 
-    @Ignore
     @Test
-    void setBlob() {
+    void setBlob() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBlob("x", new SerialBlob("fubar".getBytes()));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals("fubar".getBytes(), rs.getBlob(1).getBytes(0, 5));
+        }
     }
 
     @Ignore
