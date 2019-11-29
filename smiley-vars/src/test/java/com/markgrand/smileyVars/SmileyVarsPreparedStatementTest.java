@@ -11,6 +11,7 @@ import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.GregorianCalendar;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -256,6 +257,16 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void testSetDate() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setDate("x", new Date(123397200000L), new GregorianCalendar());
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(new Date(123397200000L), rs.getDate(1));
+        }
+    }
+
+    @Test
     void setTime() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setTime("x", new Time(77589000));
@@ -426,11 +437,6 @@ class SmileyVarsPreparedStatementTest {
             assertTrue(rs.next());
             assertArrayEquals(new String[]{"two", "four", "six", "eight"}, (String[])rs.getArray(1).getArray());
         }
-    }
-
-    @Ignore
-    @Test
-    void testSetDate() {
     }
 
     @Ignore
