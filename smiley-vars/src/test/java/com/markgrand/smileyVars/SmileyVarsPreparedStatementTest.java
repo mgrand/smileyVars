@@ -483,13 +483,15 @@ class SmileyVarsPreparedStatementTest {
     void getParameterMetaData() throws Exception {
         try (SmileyVarsPreparedStatement svps
                      = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
-//====
+            ParameterMetaData parameterMetaData = svps.getParameterMetaData();
+            assertNotNull(parameterMetaData);
         }
     }
 
     @Ignore
     @Test
     void setRowId() {
+        // Not supported by H2
     }
 
     @Ignore
