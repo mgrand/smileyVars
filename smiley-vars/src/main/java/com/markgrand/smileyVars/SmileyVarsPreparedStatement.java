@@ -1004,10 +1004,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param reader        An object that contains the data to set the parameter value to.
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setClob(String parameterName, Reader reader) throws SQLException {
+    public SmileyVarsPreparedStatement setClob(String parameterName, Reader reader) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setClob(i, reader));
+        return this;
     }
 
     /**
@@ -1023,10 +1025,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param inputStream   An object that contains the data to set the parameter value to.
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
+    public SmileyVarsPreparedStatement setBlob(String parameterName, InputStream inputStream) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBlob(i, inputStream));
+        return this;
     }
 
     /**
@@ -1041,10 +1045,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param parameterName The name of the parameter.
      * @param reader        An object that contains the data to set the parameter value to.
+     * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public void setNClob(String parameterName, Reader reader) throws SQLException {
+    public SmileyVarsPreparedStatement setNClob(String parameterName, Reader reader) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setNClob(i, reader));
+        return this;
     }
 
     /**
@@ -1129,11 +1135,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * If this is being done to release resources, call {@link #deepClearParameters()}, which also clears the parameter
      * values in the underlying {@link PreparedStatement} objects.
      *
+     * @return this object
      * @see #deepClearParameters()
      */
-    public void clearParameters() {
+    public SmileyVarsPreparedStatement clearParameters() {
         valueMap.entrySet().forEach(entry -> entry.setValue(VacuousBiSqlConsumer.getInstance()));
         changeCount++;
+        return this;
     }
 
     /**
@@ -1141,15 +1149,17 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * and the parameter values in the underlying {@link PreparedStatement} objects. This can be useful for releasing
      * the resources used by the current parameter values.
      *
+     * @return this object
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>PreparedStatement</code>
      * @see #clearParameters()
      */
-    public void deepClearParameters() throws SQLException {
+    public SmileyVarsPreparedStatement deepClearParameters() throws SQLException {
         clearParameters();
         for (PreparedStatementTag pTag : taggedPstmtMap.values()) {
             pTag.getPreparedStatement().close();
         }
+        return this;
     }
 
     /**
@@ -1180,22 +1190,23 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * is silently discarded. For maximum portability, use values greater than 256.
      *
      * @param max the new column size limit in bytes; zero means there is no limit
+     * @return this object
      * @see #getMaxFieldSize
      */
-    public void setMaxFieldSize(int max) {
+    public SmileyVarsPreparedStatement setMaxFieldSize(int max) {
         maxFieldSize = Optional.of(max);
         changeCount++;
+        return this;
     }
 
     /**
-     * Retrieves the maximum number of rows that a <code>ResultSet</code> object produced by this
-     * <code>Statement</code> object can contain.  If this limit is exceeded, the excess rows are silently dropped.
+     * Retrieves the maximum number of rows that a <code>ResultSet</code> object produced by this <code>Statement</code>
+     * object can contain.  If this limit is exceeded, the excess rows are silently dropped.
      *
      * @return the current maximum number of rows for a <code>ResultSet</code> object produced by this
-     * <code>Statement</code> object;
-     * zero means there is no limit
+     * <code>Statement</code> object; zero means there is no limit
      * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>Statement</code>
+     *                      <code>Statement</code>.
      * @see #setMaxRows
      */
     public int getMaxRows() throws SQLException {
@@ -1208,12 +1219,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * object can contain to the given number. If the limit is exceeded, the excess rows are silently dropped.
      *
      * @param max the new max rows limit; zero means there is no limit
+     * @return this object
      * @see #getMaxRows
      */
-    public void setMaxRows(int max) {
+    public SmileyVarsPreparedStatement setMaxRows(int max) {
         maxRows = Optional.of(max);
         largeMaxRows = Optional.empty();
         changeCount++;
+        return this;
     }
 
     /**
@@ -1243,11 +1256,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * limit to {@code ResultSet} methods (consult your driver vendor documentation for details).
      *
      * @param seconds the new query timeout limit in seconds; zero means there is no limit
+     * @return this object
      * @see #getQueryTimeout
      */
-    public void setQueryTimeout(int seconds) {
+    public SmileyVarsPreparedStatement setQueryTimeout(int seconds) {
         queryTimeout = Optional.of(seconds);
         changeCount++;
+        return this;
     }
 
     /**
@@ -1274,36 +1289,38 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     /**
      * Clears all the warnings reported on this <code>Statement</code> object. After a call to this method, the method
-     * <code>getWarnings</code> will return
-     * <code>null</code> until a new warning is reported for this
+     * <code>getWarnings</code> will return <code>null</code> until a new warning is reported for this
      * <code>Statement</code> object.
      *
+     * @return this object
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      */
-    public void clearWarnings() throws SQLException {
+    public SmileyVarsPreparedStatement clearWarnings() throws SQLException {
         getPreparedStatement().clearWarnings();
+        return this;
     }
 
     /**
      * Sets the SQL cursor name to the given <code>String</code>, which will be used by subsequent
-     * <code>Statement</code> object
-     * <code>execute</code> methods. This name can then be
-     * used in SQL positioned update or delete statements to identify the current row in the <code>ResultSet</code>
-     * object generated by this statement.  If the database does not support positioned update/delete, this method is a
-     * noop.  To insure that a cursor has the proper isolation level to support updates, the cursor's
-     * <code>SELECT</code> statement should have the form <code>SELECT FOR UPDATE</code>.  If
-     * <code>FOR UPDATE</code> is not present, positioned updates may fail.
+     * <code>Statement</code> object <code>execute</code> methods. This name can then be used in SQL positioned update
+     * or delete statements to identify the current row in the <code>ResultSet</code> object generated by this
+     * statement.  If the database does not support positioned update/delete, this method is a noop.  To insure that a
+     * cursor has the proper isolation level to support updates, the cursor's <code>SELECT</code> statement should have
+     * the form <code>SELECT FOR UPDATE</code>.  If  <code>FOR UPDATE</code> is not present, positioned updates may
+     * fail.
      *
-     * <P><B>Note:</B> By definition, the execution of positioned updates and
-     * deletes must be done by a different <code>Statement</code> object than the one that generated the
-     * <code>ResultSet</code> object being used for positioning. Also, cursor names must be unique within a connection.
+     * <P><B>Note:</B> By definition, the execution of positioned updates and deletes must be done by a different
+     * <code>Statement</code> object than the one that generated the <code>ResultSet</code> object being used for
+     * positioning. Also, cursor names must be unique within a connection.
      *
      * @param name the new cursor name, which must be unique within a connection
+     * @return this object
      */
-    public void setCursorName(String name) {
+    public SmileyVarsPreparedStatement setCursorName(String name) {
         cursorName = Optional.of(name);
         changeCount++;
+        return this;
     }
 
     /**
@@ -1407,11 +1424,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * object. Each result set has its own methods for getting and setting its own fetch direction.
      *
      * @param direction the initial direction for processing rows
+     * @return this object
      * @see #getFetchDirection
      */
-    public void setFetchDirection(int direction) {
+    public SmileyVarsPreparedStatement setFetchDirection(int direction) {
         fetchDirection = Optional.of(direction);
         changeCount++;
+        return this;
     }
 
     /**
@@ -1439,12 +1458,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                      or the condition {@code rows >= 0} is not satisfied.
      * @see #getFetchSize
      */
-    public void setFetchSize(int rows) throws SQLException {
+    public SmileyVarsPreparedStatement setFetchSize(int rows) throws SQLException {
         if (rows < 0) {
             throw new SQLException("fetchSize as specified as " + rows + ". It may not be negative");
         }
         fetchSize = Optional.of(rows);
         changeCount++;
+        return this;
     }
 
     /**
@@ -1815,13 +1835,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <p>
      * By default, a <code>Statement</code> is not poolable when created, and a <code>PreparedStatement</code> and
      * <code>CallableStatement</code> are poolable when created.
-     * <p>
      *
      * @param poolable requests that the statement be pooled if true and that the statement not be pooled if false
+     * @return this object
      */
-    public void setPoolable(boolean poolable) {
+    public SmileyVarsPreparedStatement setPoolable(boolean poolable) {
         this.poolable = Optional.of(poolable);
         changeCount++;
+        return this;
     }
 
     /**
@@ -1873,12 +1894,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * The default implementation will throw {@code UnsupportedOperationException}
      *
      * @param max the new max rows limit; zero means there is no limit
+     * @return this object
      * @see #getMaxRows
      */
-    void setLargeMaxRows(long max) {
+    public SmileyVarsPreparedStatement setLargeMaxRows(long max) {
         largeMaxRows = Optional.of(max);
         maxRows = Optional.empty();
         changeCount++;
+        return this;
     }
 
     /**
@@ -1907,7 +1930,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                             {@code setQueryTimeout} method has been exceeded and has at least attempted to cancel
      *                             the currently running {@code Statement}
      */
-    long executeLargeUpdate(String sql) throws SQLException {
+    public long executeLargeUpdate(String sql) throws SQLException {
         return getPreparedStatement().executeLargeUpdate(sql);
     }
 
@@ -1945,7 +1968,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
      *                                         attempted to cancel the currently running {@code Statement}
      */
-    long executeLargeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
+    public long executeLargeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
         return getPreparedStatement().executeLargeUpdate(sql, autoGeneratedKeys);
     }
 
@@ -1958,14 +1981,13 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <p>
      * This method should be used when the returned row count may exceed {@link Integer#MAX_VALUE}.
      * <p>
-     * <strong>Note:</strong>This method cannot be called on a
-     * <code>PreparedStatement</code> or <code>CallableStatement</code>.
+     * <strong>Note:</strong>This method cannot be called on a <code>PreparedStatement</code> or
+     * <code>CallableStatement</code>.
      * <p>
      * The default implementation will throw {@code SQLFeatureNotSupportedException}
      *
      * @param sql           an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>,
-     *                      <code>UPDATE</code> or
-     *                      <code>DELETE</code>; or an SQL statement that returns nothing,
+     *                      <code>UPDATE</code> or <code>DELETE</code>; or an SQL statement that returns nothing,
      *                      such as a DDL statement.
      * @param columnIndexes an array of column indexes indicating the columns that should be returned from the inserted
      *                      row
@@ -1974,16 +1996,15 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @throws SQLException                    if a database access error occurs, this method is called on a closed
      *                                         <code>Statement</code>, the SQL statement returns a
      *                                         <code>ResultSet</code> object,the second argument supplied to this
-     *                                         method is not an
-     *                                         <code>int</code> array whose elements are valid column indexes, the
-     *                                         method is called on a
-     *                                         <code>PreparedStatement</code> or <code>CallableStatement</code>
+     *                                         method is not an <code>int</code> array whose elements are valid column
+     *                                         indexes, the method is called on a <code>PreparedStatement</code> or
+     *                                         <code>CallableStatement</code>
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
      * @throws SQLTimeoutException             when the driver has determined that the timeout value that was specified
      *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
      *                                         attempted to cancel the currently running {@code Statement}
      */
-    long executeLargeUpdate(String sql, int[] columnIndexes) throws SQLException {
+    public long executeLargeUpdate(String sql, int[] columnIndexes) throws SQLException {
         return getPreparedStatement().executeLargeUpdate(sql, columnIndexes);
     }
 
@@ -2002,8 +2023,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * The default implementation will throw {@code SQLFeatureNotSupportedException}
      *
      * @param sql         an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>,
-     *                    <code>UPDATE</code> or
-     *                    <code>DELETE</code>; or an SQL statement that returns nothing,
+     *                    <code>UPDATE</code> or <code>DELETE</code>; or an SQL statement that returns nothing,
      *                    such as a DDL statement.
      * @param columnNames an array of the names of the columns that should be returned from the inserted row
      * @return either the row count for <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> statements, or
@@ -2019,7 +2039,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *                                         by the {@code setQueryTimeout} method has been exceeded and has at least
      *                                         attempted to cancel the currently running {@code Statement}
      */
-    long executeLargeUpdate(String sql, String[] columnNames) throws SQLException {
+    public long executeLargeUpdate(String sql, String[] columnNames) throws SQLException {
         return getPreparedStatement().executeLargeUpdate(sql, columnNames);
     }
 
@@ -2136,6 +2156,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             preparedStatement.setPoolable(poolable.get());
         }
     }
+
+    //TODO add a toString method
 
     /**
      * Tag PreparedStatement objects with a signature so that we can reuse prepared statement objects with different
