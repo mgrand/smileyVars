@@ -730,14 +730,36 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void clearParameters() {
+    void clearParameters() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setInt("x", 4);
+            svps.setInt("y", 16);
+            Set<String> names2 = svps.getBoundVarNames();
+            assertEquals(2, names2.size());
+            svps.clearParameters();
+            assertEquals(0, svps.getBoundVarNames().size());
+        }
     }
 
-    @Ignore
     @Test
-    void deepClearParameters() {
+    void deepClearParameters() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            PreparedStatement pstmt0 = svps.getPreparedStatement();
+            svps.setInt("x", 4);
+            PreparedStatement pstmt1 = svps.getPreparedStatement();
+            svps.setInt("y", 16);
+            PreparedStatement pstmt2 = svps.getPreparedStatement();
+            Set<String> names2 = svps.getBoundVarNames();
+            assertEquals(2, names2.size());
+            svps.deepClearParameters();
+            assertEquals(0, svps.getBoundVarNames().size());
+            assertTrue(pstmt0.isClosed());
+            assertTrue(pstmt1.isClosed());
+            assertTrue(pstmt2.isClosed());
+        }
     }
 
     @Ignore

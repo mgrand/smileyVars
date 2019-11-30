@@ -1099,8 +1099,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     /**
      * Clears the current parameter values immediately. This clears both the values that have been set for SmileyVars
-     * and the parameter values in the underlying {@link PreparedStatement} objects. This can be useful for releasing
+     * and closes the underlying {@link PreparedStatement} objects. This can be useful for releasing
      * the resources used by the current parameter values.
+     * <p>This does not effect any previously set configuration values (maxRows, maxFieldSize, fetchDirection, ...).</p>
      *
      * @return this object
      * @throws SQLException if a database access error occurs or this method is called on a closed
@@ -1109,8 +1110,10 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      */
     public SmileyVarsPreparedStatement deepClearParameters() throws SQLException {
         clearParameters();
-        for (PreparedStatementTag pTag : taggedPstmtMap.values()) {
-            pTag.getPreparedStatement().close();
+        Iterator<PreparedStatementTag> iterator = taggedPstmtMap.values().iterator();
+        while (iterator.hasNext()) {
+            iterator.next().getPreparedStatement().close();
+            iterator.remove();
         }
         return this;
     }
