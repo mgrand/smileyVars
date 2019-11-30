@@ -1099,9 +1099,10 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     /**
      * Clears the current parameter values immediately. This clears both the values that have been set for SmileyVars
-     * and closes the underlying {@link PreparedStatement} objects. This can be useful for releasing
-     * the resources used by the current parameter values.
-     * <p>This does not effect any previously set configuration values (maxRows, maxFieldSize, fetchDirection, ...).</p>
+     * and closes the underlying {@link PreparedStatement} objects. This can be useful for releasing the resources used
+     * by the current parameter values.
+     * <p>This does not effect any previously set configuration values (maxRows, maxFieldSize, fetchDirection,
+     * ...).</p>
      *
      * @return this object
      * @throws SQLException if a database access error occurs or this method is called on a closed
@@ -1126,9 +1127,10 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * and <code>LONGVARCHAR</code> columns.  If the limit is exceeded, the excess data is silently discarded.
      *
      * @return the current column size limit for columns storing character and binary values; zero means there is no
-     * limit
+     * limit. This value is obtained by calling the corresponding get method of the {@code PreparedStatement} object
+     * that is returned by this object's {@code #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>Statement</code>
+     *                      <code>Statement</code>.
      * @see #setMaxFieldSize
      */
     public int getMaxFieldSize() throws SQLException {
@@ -1160,7 +1162,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * object can contain.  If this limit is exceeded, the excess rows are silently dropped.
      *
      * @return the current maximum number of rows for a <code>ResultSet</code> object produced by this
-     * <code>Statement</code> object; zero means there is no limit
+     * <code>Statement</code> object; zero means there is no limit. This value is obtained by calling the corresponding
+     * get method of the {@code PreparedStatement} object that is returned by this object's {@code
+     * #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>.
      * @see #setMaxRows
@@ -1187,10 +1191,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     /**
      * Retrieves the number of seconds the driver will wait for a <code>Statement</code> object to execute. If the limit
-     * is exceeded, a
-     * <code>SQLException</code> is thrown.
+     * is exceeded, a <code>SQLException</code> is thrown.
      *
-     * @return the current query timeout limit in seconds; zero means there is no limit
+     * @return the current query timeout limit in seconds; zero means there is no limit. This value is obtained by
+     * calling the corresponding get method of the {@code PreparedStatement} object that is returned by this object's
+     * {@code #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      * @see #setQueryTimeout
@@ -1363,7 +1368,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * this <code>Statement</code> object. If this <code>Statement</code> object has not set a fetch direction by
      * calling the method <code>setFetchDirection</code>, the return value is implementation-specific.
      *
-     * @return the default fetch direction for result sets generated from this <code>Statement</code> object
+     * @return the default fetch direction for result sets generated from this <code>Statement</code> object. This value
+     * is obtained by calling the corresponding get method of the {@code PreparedStatement} object * that is returned by
+     * this object's {@code #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      * @see #setFetchDirection
@@ -1394,7 +1401,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * generated from this <code>Statement</code> object. If this <code>Statement</code> object has not set a fetch size
      * by calling the method <code>setFetchSize</code>, the return value is implementation-specific.
      *
-     * @return the default fetch size for result sets generated from this <code>Statement</code> object
+     * @return the default fetch size for result sets generated from this <code>Statement</code> object. This value is
+     * obtained by calling the corresponding get method of the {@code PreparedStatement} object that is returned by this
+     * object's {@code #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      * @see #setFetchSize
@@ -1427,8 +1436,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Retrieves the result set concurrency for <code>ResultSet</code> objects generated by this <code>Statement</code>
      * object.
      *
-     * @return either <code>ResultSet.CONCUR_READ_ONLY</code> or
-     * <code>ResultSet.CONCUR_UPDATABLE</code>
+     * @return either <code>ResultSet.CONCUR_READ_ONLY</code> or {@code ResultSet.CONCUR_UPDATABLE}. This value is
+     * obtained by calling the corresponding get method of the {@code PreparedStatement} object that is returned by this
+     * object's {@code #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      */
@@ -1440,9 +1450,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Retrieves the result set type for <code>ResultSet</code> objects generated by this <code>Statement</code>
      * object.
      *
-     * @return one of <code>ResultSet.TYPE_FORWARD_ONLY</code>,
-     * <code>ResultSet.TYPE_SCROLL_INSENSITIVE</code>, or
-     * <code>ResultSet.TYPE_SCROLL_SENSITIVE</code>
+     * @return one of {@code ResultSet.TYPE_FORWARD_ONLY}, {@codeResultSet.TYPE_SCROLL_INSENSITIVE}, or
+     * <code>ResultSet.TYPE_SCROLL_SENSITIVE</code>. This value is obtained by calling the corresponding get method of
+     * the {@code PreparedStatement} object that is returned by this object's {@code #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      */
@@ -1749,8 +1759,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Retrieves the result set holdability for <code>ResultSet</code> objects generated by this <code>Statement</code>
      * object.
      *
-     * @return either <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or
-     * <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
+     * @return either {@code ResultSet.HOLD_CURSORS_OVER_COMMIT} or {@code ResultSet.CLOSE_CURSORS_AT_COMMIT}. This
+     * value is obtained by calling the corresponding get method of the {@code PreparedStatement} object that is
+     * returned by this object's {@code #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      */
@@ -1829,9 +1840,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * <p>
      * The default implementation will return {@code 0}
      *
-     * @return the current maximum number of rows for a <code>ResultSet</code> object produced by this
-     * <code>Statement</code> object;
-     * zero means there is no limit
+     * @return the current maximum number of rows for a <code>ResultSet</code> object produced by this {@code Statement}
+     * object; zero means there is no limit. This value is obtained by calling the corresponding get method of the
+     * {@code PreparedStatement} object that is returned by this object's {@code #getPreparedStatement} method.
      * @throws SQLException if a database access error occurs or this method is called on a closed
      *                      <code>Statement</code>
      * @see #setMaxRows
@@ -2103,7 +2114,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      */
     public Set<String> getBoundVarNames() {
         Set<String> varNames = template.getVarNames();
-        varNames.removeIf( name -> valueMap.get(name).isVacuous());
+        varNames.removeIf(name -> valueMap.get(name).isVacuous());
         return varNames;
     }
 
