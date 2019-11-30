@@ -13,6 +13,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.GregorianCalendar;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -695,6 +696,18 @@ class SmileyVarsPreparedStatementTest {
         assertTrue(svps.isClosed());
         assertTrue(pstmt1.isClosed());
         assertTrue(pstmt2.isClosed());
+    }
+
+    @Test
+    void getVarNames() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            Set<String> names = svps.getVarNames();
+            assertEquals(3, names.size());
+            assertTrue(names.contains("a"));
+            assertTrue(names.contains("x"));
+            assertTrue(names.contains("y"));
+        }
     }
 
     @Ignore
