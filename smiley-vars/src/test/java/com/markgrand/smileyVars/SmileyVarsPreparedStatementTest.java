@@ -826,19 +826,33 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void getMoreResults() {
+    void getMoreResults() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
+            svps.setInt("x", 0);
+            svps.setInt("y", 0);
+            assertFalse(svps.getMoreResults());
+        }
     }
 
-    @Ignore
     @Test
-    void getFetchDirection() {
+    void getMoreResultsFlag() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
+            svps.setInt("x", 0);
+            svps.setInt("y", 0);
+            assertFalse(svps.getMoreResults(Statement.CLOSE_CURRENT_RESULT));
+        }
     }
 
-    @Ignore
     @Test
-    void setFetchDirection() {
+    void fetchDirection() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setFetchDirection(ResultSet.FETCH_FORWARD);
+            assertEquals(ResultSet.FETCH_FORWARD, svps.getFetchDirection());
+        }
     }
 
     @Ignore
@@ -864,11 +878,6 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void getConnection() {
-    }
-
-    @Ignore
-    @Test
-    void testGetMoreResults() {
     }
 
     @Ignore
