@@ -1054,53 +1054,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Executes the given SQL statement, which returns a single <code>ResultSet</code> object.
-     * <p>
-     * <strong>Note:</strong>This method cannot be called on a
-     * <code>PreparedStatement</code> or <code>CallableStatement</code>.
-     *
-     * @param sql an SQL statement to be sent to the database, typically a static SQL <code>SELECT</code> statement
-     * @return a <code>ResultSet</code> object that contains the data produced by the given query; never
-     * <code>null</code>
-     * @throws SQLException        if a database access error occurs, this method is called on a closed
-     *                             <code>Statement</code>, the given SQL statement produces anything other than a
-     *                             single <code>ResultSet</code> object, the method is called on a
-     *                             <code>PreparedStatement</code> or <code>CallableStatement</code>
-     * @throws SQLTimeoutException when the driver has determined that the timeout value that was specified by the
-     *                             {@code setQueryTimeout} method has been exceeded and has at least attempted to cancel
-     *                             the currently running {@code Statement}
-     */
-    public ResultSet executeQuery(String sql) throws SQLException {
-        return getPreparedStatement().executeQuery(sql);
-    }
-
-    /**
-     * Executes the given SQL statement, which may be an <code>INSERT</code>,
-     * <code>UPDATE</code>, or <code>DELETE</code> statement or an
-     * SQL statement that returns nothing, such as an SQL DDL statement.
-     * <p>
-     * <strong>Note:</strong>This method cannot be called on a
-     * <code>PreparedStatement</code> or <code>CallableStatement</code>.
-     *
-     * @param sql an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>, <code>UPDATE</code>
-     *            or
-     *            <code>DELETE</code>; or an SQL statement that returns nothing,
-     *            such as a DDL statement.
-     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements
-     * that return nothing
-     * @throws SQLException        if a database access error occurs, this method is called on a closed
-     *                             <code>Statement</code>, the given SQL statement produces a <code>ResultSet</code>
-     *                             object, the method is called on a
-     *                             <code>PreparedStatement</code> or <code>CallableStatement</code>
-     * @throws SQLTimeoutException when the driver has determined that the timeout value that was specified by the
-     *                             {@code setQueryTimeout} method has been exceeded and has at least attempted to cancel
-     *                             the currently running {@code Statement}
-     */
-    public int executeUpdate(String sql) throws SQLException {
-        return getPreparedStatement().executeUpdate(sql);
-    }
-
-    /**
      * Releases the underlying <code>PreparedStatement</code> objects. This also clears all of the parameter values that
      * have been provided. It is generally good practice to close this object soon as you are finished with it to avoid
      * tying up database resources.

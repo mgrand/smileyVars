@@ -685,16 +685,6 @@ class SmileyVarsPreparedStatementTest {
 
     @Ignore
     @Test
-    void testExecuteQuery() {
-    }
-
-    @Ignore
-    @Test
-    void testExecuteUpdate() {
-    }
-
-    @Ignore
-    @Test
     void close() {
     }
 
