@@ -782,9 +782,13 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void getQueryTimeout() {
+    void getQueryTimeout() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setQueryTimeout(2000);
+            assertEquals(2000, svps.getQueryTimeout());
+        }
     }
 
     @Ignore
