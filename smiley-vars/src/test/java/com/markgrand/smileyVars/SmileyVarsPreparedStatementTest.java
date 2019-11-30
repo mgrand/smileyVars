@@ -908,21 +908,6 @@ class SmileyVarsPreparedStatementTest {
 
     @Ignore
     @Test
-    void testExecuteUpdate1() {
-    }
-
-    @Ignore
-    @Test
-    void testExecuteUpdate2() {
-    }
-
-    @Ignore
-    @Test
-    void testExecuteUpdate3() {
-    }
-
-    @Ignore
-    @Test
     void getResultSetHoldability() {
     }
 
