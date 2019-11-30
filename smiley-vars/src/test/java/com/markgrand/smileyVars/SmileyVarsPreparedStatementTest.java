@@ -953,19 +953,4 @@ class SmileyVarsPreparedStatementTest {
             assertEquals(1234567890L, svps.getLargeMaxRows());
         }
     }
-
-    @Ignore
-    @Test
-    void executeLargeUpdate() {
-    }
-
-    @Ignore
-    @Test
-    void testExecuteLargeUpdate() {
-    }
-
-    @Ignore
-    @Test
-    void getPreparedStatement() {
-    }
 }
