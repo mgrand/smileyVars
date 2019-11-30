@@ -924,14 +924,13 @@ class SmileyVarsPreparedStatementTest {
         assertTrue(svps.isClosed());
     }
 
-    @Ignore
     @Test
-    void isPoolable() {
-    }
-
-    @Ignore
-    @Test
-    void setPoolable() {
+    void poolable() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setPoolable(false);
+            assertFalse(svps.isPoolable());
+        }
     }
 
     @Ignore
