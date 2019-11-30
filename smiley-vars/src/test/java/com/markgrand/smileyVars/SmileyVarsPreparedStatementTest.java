@@ -807,14 +807,12 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setCursorName() {
-    }
-
-    @Ignore
-    @Test
-    void testExecute() {
+    void setCursorName() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setCursorName("fubar");
+        }
     }
 
     @Ignore
@@ -890,21 +888,6 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void testExecuteUpdate3() {
-    }
-
-    @Ignore
-    @Test
-    void testExecute1() {
-    }
-
-    @Ignore
-    @Test
-    void testExecute2() {
-    }
-
-    @Ignore
-    @Test
-    void testExecute3() {
     }
 
     @Ignore
