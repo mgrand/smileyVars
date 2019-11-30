@@ -791,19 +791,20 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setQueryTimeout() {
+    void getWarnings() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            assertNull(svps.getWarnings());
+        }
     }
 
-    @Ignore
     @Test
-    void getWarnings() {
-    }
-
-    @Ignore
-    @Test
-    void clearWarnings() {
+    void clearWarnings() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            assertEquals(svps, svps.clearWarnings());
+        }
     }
 
     @Ignore
