@@ -945,14 +945,13 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void getLargeMaxRows() {
-    }
-
-    @Ignore
-    @Test
-    void setLargeMaxRows() {
+    void getLargeMaxRows() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setLargeMaxRows(1234567890L);
+            assertEquals(1234567890L, svps.getLargeMaxRows());
+        }
     }
 
     @Ignore
