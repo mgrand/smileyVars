@@ -514,9 +514,14 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setNCharacterStreamLength() {
+    void setNCharacterStreamLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setNCharacterStream("x", new StringReader("Grünstraße"), 22);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("Grünstraße", new BufferedReader(rs.getNCharacterStream(1)).readLine());
+        }
     }
 
     @Ignore
