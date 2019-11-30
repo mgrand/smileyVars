@@ -445,6 +445,26 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void setBlobInputstream() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBlob("x", new ByteArrayInputStream("fubar".getBytes()));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals("fubar".getBytes(), rs.getBlob(1).getBytes(1, 5));
+        }
+    }
+
+    @Test
+    void setBlobInputstreamLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBlob("x", new ByteArrayInputStream("fubar".getBytes()), 22);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals("fubar".getBytes(), rs.getBlob(1).getBytes(1, 22));
+        }
+    }
+
+    @Test
     void setClob() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setClob("x", new SerialClob(new char[]{'f', 'u', 'b', 'a', 'r'}));
@@ -564,11 +584,6 @@ class SmileyVarsPreparedStatementTest {
 
     @Ignore
     @Test
-    void testSetBlob() {
-    }
-
-    @Ignore
-    @Test
     void setSQLXML() {
     }
 
@@ -610,11 +625,6 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void testSetClob1() {
-    }
-
-    @Ignore
-    @Test
-    void testSetBlob1() {
     }
 
     @Ignore
