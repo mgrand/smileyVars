@@ -3,6 +3,7 @@ package com.markgrand.smileyVars;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.rowset.serial.SerialBlob;
@@ -427,7 +428,7 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
     void setRef() {
         // H2 does not support Ref, so need to find a different way to unit test.
@@ -473,7 +474,7 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
     void setURL() {
         // Not spported by H2
@@ -488,7 +489,7 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
     void setRowId() {
         // Not supported by H2
@@ -524,9 +525,36 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setNClob() {
+    void setNClob() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            NClob nClob = h2Connection.createNClob();
+            nClob.setString(1,"Grünstraße");
+            svps.setNClob("x", nClob);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("Grünstraße", rs.getNClob(1).getSubString(1, 22));
+        }
+    }
+
+    @Test
+    void setNClobReader() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setNClob("x", new StringReader("Grünstraße"));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("Grünstraße", rs.getNClob(1).getSubString(1, 22));
+        }
+    }
+
+    @Test
+    void setNClobReaderLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setNClob("x", new StringReader("Grünstraße"), 22);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("Grünstraße", rs.getNClob(1).getSubString(1, 22));
+        }
     }
 
     @Ignore
@@ -537,11 +565,6 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void testSetBlob() {
-    }
-
-    @Ignore
-    @Test
-    void testSetNClob() {
     }
 
     @Ignore
@@ -592,11 +615,6 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void testSetBlob1() {
-    }
-
-    @Ignore
-    @Test
-    void testSetNClob1() {
     }
 
     @Ignore
