@@ -906,14 +906,22 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void getResultSetHoldability() {
+    void getResultSetHoldability() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            int holdability = svps.getResultSetHoldability();
+            assertTrue(holdability == ResultSet.HOLD_CURSORS_OVER_COMMIT || holdability == ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        }
     }
 
-    @Ignore
     @Test
-    void isClosed() {
+    void isClosed() throws Exception {
+        SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)");
+        assertFalse(svps.isClosed());
+        svps.close();
+        assertTrue(svps.isClosed());
     }
 
     @Ignore
