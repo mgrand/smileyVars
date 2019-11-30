@@ -475,6 +475,26 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void setClobReader() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setClob("x", new StringReader("fubar"));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("fubar", rs.getClob(1).getSubString(1, 5));
+        }
+    }
+
+    @Test
+    void setClobReaderLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setClob("x", new StringReader("fubar"), 22);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("fubar", rs.getClob(1).getSubString(1, 5));
+        }
+    }
+
+    @Test
     void getMetaData() throws Exception {
         try (SmileyVarsPreparedStatement svps
                      = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
@@ -579,11 +599,6 @@ class SmileyVarsPreparedStatementTest {
 
     @Ignore
     @Test
-    void testSetClob() {
-    }
-
-    @Ignore
-    @Test
     void setSQLXML() {
     }
 
@@ -620,11 +635,6 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void testSetCharacterStream1() {
-    }
-
-    @Ignore
-    @Test
-    void testSetClob1() {
     }
 
     @Ignore
