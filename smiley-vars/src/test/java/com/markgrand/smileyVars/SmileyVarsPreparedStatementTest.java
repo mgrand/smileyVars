@@ -855,14 +855,13 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void getFetchSize() {
-    }
-
-    @Ignore
-    @Test
-    void setFetchSize() {
+    void fetchSize() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setFetchSize(500);
+            assertEquals(500, svps.getFetchSize());
+        }
     }
 
     @Ignore
