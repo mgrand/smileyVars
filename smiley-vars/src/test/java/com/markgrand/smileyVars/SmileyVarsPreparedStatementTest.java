@@ -710,6 +710,26 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
+    @Test
+    void getBoundVarNames() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            Set<String> names0 = svps.getBoundVarNames();
+            assertEquals(0, names0.size());
+
+            svps.setInt("x", 4);
+            Set<String> names1 = svps.getBoundVarNames();
+            assertEquals(1, names1.size());
+            assertTrue(names1.contains("x"));
+
+            svps.setInt("y", 16);
+            Set<String> names2 = svps.getBoundVarNames();
+            assertEquals(2, names2.size());
+            assertTrue(names2.contains("x"));
+            assertTrue(names2.contains("y"));
+        }
+    }
+
     @Ignore
     @Test
     void clearParameters() {

@@ -2092,6 +2092,18 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         return template.getVarNames();
     }
 
+    /**
+     * Return the names of the parameters that have been specified for this object.
+     *
+     * @return A set containing the variable names in this object's template in no particular order that have been bound
+     * to a parameter value.
+     */
+    public Set<String> getBoundVarNames() {
+        Set<String> varNames = template.getVarNames();
+        varNames.removeIf( name -> valueMap.get(name).isVacuous());
+        return varNames;
+    }
+
     private void updatePreparedStatementConfig(PreparedStatement preparedStatement) throws SQLException {
         if (maxFieldSize.isPresent()) {
             preparedStatement.setMaxFieldSize(maxFieldSize.get());
