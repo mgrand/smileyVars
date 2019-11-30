@@ -823,6 +823,7 @@ class SmileyVarsPreparedStatementTest {
             svps.setInt("y", 0);
             assertEquals(1, svps.executeUpdate());
             assertEquals(1, svps.getUpdateCount());
+            h2Connection.rollback();
         }
     }
 
@@ -883,14 +884,26 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void getConnection() {
+    void getConnection() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            assertEquals(h2Connection, svps.getConnection());
+        }
     }
 
-    @Ignore
     @Test
-    void getGeneratedKeys() {
+    void getGeneratedKeys() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
+            svps.setInt("x", 0);
+            svps.setInt("y", 0);
+            assertEquals(1, svps.executeUpdate());
+            ResultSet rs =svps.getGeneratedKeys();
+            assertNotNull(rs);
+            assertFalse(rs.next());
+            h2Connection.rollback();
+        }
     }
 
     @Ignore
