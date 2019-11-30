@@ -683,9 +683,18 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void close() {
+    void close() throws Exception {
+        SmileyVarsPreparedStatement svps
+                = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)");
+        svps.setInt("x", -1);
+        PreparedStatement pstmt1 = svps.getPreparedStatement();
+        svps.setInt("y", 1);
+        PreparedStatement pstmt2 = svps.getPreparedStatement();
+        svps.close();
+        assertTrue(svps.isClosed());
+        assertTrue(pstmt1.isClosed());
+        assertTrue(pstmt2.isClosed());
     }
 
     @Ignore
