@@ -397,20 +397,20 @@ class SmileyVarsPreparedStatementTest {
     @Test
     void setObject() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
-            svps.setObject("x", new Rectangle(5,7));
+            svps.setObject("x", new Rectangle(5, 7));
             ResultSet rs = svps.executeQuery();
             assertTrue(rs.next());
-            assertEquals(new Rectangle(5,7), rs.getObject(1));
+            assertEquals(new Rectangle(5, 7), rs.getObject(1));
         }
     }
 
     @Test
     void setObjectWithType() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
-            svps.setObject("x", new Rectangle(5,7), Types.OTHER);
+            svps.setObject("x", new Rectangle(5, 7), Types.OTHER);
             ResultSet rs = svps.executeQuery();
             assertTrue(rs.next());
-            assertEquals(new Rectangle(5,7), rs.getObject(1));
+            assertEquals(new Rectangle(5, 7), rs.getObject(1));
         }
     }
 
@@ -585,7 +585,7 @@ class SmileyVarsPreparedStatementTest {
             svps.setArray("x", h2Connection.createArrayOf("INT", new String[]{"two", "four", "six", "eight"}));
             ResultSet rs = svps.executeQuery();
             assertTrue(rs.next());
-            assertArrayEquals(new String[]{"two", "four", "six", "eight"}, (String[])rs.getArray(1).getArray());
+            assertArrayEquals(new String[]{"two", "four", "six", "eight"}, (String[]) rs.getArray(1).getArray());
         }
     }
 
@@ -644,7 +644,7 @@ class SmileyVarsPreparedStatementTest {
     void setNClob() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             NClob nClob = h2Connection.createNClob();
-            nClob.setString(1,"Grünstraße");
+            nClob.setString(1, "Grünstraße");
             svps.setNClob("x", nClob);
             ResultSet rs = svps.executeQuery();
             assertTrue(rs.next());
@@ -700,8 +700,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void getVarNames() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             Set<String> names = svps.getVarNames();
             assertEquals(3, names.size());
             assertTrue(names.contains("a"));
@@ -712,8 +712,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void getBoundVarNames() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             Set<String> names0 = svps.getBoundVarNames();
             assertEquals(0, names0.size());
 
@@ -732,8 +732,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void clearParameters() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT :a,x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setInt("x", 4);
             svps.setInt("y", 16);
             Set<String> names2 = svps.getBoundVarNames();
@@ -745,8 +745,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void deepClearParameters() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             PreparedStatement pstmt0 = svps.getPreparedStatement();
             svps.setInt("x", 4);
             PreparedStatement pstmt1 = svps.getPreparedStatement();
@@ -766,8 +766,8 @@ class SmileyVarsPreparedStatementTest {
     @Test
     void maxFieldSize() throws Exception {
         // not supported by h2
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setMaxFieldSize(2000);
             assertEquals(2000, svps.getMaxFieldSize());
         }
@@ -775,8 +775,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void maxRows() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setMaxRows(2000);
             assertEquals(2000, svps.getMaxRows());
         }
@@ -784,8 +784,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void getQueryTimeout() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setQueryTimeout(2000);
             assertEquals(2000, svps.getQueryTimeout());
         }
@@ -793,32 +793,32 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void getWarnings() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             assertNull(svps.getWarnings());
         }
     }
 
     @Test
     void clearWarnings() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             assertEquals(svps, svps.clearWarnings());
         }
     }
 
     @Test
     void setCursorName() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setCursorName("fubar");
         }
     }
 
     @Test
     void getUpdateCount() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
             svps.setInt("x", 0);
             svps.setInt("y", 0);
             assertEquals(1, svps.executeUpdate());
@@ -828,8 +828,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void getMoreResults() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
             svps.setInt("x", 0);
             svps.setInt("y", 0);
             assertFalse(svps.getMoreResults());
@@ -838,8 +838,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void getMoreResultsFlag() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
             svps.setInt("x", 0);
             svps.setInt("y", 0);
             assertFalse(svps.getMoreResults(Statement.CLOSE_CURRENT_RESULT));
@@ -848,8 +848,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void fetchDirection() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setFetchDirection(ResultSet.FETCH_FORWARD);
             assertEquals(ResultSet.FETCH_FORWARD, svps.getFetchDirection());
         }
@@ -857,8 +857,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void fetchSize() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setFetchSize(500);
             assertEquals(500, svps.getFetchSize());
         }
@@ -866,16 +866,21 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void getResultSetConcurrency() throws Exception {
-        try(SmileyVarsPreparedStatement svps
-                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             int concurrency = svps.getResultSetConcurrency();
             assertTrue(concurrency == ResultSet.CONCUR_READ_ONLY || concurrency == ResultSet.CONCUR_UPDATABLE);
         }
     }
 
-    @Ignore
     @Test
-    void getResultSetType() {
+    void getResultSetType() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            int type = svps.getResultSetType();
+            assertTrue(type == ResultSet.TYPE_FORWARD_ONLY || type == ResultSet.TYPE_SCROLL_INSENSITIVE
+                               || type == ResultSet.TYPE_SCROLL_SENSITIVE);
+        }
     }
 
     @Ignore
