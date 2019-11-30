@@ -332,6 +332,28 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
+    @Test
+    void setAsciiStreamIntLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setAsciiStream("x", new ByteArrayInputStream("fubar".getBytes()), 5);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals(inputStreamToBytes(new ByteArrayInputStream("fubar".getBytes()), 5),
+                    inputStreamToBytes(rs.getAsciiStream(1), 5));
+        }
+    }
+
+    @Test
+    void setAsciiStreamLongLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setAsciiStream("x", new ByteArrayInputStream("fubar".getBytes()), 5L);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals(inputStreamToBytes(new ByteArrayInputStream("fubar".getBytes()), 5),
+                    inputStreamToBytes(rs.getAsciiStream(1), 5));
+        }
+    }
+
     private byte[] inputStreamToBytes(InputStream inputStream, int length) throws IOException {
         byte[] bytes = new byte[length];
         assertEquals(length, inputStream.read(bytes));
@@ -621,22 +643,12 @@ class SmileyVarsPreparedStatementTest {
 
     @Ignore
     @Test
-    void testSetAsciiStream() {
-    }
-
-    @Ignore
-    @Test
     void testSetBinaryStream() {
     }
 
     @Ignore
     @Test
     void testSetCharacterStream() {
-    }
-
-    @Ignore
-    @Test
-    void testSetAsciiStream1() {
     }
 
     @Ignore
