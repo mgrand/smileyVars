@@ -597,9 +597,16 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void setSQLXML() {
+    void setSQLXML() throws Exception {
+        SQLXML sqlxml = h2Connection.createSQLXML();
+        sqlxml.setString("<fubar/>");
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setSQLXML("x", sqlxml);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("<fubar/>", rs.getSQLXML(1).getString());
+        }
     }
 
     @Ignore
