@@ -465,7 +465,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public SmileyVarsPreparedStatement setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
+    public SmileyVarsPreparedStatement setCharacterStream(@NotNull String parameterName, @NotNull Reader reader, int length) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setCharacterStream(i, reader, length));
         return this;
     }
@@ -480,7 +480,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public SmileyVarsPreparedStatement setRef(String parameterName, Ref value) throws SQLException {
+    public SmileyVarsPreparedStatement setRef(@NotNull String parameterName, Ref value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setRef(i, value));
         return this;
     }
@@ -494,7 +494,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public SmileyVarsPreparedStatement setBlob(String parameterName, Blob value) throws SQLException {
+    public SmileyVarsPreparedStatement setBlob(@NotNull String parameterName, Blob value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setBlob(i, value));
         return this;
     }
@@ -508,7 +508,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @return this object
      * @throws SQLException If parameterName does not correspond to a variable in the SmilelyVars template.
      */
-    public SmileyVarsPreparedStatement setClob(String parameterName, Clob value) throws SQLException {
+    public SmileyVarsPreparedStatement setClob(@NotNull String parameterName, Clob value) throws SQLException {
         changeWithCheckedName(parameterName, (pstmt, i) -> pstmt.setClob(i, value));
         return this;
     }

@@ -372,6 +372,28 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void setBinaryStreamIntLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBinaryStream("x", new ByteArrayInputStream(new byte[]{6, 32, 44}), 3);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals(inputStreamToBytes(new ByteArrayInputStream(new byte[]{6, 32, 44}), 3),
+                    inputStreamToBytes(rs.getBinaryStream(1), 3));
+        }
+    }
+
+    @Test
+    void setBinaryStreamLongLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setBinaryStream("x", new ByteArrayInputStream(new byte[]{6, 32, 44}), 3L);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertArrayEquals(inputStreamToBytes(new ByteArrayInputStream(new byte[]{6, 32, 44}), 3),
+                    inputStreamToBytes(rs.getBinaryStream(1), 3));
+        }
+    }
+
+    @Test
     void setObject() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setObject("x", new Rectangle(5,7));
@@ -643,17 +665,7 @@ class SmileyVarsPreparedStatementTest {
 
     @Ignore
     @Test
-    void testSetBinaryStream() {
-    }
-
-    @Ignore
-    @Test
     void testSetCharacterStream() {
-    }
-
-    @Ignore
-    @Test
-    void testSetBinaryStream1() {
     }
 
     @Ignore
