@@ -762,24 +762,24 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
-    void getMaxFieldSize() {
+    void maxFieldSize() throws Exception {
+        // not supported by h2
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setMaxFieldSize(2000);
+            assertEquals(2000, svps.getMaxFieldSize());
+        }
     }
 
-    @Ignore
     @Test
-    void setMaxFieldSize() {
-    }
-
-    @Ignore
-    @Test
-    void getMaxRows() {
-    }
-
-    @Ignore
-    @Test
-    void setMaxRows() {
+    void maxRows() throws Exception {
+        try(SmileyVarsPreparedStatement svps
+                    = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setMaxRows(2000);
+            assertEquals(2000, svps.getMaxRows());
+        }
     }
 
     @Ignore
