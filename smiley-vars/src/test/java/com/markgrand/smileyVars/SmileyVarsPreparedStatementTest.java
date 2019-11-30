@@ -370,6 +370,16 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
+    void setObjectWithTypeAndScale() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setObject("x", new BigDecimal("3.14159265"), Types.DECIMAL, 9);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(new BigDecimal("3.14159265"), rs.getObject(1));
+        }
+    }
+
+    @Test
     void execute() throws Exception {
         try (SmileyVarsPreparedStatement svps
                      = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
@@ -607,11 +617,6 @@ class SmileyVarsPreparedStatementTest {
             assertTrue(rs.next());
             assertEquals("<fubar/>", rs.getSQLXML(1).getString());
         }
-    }
-
-    @Ignore
-    @Test
-    void testSetObject1() {
     }
 
     @Ignore
