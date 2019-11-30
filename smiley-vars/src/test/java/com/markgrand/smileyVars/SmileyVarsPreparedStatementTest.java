@@ -494,14 +494,29 @@ class SmileyVarsPreparedStatementTest {
         // Not supported by H2
     }
 
-    @Ignore
     @Test
-    void setNString() {
+    void setNString() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setNString("x", "Grünstraße");
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("Grünstraße", rs.getNString(1));
+        }
+    }
+
+    @Test
+    void setNCharacterStream() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setNCharacterStream("x", new StringReader("Grünstraße"));
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("Grünstraße", new BufferedReader(rs.getNCharacterStream(1)).readLine());
+        }
     }
 
     @Ignore
     @Test
-    void setNCharacterStream() {
+    void setNCharacterStreamLength() {
     }
 
     @Ignore
@@ -562,11 +577,6 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void testSetCharacterStream1() {
-    }
-
-    @Ignore
-    @Test
-    void testSetNCharacterStream() {
     }
 
     @Ignore
