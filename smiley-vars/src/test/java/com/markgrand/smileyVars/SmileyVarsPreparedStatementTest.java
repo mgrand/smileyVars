@@ -482,6 +482,26 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
+    @Test
+    void setCharacterStreamIntLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setCharacterStream("x", new StringReader("fubar"), 5);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("fubar", new BufferedReader(rs.getCharacterStream(1)).readLine());
+        }
+    }
+
+    @Test
+    void setCharacterStreamLongLength() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
+            svps.setCharacterStream("x", new StringReader("fubar"), 5L);
+            ResultSet rs = svps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals("fubar", new BufferedReader(rs.getCharacterStream(1)).readLine());
+        }
+    }
+
     @Disabled
     @Test
     void setRef() {
@@ -661,16 +681,6 @@ class SmileyVarsPreparedStatementTest {
             assertTrue(rs.next());
             assertEquals("<fubar/>", rs.getSQLXML(1).getString());
         }
-    }
-
-    @Ignore
-    @Test
-    void testSetCharacterStream() {
-    }
-
-    @Ignore
-    @Test
-    void testSetCharacterStream1() {
     }
 
     @Ignore
