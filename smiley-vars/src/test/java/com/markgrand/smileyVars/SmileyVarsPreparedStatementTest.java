@@ -933,9 +933,16 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Ignore
     @Test
-    void getLargeUpdateCount() {
+    void getLargeUpdateCount() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "INSERT INTO square (x,y) VALUES ( :x, :y)")) {
+            svps.setInt("x", 0);
+            svps.setInt("y", 0);
+            assertEquals(1L, svps.executeUpdate());
+            assertEquals(1, svps.getLargeUpdateCount());
+            h2Connection.rollback();
+        }
     }
 
     @Ignore
@@ -956,16 +963,6 @@ class SmileyVarsPreparedStatementTest {
     @Ignore
     @Test
     void testExecuteLargeUpdate() {
-    }
-
-    @Ignore
-    @Test
-    void testExecuteLargeUpdate1() {
-    }
-
-    @Ignore
-    @Test
-    void testExecuteLargeUpdate2() {
     }
 
     @Ignore
