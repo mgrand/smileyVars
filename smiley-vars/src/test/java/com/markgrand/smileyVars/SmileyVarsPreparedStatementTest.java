@@ -836,8 +836,10 @@ class SmileyVarsPreparedStatementTest {
     @Test
     void setCursorName() throws Exception {
         try (SmileyVarsPreparedStatement svps
-                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+                     = new SmileyVarsPreparedStatement(mockConnection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setCursorName("fubar");
+            MockPreparedStatement mockPreparedStatement = (MockPreparedStatement) svps.getPreparedStatement();
+            assertEquals("fubar", mockPreparedStatement.getCursorName());
         }
     }
 
@@ -888,6 +890,14 @@ class SmileyVarsPreparedStatementTest {
                      = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setFetchSize(500);
             assertEquals(500, svps.getFetchSize());
+        }
+    }
+
+    @Test
+    void negativeFetchSize() throws Exception {
+        try (SmileyVarsPreparedStatement svps
+                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            assertThrows(SQLException.class, () -> svps.setFetchSize(-2));
         }
     }
 

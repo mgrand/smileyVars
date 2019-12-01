@@ -1766,17 +1766,17 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
             this.changeCount = changeCount;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PreparedStatementTag that = (PreparedStatementTag) o;
-            return signature.equals(that.signature);
-        }
-
-        @Override
-        public int hashCode() {
-            return signature.hashCode();
-        }
+//        @Override
+//        public boolean equals(Object o) {
+//            if (this == o) return true;
+//            if (o == null || getClass() != o.getClass()) return false;
+//            PreparedStatementTag that = (PreparedStatementTag) o;
+//            return signature.equals(that.signature);
+//        }
+//
+//        @Override
+//       signature public int hashCode() {
+//            return signature.hashCode();
+//        }
     }
 }
