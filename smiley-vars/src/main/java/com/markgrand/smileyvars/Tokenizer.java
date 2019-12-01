@@ -21,14 +21,12 @@ class Tokenizer implements Iterator<Token> {
         DEFAULT_CONFIG.nestedBlockCommentEnabled = true;
     }
 
+    private final Supplier<TokenType> scanUnbracketed = new ScanUnbracketed();
     private CharSequence chars;
     private int nextPosition = 0;
     private Token nextToken;
     private TokenizerConfig config;
-
     private Supplier<TokenType> tokenScanner;
-    private final Supplier<TokenType> scanUnbracketed = new ScanUnbracketed();
-
     // Scanner to use inside of (: :)
     private final Supplier<TokenType> scanBracketed = () -> {
         if (isEof()) {
@@ -61,90 +59,12 @@ class Tokenizer implements Iterator<Token> {
                     break;
                 }
             } else if (c == '(' && isNextChar(':')) {
-                    nextPosition -= 2;
-                    break;
+                nextPosition -= 2;
+                break;
             }
         }
         return TokenType.TEXT;
     };
-
-    private void scanBracketedMultiCharacterToken(char c) {
-        if (c == '-' && isNextChar('-')) {
-            scanToEndOfLine();
-        } else if (c == '/' && isNextChar('*')) {
-            scanToEndOfBlockComment();
-        } else if (c == '"') {
-            scanQuotedIdentifier();
-        } else if (c == '\'') {
-            scanAnsiQuotedString();
-        } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
-            scanPostgresqlEscapeString();
-        } else if (config.postgresqlDollarStringEnabled && c == '$') {
-            scanPostgresqlDollarString();
-        } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
-            scanOracleDelimitedString();
-        } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
-            scanPast(']');
-        }
-    }
-
-    // Scanner to use outside of (: :)
-    private class ScanUnbracketed implements Supplier<TokenType> {
-        @NotNull
-        public TokenType get() {
-            if (isEof()) {
-                return TokenType.EOF;
-            }
-            char c = nextChar();
-            if (c == '(') {
-                if (isNextChar(':')) {
-                    tokenScanner = scanBracketed;
-                    return TokenType.SMILEY_OPEN;
-                }
-            } else if (c == ':' && isNextCharIdentifierStart()) {
-                scanToEndOfIdentifier();
-                return TokenType.VAR;
-            }
-            while (true) {
-                if (scanUnbracketedMulticharacterToken(c)) return TokenType.TEXT;
-                if (nextPosition >= chars.length()) {
-                    break;
-                }
-                c = nextChar();
-                if (c == '(') {
-                    if (isNextChar(':')) {
-                        nextPosition -= 2;
-                        break;
-                    }
-                }
-            }
-            return TokenType.TEXT;
-        }
-    }
-
-    private boolean scanUnbracketedMulticharacterToken(char c) {
-        if (c == '-' && isNextChar('-')) {
-            scanToEndOfLine();
-        } else if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
-            nextPosition -= 1;
-            return true;
-        } else if (c == '/' && isNextChar('*')) {
-            scanToEndOfBlockComment();
-        } else if (c == '"') {
-            scanQuotedIdentifier();
-        } else if (c == '\'') {
-            scanAnsiQuotedString();
-        } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
-            scanPostgresqlEscapeString();
-        } else if (config.postgresqlDollarStringEnabled && c == '$') {
-            scanPostgresqlDollarString();
-        } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
-            scanOracleDelimitedString();
-        } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
-            scanPast(']');
-        }
-        return false;
-    }
 
     /**
      * Construct a {@code Tokenizer} with default configuration.
@@ -171,6 +91,50 @@ class Tokenizer implements Iterator<Token> {
     @NotNull
     static TokenizerBuilder builder() {
         return new TokenizerBuilder();
+    }
+
+    private void scanBracketedMultiCharacterToken(char c) {
+        if (c == '-' && isNextChar('-')) {
+            scanToEndOfLine();
+        } else if (c == '/' && isNextChar('*')) {
+            scanToEndOfBlockComment();
+        } else if (c == '"') {
+            scanQuotedIdentifier();
+        } else if (c == '\'') {
+            scanAnsiQuotedString();
+        } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
+            scanPostgresqlEscapeString();
+        } else if (config.postgresqlDollarStringEnabled && c == '$') {
+            scanPostgresqlDollarString();
+        } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
+            scanOracleDelimitedString();
+        } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
+            scanPast(']');
+        }
+    }
+
+    private boolean scanUnbracketedMulticharacterToken(char c) {
+        if (c == '-' && isNextChar('-')) {
+            scanToEndOfLine();
+        } else if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
+            nextPosition -= 1;
+            return true;
+        } else if (c == '/' && isNextChar('*')) {
+            scanToEndOfBlockComment();
+        } else if (c == '"') {
+            scanQuotedIdentifier();
+        } else if (c == '\'') {
+            scanAnsiQuotedString();
+        } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
+            scanPostgresqlEscapeString();
+        } else if (config.postgresqlDollarStringEnabled && c == '$') {
+            scanPostgresqlDollarString();
+        } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
+            scanOracleDelimitedString();
+        } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
+            scanPast(']');
+        }
+        return false;
     }
 
     private void scanPast(@SuppressWarnings("SameParameterValue") char c) {
@@ -324,7 +288,8 @@ class Tokenizer implements Iterator<Token> {
 
     private void scanToEndOfIdentifier() {
         //noinspection StatementWithEmptyBody
-        while (isNextCharIdentifierPart()) {
+        while (!isEof() && Character.isJavaIdentifierPart(chars.charAt(nextPosition))) {
+            nextPosition += 1;
         }
     }
 
@@ -361,17 +326,6 @@ class Tokenizer implements Iterator<Token> {
             return false;
         }
         if (Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
-            nextPosition += 1;
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isNextCharIdentifierPart() {
-        if (isEof()) {
-            return false;
-        }
-        if (Character.isJavaIdentifierPart(chars.charAt(nextPosition))) {
             nextPosition += 1;
             return true;
         }
@@ -508,6 +462,42 @@ class Tokenizer implements Iterator<Token> {
             return new Tokenizer(chars, config);
         }
 
-        @NotNull TokenizerConfig getConfig() { return config; }
+        @NotNull TokenizerConfig getConfig() {
+            return config;
+        }
+    }
+
+    // Scanner to use outside of (: :)
+    private class ScanUnbracketed implements Supplier<TokenType> {
+        @NotNull
+        public TokenType get() {
+            if (isEof()) {
+                return TokenType.EOF;
+            }
+            char c = nextChar();
+            if (c == '(') {
+                if (isNextChar(':')) {
+                    tokenScanner = scanBracketed;
+                    return TokenType.SMILEY_OPEN;
+                }
+            } else if (c == ':' && isNextCharIdentifierStart()) {
+                scanToEndOfIdentifier();
+                return TokenType.VAR;
+            }
+            while (true) {
+                if (scanUnbracketedMulticharacterToken(c)) return TokenType.TEXT;
+                if (nextPosition >= chars.length()) {
+                    break;
+                }
+                c = nextChar();
+                if (c == '(') {
+                    if (isNextChar(':')) {
+                        nextPosition -= 2;
+                        break;
+                    }
+                }
+            }
+            return TokenType.TEXT;
+        }
     }
 }
