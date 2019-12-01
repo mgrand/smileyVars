@@ -45,8 +45,8 @@ class SmileyVarsPreparedStatementTest {
 
     @Test
     void connectionConstructor() throws Exception {
-        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "select x,y from square");
-        svps.close();
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(mockConnection, "select x,y from square");
+        assertNotNull(svps.getPreparedStatement());
     }
 
     @Test

@@ -28,7 +28,7 @@ class ValueFormatterRegistry {
             = new ValueFormatterRegistry("PostgreSQL")
                       .registerFormatter("boolean", Boolean.class, bool -> bool == null ? "null" : bool.toString());
     private static final ValueFormatterRegistry preparedStatementRegistry = new ValueFormatterRegistry()
-            .registerFormatter("preparedStatementParameter", o -> true, o ->true, (o) -> "?");
+                                                                                    .registerFormatter("preparedStatementParameter", o -> true, o -> true, (o) -> "?");
     private static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
     private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
     private final String name;
@@ -48,19 +48,15 @@ class ValueFormatterRegistry {
         //TODO need to account for national character set string literals and unicode string literals.
     }
 
-    private static void ensureCommonBuiltinFormattersAreRegistered() {
+    private static synchronized void ensureCommonBuiltinFormattersAreRegistered() {
         if (commonBuiltinFormatters == null) {
-            synchronized (ValueFormatter.class) {
-                if (commonBuiltinFormatters == null) {
-                    logger.debug("Registering common formatters.");
-                    commonBuiltinFormatters = new LinkedHashMap<>();
-                    registerNumberFormatter(commonBuiltinFormatters);
-                    registerTimestampFormatter(commonBuiltinFormatters);
-                    registerStringFormatter(commonBuiltinFormatters);
-                    registerDateFormatter(commonBuiltinFormatters);
-                    logger.debug("Registered common formatters: " + commonBuiltinFormatters);
-                }
-            }
+            logger.debug("Registering common formatters.");
+            commonBuiltinFormatters = new LinkedHashMap<>();
+            registerNumberFormatter(commonBuiltinFormatters);
+            registerTimestampFormatter(commonBuiltinFormatters);
+            registerStringFormatter(commonBuiltinFormatters);
+            registerDateFormatter(commonBuiltinFormatters);
+            logger.debug("Registered common formatters: " + commonBuiltinFormatters);
         }
     }
 
@@ -203,13 +199,12 @@ class ValueFormatterRegistry {
      * Use the given formatter to return an SQL literal that will represent that object in the SQL if the object is an
      * instance of the given class.
      *
-     * @param name                    The name of this formatter. If the given name is specified with a smileyVar, then
-     *                                this formatter will be used to format the smileyVar's value; otherwise the
-     *                                formatter will be used if it is the first one registered whose class or predicate
-     *                                match the value of the smileyVar.
-     * @param clazz                   The class that a value must be an instance of for the given formatter function to
-     *                                be used to format it.
-     * @param formatter               A function to return a representation of an object as an SQL literal.
+     * @param name      The name of this formatter. If the given name is specified with a smileyVar, then this formatter
+     *                  will be used to format the smileyVar's value; otherwise the formatter will be used if it is the
+     *                  first one registered whose class or predicate match the value of the smileyVar.
+     * @param clazz     The class that a value must be an instance of for the given formatter function to be used to
+     *                  format it.
+     * @param formatter A function to return a representation of an object as an SQL literal.
      * @return this object
      */
     @NotNull
@@ -222,14 +217,12 @@ class ValueFormatterRegistry {
      * If the given predicate returns true when passed the value of a Smiley Var, then use the given formatter to return
      * an SQL literal that will represent that object in the SQL.
      *
-     * @param name                    The name of this formatter. If the given name is specified with a smileyVar, then
-     *                                this formatter will be used to format the smileyVar's value; otherwise the
-     *                                formatter will be used if it is the first one registered whose class or predicate
-     *                                match the value of the smileyVar.
-     * @param isDefault               The predicate to determine if the formatter is the default formatter for the given
-     *                                value.
-     * @param isApplicable          The predicate to determine if the formatter can be applied to a given value.
-     * @param formatter               A function to return a representation of an object as an SQL literal.
+     * @param name         The name of this formatter. If the given name is specified with a smileyVar, then this
+     *                     formatter will be used to format the smileyVar's value; otherwise the formatter will be used
+     *                     if it is the first one registered whose class or predicate match the value of the smileyVar.
+     * @param isDefault    The predicate to determine if the formatter is the default formatter for the given value.
+     * @param isApplicable The predicate to determine if the formatter can be applied to a given value.
+     * @param formatter    A function to return a representation of an object as an SQL literal.
      * @return this object
      */
     @NotNull
