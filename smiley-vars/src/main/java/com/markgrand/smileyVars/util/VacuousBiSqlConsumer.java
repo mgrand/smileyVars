@@ -15,7 +15,7 @@ public class VacuousBiSqlConsumer<T, U> implements BiSqlConsumer<T, U> {
 
     @Override
     public void accept(T t, U u) throws SQLException {
-        throw new SQLException("The value for a required SmileyVar is not speciried.");
+        throw new SQLException("The value for a required SmileyVar is not specified.");
     }
 
     /**
