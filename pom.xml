@@ -58,8 +58,13 @@
         </developer>
     </developers>
 
-<!--    <contributors>-->
-<!--    </contributors>-->
+    <contributors>
+        <contributor>
+            <name>Mark Grand</name>
+            <email>mgrand@markgrand.com</email>
+            <timezone>UTC-5</timezone>
+        </contributor>
+    </contributors>
     <scm>
         <url>https://github.com/mgrand/smileyVars</url>
     </scm>

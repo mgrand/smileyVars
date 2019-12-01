@@ -12,8 +12,9 @@ public interface BiSqlConsumer<T, U> {
      *
      * @param t the first parameter type
      * @param u the second parameter type
-     * @throws SQLException
+     * @throws SQLException if the implementation chooses to throw the exception.
      */
+    @SuppressWarnings("unused")
     void accept(T t, U u) throws SQLException;
 
     /**

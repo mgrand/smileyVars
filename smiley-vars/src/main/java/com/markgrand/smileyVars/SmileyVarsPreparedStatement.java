@@ -1088,6 +1088,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @return this object
      * @see #deepClearParameters()
      */
+    @SuppressWarnings("UnusedReturnValue")
     public SmileyVarsPreparedStatement clearParameters() {
         valueMap.entrySet().forEach(entry -> entry.setValue(VacuousBiSqlConsumer.getInstance()));
         changeCount++;

@@ -537,7 +537,7 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
-    void setBlobInputstream() throws Exception {
+    void setBlobInputStream() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setBlob("x", new ByteArrayInputStream("fubar".getBytes()));
             ResultSet rs = svps.executeQuery();
@@ -547,7 +547,7 @@ class SmileyVarsPreparedStatementTest {
     }
 
     @Test
-    void setBlobInputstreamLength() throws Exception {
+    void setBlobInputStreamLength() throws Exception {
         try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "SELECT :x")) {
             svps.setBlob("x", new ByteArrayInputStream("fubar".getBytes()), 22);
             ResultSet rs = svps.executeQuery();

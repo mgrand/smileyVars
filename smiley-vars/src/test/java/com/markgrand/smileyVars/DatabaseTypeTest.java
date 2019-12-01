@@ -1,10 +1,10 @@
 package com.markgrand.smileyVars;
 
 import com.mockrunner.mock.jdbc.MockDatabaseMetaData;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -155,9 +155,6 @@ class DatabaseTypeTest {
         MockDatabaseMetaData metaData = new MockDatabaseMetaData();
         metaData.setDatabaseProductName("SQL Anywhere");
         assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
-//        new Verifications() {{
-//            logger.warn(anyString); maxTimes = 0;
-//        }};
     }
 
     @Test
@@ -165,16 +162,17 @@ class DatabaseTypeTest {
         MockDatabaseMetaData metaData = new MockDatabaseMetaData();
         metaData.setDatabaseProductName("constable");
         assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
-//        new Verifications() {{
-//            logger.warn(anyString); times = 1;
-//        }};
     }
 
-    @Disabled
     @Test
     void exception() throws Exception {
-//        DatabaseMetaData metaData = new MockDatabaseMetadata().getDatabaseProductNameThrows(new SQLException("bogus"));
-//        assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
+        DatabaseMetaData metaData = new MockDatabaseMetaData(){
+            @Override
+            public String getDatabaseProductName() throws SQLException {
+                throw new SQLException("bogus");
+            }
+        };
+        assertEquals(DatabaseType.ANSI, DatabaseType.inferDatabaseType(metaData));
     }
 
     @Test

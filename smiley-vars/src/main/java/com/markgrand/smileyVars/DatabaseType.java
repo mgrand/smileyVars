@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Enumeration of database types that a SmileyVar can be specialized for.
@@ -31,6 +33,27 @@ public enum DatabaseType {
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseType.class);
 
+    private static Map<String, DatabaseType> nameToDatabaseTypeMap = new HashMap<>();
+    static {
+        nameToDatabaseTypeMap.put("CUBRID", ANSI);
+        nameToDatabaseTypeMap.put("DB2", ANSI);
+        nameToDatabaseTypeMap.put("APACHE DERBY", ANSI);
+        nameToDatabaseTypeMap.put("ENTERPRISEDB", POSTGRESQL);
+        nameToDatabaseTypeMap.put("FIREBIRD", ANSI);
+        nameToDatabaseTypeMap.put("H2", ANSI);
+        nameToDatabaseTypeMap.put("HDB", ANSI);
+        nameToDatabaseTypeMap.put("HSQL DATABASE ENGINE", ANSI);
+        nameToDatabaseTypeMap.put("INFORMIX DYNAMIC SERVER", ANSI);
+        nameToDatabaseTypeMap.put("INGRES", ANSI);
+        nameToDatabaseTypeMap.put("MYSQL", ANSI);
+        nameToDatabaseTypeMap.put("ORACLE", ORACLE);
+        nameToDatabaseTypeMap.put("POSTGRESQL", POSTGRESQL);
+        nameToDatabaseTypeMap.put("SYBASE SQL SERVER", ANSI);
+        nameToDatabaseTypeMap.put("ADAPTIVE SERVER ENTERPRISE", ANSI);
+        nameToDatabaseTypeMap.put("ADAPTIVE SERVER ANYWHERE", ANSI);
+        nameToDatabaseTypeMap.put("SQL ANYWHERE", ANSI);
+    }
+
     private final Tokenizer.TokenizerBuilder tokenizerBuilder;
     private final ValueFormatterRegistry valueFormatterRegistry;
 
@@ -53,56 +76,15 @@ public enum DatabaseType {
             if (productName == null) {
                 return ANSI;
             }
-            if ("CUBRID".equalsIgnoreCase(productName)) {
-                return ANSI;
-            }
-            if (productName.startsWith("DB2")) {
-                return ANSI;
-            }
-            if ("Apache Derby".equals(productName)) {
-                return ANSI;
-            }
-            if ("EnterpriseDB".equals(productName)) {
-                return POSTGRESQL;
-            }
-            if (productName.startsWith("Firebird")) {
-                return ANSI;
-            }
-            if ("H2".equals(productName)) {
-                return ANSI;
-            }
-            if ("HDB".equals(productName)) {
-                return ANSI;
-            }
-            if ("HSQL Database Engine".equals(productName)) {
-                return ANSI;
-            }
-            if ("Informix Dynamic Server".equals(productName)) {
-                return ANSI;
-            }
-            if ("ingres".equalsIgnoreCase(productName)) {
-                return ANSI;
+            DatabaseType type = nameToDatabaseTypeMap.get(productName.toUpperCase());
+            if (type != null) {
+                return type;
             }
             if (databaseMetaData.getDriverName() != null && databaseMetaData.getDriverName().startsWith("MariaDB")) {
                 return ANSI;
             }
-            if ("MySQL".equals(productName)) {
-                return ANSI;
-            }
-            if ("Oracle".equals(productName)) {
-                return ORACLE;
-            }
-            if ("PostgreSQL".equals(productName)) {
-                return POSTGRESQL;
-            }
             if (productName.startsWith("Microsoft SQL Server")) {
                 return SQL_SERVER;
-            }
-            if ("Sybase SQL Server".equals(productName) || "Adaptive Server Enterprise".equals(productName)) {
-                return ANSI;
-            }
-            if (productName.startsWith("Adaptive Server Anywhere") || "SQL Anywhere".equals(productName)) {
-                return ANSI;
             }
             logger.warn("Defaulting unknown database product " + productName + " to use ANSI templates.");
             return ANSI;
