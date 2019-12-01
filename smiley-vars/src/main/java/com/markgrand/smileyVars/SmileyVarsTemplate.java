@@ -267,6 +267,9 @@ public class SmileyVarsTemplate {
                 case SMILEY_CLOSE:
                     segment = processBracketClose(segment, stack);
                     break;
+                case EOF:
+                    // Ignore EOF
+                    break;
             }
         }
         return finalizeExpansion(segment, stack);
