@@ -82,7 +82,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <excludePackageNames>com.markgrand.smileyVars.util</excludePackageNames>
+                    <excludePackageNames>com.markgrand.smileyvars.util</excludePackageNames>
                 </configuration>
             </plugin>
             <plugin>

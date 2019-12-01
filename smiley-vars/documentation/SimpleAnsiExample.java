@@ -1,4 +1,4 @@
-import com.markgrand.smileyVars.SmileyVarsTemplate;
+import com.markgrand.smileyvars.SmileyVarsTemplate;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

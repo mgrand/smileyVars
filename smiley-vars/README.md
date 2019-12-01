@@ -190,7 +190,7 @@ Using SmilelyVars in your Java code is very simple. There are just two steps:
 
 This is exemplified by the following code sample:
 ```java
-import com.markgrand.smileyVars.DatabaseType;import com.markgrand.smileyVars.SmileyVarsTemplate;
+import com.markgrand.smileyvars.DatabaseType;import com.markgrand.smileyvars.SmileyVarsTemplate;
 //...
 public class SimpleAnsiExample {
     private static final SmileyVarsTemplate selectTemplate 
