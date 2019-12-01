@@ -1,8 +1,8 @@
 package com.markgrand.smileyVars;
 
-import com.markgrand.smileyVars.testUtil.MockConnection;
-import com.markgrand.smileyVars.testUtil.MockDataSource;
-import com.markgrand.smileyVars.testUtil.MockDatabaseMetadata;
+import com.mockrunner.mock.jdbc.MockConnection;
+import com.mockrunner.mock.jdbc.MockDataSource;
+import com.mockrunner.mock.jdbc.MockDatabaseMetaData;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,8 @@ class SmileyVarsTemplateTest {
 
     @Test
     void preparedStatementAnsiTemplate() throws Exception {
-        Connection conn = new MockConnection().metaData(new MockDatabaseMetadata().databaseProductName("H2"));
+        MockConnection conn = new MockConnection();
+        conn.setMetaData(new MockDatabaseMetaData());
         @NotNull
         SmileyVarsTemplate template
                 = SmileyVarsTemplate.template(conn, "Select * from foo where 1=1 (:and x=:x:) and y=:y", ValueFormatterRegistry.preparedStatementInstance());
@@ -163,7 +164,10 @@ class SmileyVarsTemplateTest {
 
     @Test
     void dateAsDate() throws Exception {
-        DataSource ds = new MockDataSource().connection(new MockConnection().metaData(new MockDatabaseMetadata().databaseProductName("H2")));
+        MockDataSource ds = new MockDataSource();
+        MockConnection mockConnection = new MockConnection();
+        mockConnection.setMetaData(new MockDatabaseMetaData());
+        ds.setupConnection(mockConnection);
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(ds, "Select * from foo where 1=1 (:and x=:x:date:)");
         @NotNull Date date = new GregorianCalendar(2020, Calendar.APRIL, 18, 13, 43, 56).getTime();
         @NotNull Map<String, Object> map = new HashMap<>();

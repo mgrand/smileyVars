@@ -1,8 +1,8 @@
 package com.markgrand.smileyVars;
 
+import com.mockrunner.mock.jdbc.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.rowset.serial.SerialBlob;
@@ -10,6 +10,7 @@ import javax.sql.rowset.serial.SerialClob;
 import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.*;
 import java.util.GregorianCalendar;
 import java.util.Set;
@@ -18,9 +19,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SmileyVarsPreparedStatementTest {
     private Connection h2Connection;
+    private MockConnection mockConnection;
 
     @BeforeEach
     void setUp() throws Exception {
+        mockConnection = new MockConnection();
+        mockConnection.setMetaData(new MockDatabaseMetaData());
         h2Connection = DriverManager.getConnection("jdbc:h2:mem:test", "sa", "");
         Statement stmt = h2Connection.createStatement();
         stmt.execute("CREATE TABLE IF NOT EXISTS SQUARE (X INT PRIMARY KEY, Y INT)");
@@ -502,10 +506,24 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Disabled
     @Test
-    void setRef() {
+    void setRef() throws Exception {
         // H2 does not support Ref, so need to find a different way to unit test.
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(mockConnection, "SELECT :x")) {
+            Ref ref = new MockRef("fubar");
+            svps.setRef("x", ref);
+            MockPreparedStatement mockPreparedStatement = (MockPreparedStatement) svps.getPreparedStatement();
+            assertEquals(ref, mockPreparedStatement.getParameter(1));
+            //TODO make the other hale of this work.
+//            PreparedStatementResultSetHandler preparedStatementResultSetHandler = mockConnection.getPreparedStatementResultSetHandler();
+//            MockResultSet mockResultSet = preparedStatementResultSetHandler.createResultSet();
+//            mockResultSet.addRow(new Object[]{ref});
+//            preparedStatementResultSetHandler.addReturnedResultSet(mockResultSet);
+//            mockPreparedStatement.setResultSetHandler(preparedStatementResultSetHandler);
+//            ResultSet rs = svps.executeQuery();
+//            assertTrue(rs.next());
+//            assertEquals(ref, rs.getRef(1));
+        }
     }
 
     @Test
@@ -588,10 +606,18 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Disabled
     @Test
-    void setURL() {
-        // Not spported by H2
+    void setURL() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(mockConnection, "SELECT :x")) {
+            svps.setURL("x", new URL("http://example.com"));
+            MockPreparedStatement mockPreparedStatement = (MockPreparedStatement) svps.getPreparedStatement();
+            assertEquals(new URL("http://example.com"), mockPreparedStatement.getParameter(1));
+        }
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(mockConnection, "SELECT :x")) {
+            svps.setURL("x", new URL("http://example.com"));
+            MockPreparedStatement mockPreparedStatement = (MockPreparedStatement) svps.getPreparedStatement();
+            assertEquals(new URL("http://example.com"), mockPreparedStatement.getParameter(1));
+        }
     }
 
     @Test
@@ -603,10 +629,13 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Disabled
     @Test
-    void setRowId() {
-        // Not supported by H2
+    void setRowId() throws Exception {
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(mockConnection, "SELECT :x")) {
+            svps.setRowId("x", new MockRowId("fubar".getBytes()));
+            MockPreparedStatement mockPreparedStatement = (MockPreparedStatement) svps.getPreparedStatement();
+            assertEquals(new MockRowId("fubar".getBytes()), mockPreparedStatement.getParameter(1));
+        }
     }
 
     @Test
@@ -761,14 +790,12 @@ class SmileyVarsPreparedStatementTest {
         }
     }
 
-    @Disabled
     @Test
     void maxFieldSize() throws Exception {
-        // not supported by h2
-        try (SmileyVarsPreparedStatement svps
-                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
-            svps.setMaxFieldSize(2000);
-            assertEquals(2000, svps.getMaxFieldSize());
+        try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(mockConnection, "SELECT :x")) {
+            svps.setInt("x", 3);
+            svps.setMaxFieldSize(9999);
+            assertEquals(9999, svps.getMaxFieldSize());
         }
     }
 
@@ -898,7 +925,7 @@ class SmileyVarsPreparedStatementTest {
             svps.setInt("x", 0);
             svps.setInt("y", 0);
             assertEquals(1, svps.executeUpdate());
-            ResultSet rs =svps.getGeneratedKeys();
+            ResultSet rs = svps.getGeneratedKeys();
             assertNotNull(rs);
             assertFalse(rs.next());
             h2Connection.rollback();
@@ -917,7 +944,7 @@ class SmileyVarsPreparedStatementTest {
     @Test
     void isClosed() throws Exception {
         SmileyVarsPreparedStatement svps
-                     = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)");
+                = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)");
         assertFalse(svps.isClosed());
         svps.close();
         assertTrue(svps.isClosed());
