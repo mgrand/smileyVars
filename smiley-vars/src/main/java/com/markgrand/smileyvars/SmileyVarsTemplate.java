@@ -247,7 +247,7 @@ public class SmileyVarsTemplate {
     @SuppressWarnings("unused")
     public String apply(@NotNull Map<String, ?> values) throws UnsupportedFeatureException {
         if (logger.isDebugEnabled()) {
-            logger.debug("Expanding \"" + sql + "\" with mappings: " + values);
+            logger.debug("Expanding \"{}\" with mappings: {}" , sql, values);
         }
         @NotNull Tokenizer tokenizer = builder.build(sql);
         @Nullable StringBuilder segment = new StringBuilder(sql.length() * 2);
@@ -421,7 +421,6 @@ public class SmileyVarsTemplate {
             forEachVariableInstance(varNames::add);
         } catch (SQLException e) {
             String msg = "Unexpected SQLException from adding a variable name to a set.";
-            logger.error(msg, e);
             throw new SmileyVarsSqlException(msg, e);
         }
         return varNames;

@@ -1677,7 +1677,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     private void updatePreparedStatementParams(PreparedStatement preparedStatement, BitSet signature) throws SQLException {
         int[] sigIndex = {0};
         int[] paramIndex = {1};
-        template.forEachVariableInstance((name) -> {
+        template.forEachVariableInstance(name -> {
             if (signature.get(sigIndex[0])) {
                 valueMap.get(name).accept(preparedStatement, paramIndex[0]);
                 paramIndex[0] += 1;
@@ -1766,18 +1766,5 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         void setChangeCount(long changeCount) {
             this.changeCount = changeCount;
         }
-
-//        @Override
-//        public boolean equals(Object o) {
-//            if (this == o) return true;
-//            if (o == null || getClass() != o.getClass()) return false;
-//            PreparedStatementTag that = (PreparedStatementTag) o;
-//            return signature.equals(that.signature);
-//        }
-//
-//        @Override
-//       signature public int hashCode() {
-//            return signature.hashCode();
-//        }
     }
 }
