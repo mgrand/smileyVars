@@ -50,23 +50,7 @@ class Tokenizer implements Iterator<Token> {
             }
         }
         while (true) {
-            if (c == '-' && isNextChar('-')) {
-                scanToEndOfLine();
-            } else if (c == '/' && isNextChar('*')) {
-                scanToEndOfBlockComment();
-            } else if (c == '"') {
-                scanQuotedIdentifier();
-            } else if (c == '\'') {
-                scanAnsiQuotedString();
-            } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
-                scanPostgresqlEscapeString();
-            } else if (config.postgresqlDollarStringEnabled && c == '$') {
-                scanPostgresqlDollarString();
-            } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
-                scanOracleDelimitedString();
-            } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
-                scanPast(']');
-            }
+            scanMultiCharacterToken(c);
             if (nextPosition >= chars.length()) {
                 break;
             }
@@ -86,6 +70,26 @@ class Tokenizer implements Iterator<Token> {
         }
         return TokenType.TEXT;
     };
+
+    private void scanMultiCharacterToken(char c) {
+        if (c == '-' && isNextChar('-')) {
+            scanToEndOfLine();
+        } else if (c == '/' && isNextChar('*')) {
+            scanToEndOfBlockComment();
+        } else if (c == '"') {
+            scanQuotedIdentifier();
+        } else if (c == '\'') {
+            scanAnsiQuotedString();
+        } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
+            scanPostgresqlEscapeString();
+        } else if (config.postgresqlDollarStringEnabled && c == '$') {
+            scanPostgresqlDollarString();
+        } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
+            scanOracleDelimitedString();
+        } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
+            scanPast(']');
+        }
+    }
 
     // Scanner to use outside of (: :)
     private class ScanUnbracketed implements Supplier<TokenType> {
