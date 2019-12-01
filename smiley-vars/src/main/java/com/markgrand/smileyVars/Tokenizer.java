@@ -50,7 +50,7 @@ class Tokenizer implements Iterator<Token> {
             }
         }
         while (true) {
-            scanMultiCharacterToken(c);
+            scanBracketedMultiCharacterToken(c);
             if (nextPosition >= chars.length()) {
                 break;
             }
@@ -71,7 +71,7 @@ class Tokenizer implements Iterator<Token> {
         return TokenType.TEXT;
     };
 
-    private void scanMultiCharacterToken(char c) {
+    private void scanBracketedMultiCharacterToken(char c) {
         if (c == '-' && isNextChar('-')) {
             scanToEndOfLine();
         } else if (c == '/' && isNextChar('*')) {
@@ -109,26 +109,7 @@ class Tokenizer implements Iterator<Token> {
                 return TokenType.VAR;
             }
             while (true) {
-                if (c == '-' && isNextChar('-')) {
-                    scanToEndOfLine();
-                } else if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
-                    nextPosition -= 1;
-                    return TokenType.TEXT;
-                } else if (c == '/' && isNextChar('*')) {
-                    scanToEndOfBlockComment();
-                } else if (c == '"') {
-                    scanQuotedIdentifier();
-                } else if (c == '\'') {
-                    scanAnsiQuotedString();
-                } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
-                    scanPostgresqlEscapeString();
-                } else if (config.postgresqlDollarStringEnabled && c == '$') {
-                    scanPostgresqlDollarString();
-                } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
-                    scanOracleDelimitedString();
-                } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
-                    scanPast(']');
-                }
+                if (scanUnbracketedMulticharacterToken(c)) return TokenType.TEXT;
                 if (nextPosition >= chars.length()) {
                     break;
                 }
@@ -142,6 +123,30 @@ class Tokenizer implements Iterator<Token> {
             }
             return TokenType.TEXT;
         }
+    }
+
+    private boolean scanUnbracketedMulticharacterToken(char c) {
+        if (c == '-' && isNextChar('-')) {
+            scanToEndOfLine();
+        } else if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
+            nextPosition -= 1;
+            return true;
+        } else if (c == '/' && isNextChar('*')) {
+            scanToEndOfBlockComment();
+        } else if (c == '"') {
+            scanQuotedIdentifier();
+        } else if (c == '\'') {
+            scanAnsiQuotedString();
+        } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
+            scanPostgresqlEscapeString();
+        } else if (config.postgresqlDollarStringEnabled && c == '$') {
+            scanPostgresqlDollarString();
+        } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
+            scanOracleDelimitedString();
+        } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
+            scanPast(']');
+        }
+        return false;
     }
 
     /**
