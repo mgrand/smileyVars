@@ -28,7 +28,7 @@ class ValueFormatterRegistry {
             = new ValueFormatterRegistry("PostgreSQL")
                       .registerFormatter("boolean", Boolean.class, bool -> bool == null ? "null" : bool.toString());
     private static final ValueFormatterRegistry preparedStatementRegistry = new ValueFormatterRegistry()
-                                                                                    .registerFormatter("preparedStatementParameter", o -> true, o -> true, (o) -> "?");
+                                                                                    .registerFormatter("preparedStatementParameter", o -> true, o -> true, o -> "?");
     private static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
     private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
     private final String name;

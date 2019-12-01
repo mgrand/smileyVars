@@ -60,13 +60,10 @@ class Tokenizer implements Iterator<Token> {
                     nextPosition -= 2;
                     break;
                 }
-            } else if (c == '(') {
-                if (isNextChar(':')) {
+            } else if (c == '(' && isNextChar(':')) {
                     nextPosition -= 2;
                     break;
-                }
             }
-
         }
         return TokenType.TEXT;
     };
