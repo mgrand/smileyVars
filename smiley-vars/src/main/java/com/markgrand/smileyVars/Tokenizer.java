@@ -204,6 +204,9 @@ class Tokenizer implements Iterator<Token> {
             case '[':
                 delimiter = ']';
                 break;
+            default:
+                // Use the same character as an end delimiter in other cases
+                break;
         }
         return delimiter;
     }
