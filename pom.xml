@@ -5,17 +5,35 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.markgrand.smileyVars</groupId>
-    <artifactId>smiley-vars</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <artifactId>smileyvars-project</artifactId>
+    <version>0.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-    <name>SmileyVars</name>
-    <description>A template engine for SQL</description>
+    <modules>
+        <module>smiley-vars</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>17.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.javadoc.version>3.1.1</maven.javadoc.version>
+        <maven.surefile.version>3.0.0-M3</maven.surefile.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <validation.version>2.0.1.Final</validation.version>
+    </properties>
+
     <url>https://github.com/mgrand/smileyVars</url>
 
-    <scm>
-        <url>https://github.com/mgrand/smileyVars</url>
-    </scm>
+    <inceptionYear>2019</inceptionYear>
 
     <licenses>
         <license>
@@ -40,47 +58,11 @@
         </developer>
     </developers>
 
-    <properties>
-        <junit.version>5.5.2</junit.version>
-        <logback.version>1.2.3</logback.version>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.javadoc.version>3.1.1</maven.javadoc.version>
-        <maven.surefile.version>3.0.0-M3</maven.surefile.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>1.7.28</slf4j.version>
-        <spring.verson>5.1.8.RELEASE</spring.verson>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.verson}</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- JUnit 5 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+<!--    <contributors>-->
+<!--    </contributors>-->
+    <scm>
+        <url>https://github.com/mgrand/smileyVars</url>
+    </scm>
 
     <distributionManagement>
         <snapshotRepository>
@@ -88,89 +70,4 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefile.version}</version>
-                <configuration>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release nexus-staging:release</releaseProfiles>
-                    <goals>deploy</goals>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.version}</version>
-                <configuration>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>
