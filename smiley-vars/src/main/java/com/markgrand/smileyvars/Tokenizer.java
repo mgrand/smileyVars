@@ -113,30 +113,6 @@ class Tokenizer implements Iterator<Token> {
         }
     }
 
-    private boolean scanUnbracketedMulticharacterToken(char c) {
-        if (c == '-' && isNextChar('-')) {
-            scanToEndOfLine();
-        } else if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
-            nextPosition -= 1;
-            return true;
-        } else if (c == '/' && isNextChar('*')) {
-            scanToEndOfBlockComment();
-        } else if (c == '"') {
-            scanQuotedIdentifier();
-        } else if (c == '\'') {
-            scanAnsiQuotedString();
-        } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
-            scanPostgresqlEscapeString();
-        } else if (config.postgresqlDollarStringEnabled && c == '$') {
-            scanPostgresqlDollarString();
-        } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
-            scanOracleDelimitedString();
-        } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
-            scanPast(']');
-        }
-        return false;
-    }
-
     private void scanPast(@SuppressWarnings("SameParameterValue") char c) {
         while (!isNextChar(c)) {
             nextPosition += 1;
@@ -485,13 +461,35 @@ class Tokenizer implements Iterator<Token> {
                     return TokenType.TEXT;
                 }
                 c = nextChar();
-                if (c == '(') {
-                    if (isNextChar(':')) {
-                        nextPosition -= 2;
-                        return TokenType.TEXT;
-                    }
+                if (c == '(' && isNextChar(':')) {
+                    nextPosition -= 2;
+                    return TokenType.TEXT;
                 }
             }
+        }
+
+        private boolean scanUnbracketedMulticharacterToken(char c) {
+            if (c == '-' && isNextChar('-')) {
+                scanToEndOfLine();
+            } else if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
+                nextPosition -= 1;
+                return true;
+            } else if (c == '/' && isNextChar('*')) {
+                scanToEndOfBlockComment();
+            } else if (c == '"') {
+                scanQuotedIdentifier();
+            } else if (c == '\'') {
+                scanAnsiQuotedString();
+            } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
+                scanPostgresqlEscapeString();
+            } else if (config.postgresqlDollarStringEnabled && c == '$') {
+                scanPostgresqlDollarString();
+            } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
+                scanOracleDelimitedString();
+            } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
+                scanPast(']');
+            }
+            return false;
         }
     }
 }

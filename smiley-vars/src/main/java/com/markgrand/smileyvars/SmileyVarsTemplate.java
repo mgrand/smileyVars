@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * <p>SmileyVars is a lightweight template engine for SQL. It helps you avoid having to write similar SQL many times
@@ -245,13 +242,13 @@ public class SmileyVarsTemplate {
      */
     @org.jetbrains.annotations.NotNull
     @SuppressWarnings("unused")
-    public String apply(@NotNull Map<String, ?> values) throws UnsupportedFeatureException {
+    public String apply(@NotNull Map<String, ?> values) {
         if (logger.isDebugEnabled()) {
             logger.debug("Expanding \"{}\" with mappings: {}" , sql, values);
         }
         @NotNull Tokenizer tokenizer = builder.build(sql);
         @Nullable StringBuilder segment = new StringBuilder(sql.length() * 2);
-        @NotNull Stack<StringBuilder> stack = new Stack<>();
+        @NotNull Deque<StringBuilder> stack = new ArrayDeque<>();
         while (tokenizer.hasNext()) {
             Token token = tokenizer.next();
             switch (token.getTokenType()) {
@@ -283,7 +280,7 @@ public class SmileyVarsTemplate {
 
     @Nullable
     private StringBuilder processVar(@NotNull Map<String, ?> values, @NotNull Tokenizer tokenizer,
-                                     @Nullable StringBuilder segment, @NotNull Token token, @NotNull Stack<StringBuilder> stack) {
+                                     @Nullable StringBuilder segment, @NotNull Token token, @NotNull Deque<StringBuilder> stack) {
         if (segment != null) {
             segment = doVarExpansion(values, tokenizer, segment, token);
             if (segment == null && stack.isEmpty()) {
@@ -293,13 +290,13 @@ public class SmileyVarsTemplate {
         return segment;
     }
 
-    private StringBuilder processBracketOpen(StringBuilder segment, @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack) {
+    private StringBuilder processBracketOpen(StringBuilder segment, @org.jetbrains.annotations.NotNull Deque<StringBuilder> stack) {
         stack.push(segment);
         segment = new StringBuilder();
         return segment;
     }
 
-    private StringBuilder processBracketClose(StringBuilder segment, @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack) {
+    private StringBuilder processBracketClose(StringBuilder segment, @org.jetbrains.annotations.NotNull Deque<StringBuilder> stack) {
         if (stack.isEmpty()) {
             logger.warn("SmileyVars template has an extra close bracket: {}", sql);
         } else {
@@ -313,7 +310,7 @@ public class SmileyVarsTemplate {
     }
 
     @org.jetbrains.annotations.NotNull
-    private String finalizeExpansion(@Nullable StringBuilder segment, @org.jetbrains.annotations.NotNull Stack<StringBuilder> stack) {
+    private String finalizeExpansion(@Nullable StringBuilder segment, @org.jetbrains.annotations.NotNull Deque<StringBuilder> stack) {
         if (segment == null) {
             segment = new StringBuilder();
         }
