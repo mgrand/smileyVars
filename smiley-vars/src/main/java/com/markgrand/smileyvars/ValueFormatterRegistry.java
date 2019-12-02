@@ -159,10 +159,10 @@ class ValueFormatterRegistry {
         }
     }
 
-    @SuppressWarnings({"SameParameterValue", "UnusedReturnValue"})
-    private static <T> T handleInapplicableValue(String formatterName, @NotNull Object value) {
+    @SuppressWarnings({"SameParameterValue"})
+    private static void handleInapplicableValue(String formatterName, @NotNull Object value) {
         @NotNull String msg = "Formatter named " + formatterName + " cannot be applied to object of class " + value.getClass().getName();
-        throw new IllegalArgumentException(msg);
+        throw new SmileyVarsException(msg);
     }
 
     @SuppressWarnings("SameParameterValue")
