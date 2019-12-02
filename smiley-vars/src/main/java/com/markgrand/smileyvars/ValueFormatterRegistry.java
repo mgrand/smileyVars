@@ -56,7 +56,7 @@ class ValueFormatterRegistry {
             registerTimestampFormatter(commonBuiltinFormatters);
             registerStringFormatter(commonBuiltinFormatters);
             registerDateFormatter(commonBuiltinFormatters);
-            logger.debug("Registered common formatters: " + commonBuiltinFormatters);
+            logger.debug("Registered common formatters: {}", commonBuiltinFormatters);
         }
     }
 
@@ -244,7 +244,7 @@ class ValueFormatterRegistry {
      */
     @Nullable String format(@Nullable Object value) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Formatting variable value: " + value);
+            logger.debug("Formatting variable value: {}", value);
         }
         if (value == null) {
             logger.debug("Formatted value to null");
