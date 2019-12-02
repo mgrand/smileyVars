@@ -46,7 +46,7 @@ class Tokenizer implements Iterator<Token> {
             throw new UnsupportedFeatureException("Nested brackets are not yet supported");
         }
         while (true) {
-            scanBracketedMultiCharacterToken(c);
+            scanCommonMultiCharacterToken(c);
             if (nextPosition >= chars.length()) {
                 return TokenType.TEXT;
             }
@@ -90,7 +90,7 @@ class Tokenizer implements Iterator<Token> {
         return new TokenizerBuilder();
     }
 
-    private void scanBracketedMultiCharacterToken(char c) {
+    private void scanCommonMultiCharacterToken(char c) {
         if (c == '-' && isNextChar('-')) {
             scanToEndOfLine();
         } else if (c == '/' && isNextChar('*')) {
@@ -466,25 +466,11 @@ class Tokenizer implements Iterator<Token> {
         }
 
         private boolean scanUnbracketedMulticharacterToken(char c) {
-            if (c == '-' && isNextChar('-')) {
-                scanToEndOfLine();
-            } else if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
+            if (c == ':' && Character.isJavaIdentifierStart(chars.charAt(nextPosition))) {
                 nextPosition -= 1;
                 return true;
-            } else if (c == '/' && isNextChar('*')) {
-                scanToEndOfBlockComment();
-            } else if (c == '"') {
-                scanQuotedIdentifier();
-            } else if (c == '\'') {
-                scanAnsiQuotedString();
-            } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
-                scanPostgresqlEscapeString();
-            } else if (config.postgresqlDollarStringEnabled && c == '$') {
-                scanPostgresqlDollarString();
-            } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
-                scanOracleDelimitedString();
-            } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
-                scanPast(']');
+            } else {
+                scanCommonMultiCharacterToken(c);
             }
             return false;
         }
