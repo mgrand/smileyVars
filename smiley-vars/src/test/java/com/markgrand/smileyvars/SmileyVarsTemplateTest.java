@@ -196,8 +196,16 @@ class SmileyVarsTemplateTest {
     }
 
     @Test
-    void wrongFormatterType() {
+    void wrongFormatterTypeTimeStamp() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:timestamp :)");
+        @NotNull Map<String, Object> map = new HashMap<>();
+        map.put("x", "BoGuS");
+        assertThrows(SmileyVarsException.class, ()->template.apply(map));
+    }
+
+    @Test
+    void wrongFormatterTypeDate() {
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:date :)");
         @NotNull Map<String, Object> map = new HashMap<>();
         map.put("x", "BoGuS");
         assertThrows(SmileyVarsException.class, ()->template.apply(map));
