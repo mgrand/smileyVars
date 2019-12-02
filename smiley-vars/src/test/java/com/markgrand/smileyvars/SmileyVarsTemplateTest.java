@@ -212,6 +212,14 @@ class SmileyVarsTemplateTest {
     }
 
     @Test
+    void nonexistantFormatterType() {
+        @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:bogus :)");
+        @NotNull Map<String, Object> map = new HashMap<>();
+        map.put("x", this);
+        assertThrows(SmileyVarsException.class, ()->template.apply(map));
+    }
+
+    @Test
     void temporalAccessorAsTimestamp() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:timestamp:)");
         @NotNull ZonedDateTime instant = ZonedDateTime.of(2020,2, 18, 13, 43, 56, 0, ZoneId.of("-5"));

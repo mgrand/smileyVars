@@ -417,8 +417,7 @@ public class SmileyVarsTemplate {
         try {
             forEachVariableInstance(varNames::add);
         } catch (SQLException e) {
-            String msg = "Unexpected SQLException from adding a variable name to a set.";
-            throw new SmileyVarsSqlException(msg, e);
+            throw new SmileyVarsSqlException("Unexpected SQLException from adding a variable name to a set.", e);
         }
         return varNames;
     }
