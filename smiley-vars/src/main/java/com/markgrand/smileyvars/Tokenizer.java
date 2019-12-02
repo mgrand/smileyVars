@@ -147,10 +147,8 @@ class Tokenizer implements Iterator<Token> {
         if (nextPosition < chars.length()) {
             char delimiter = adjustDelimiter(nextChar());
             while (nextPosition < chars.length()) {
-                if (nextChar() == delimiter) {
-                    if (isNextChar('\'')) {
-                        return;
-                    }
+                if (nextChar() == delimiter && isNextChar('\'')) {
+                    return;
                 }
             }
         }
@@ -269,12 +267,10 @@ class Tokenizer implements Iterator<Token> {
                 if (isNextChar('*')) {
                     count += 1;
                 }
-            } else if (c == '*') {
-                if (isNextChar('/')) {
-                    count -= 1;
-                    if (count == 0) {
-                        return;
-                    }
+            } else if (c == '*' && isNextChar('/')) {
+                count -= 1;
+                if (count == 0) {
+                    return;
                 }
             }
         }
@@ -287,7 +283,6 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private void scanToEndOfIdentifier() {
-        //noinspection StatementWithEmptyBody
         while (!isEof() && Character.isJavaIdentifierPart(chars.charAt(nextPosition))) {
             nextPosition += 1;
         }
@@ -487,17 +482,16 @@ class Tokenizer implements Iterator<Token> {
             while (true) {
                 if (scanUnbracketedMulticharacterToken(c)) return TokenType.TEXT;
                 if (nextPosition >= chars.length()) {
-                    break;
+                    return TokenType.TEXT;
                 }
                 c = nextChar();
                 if (c == '(') {
                     if (isNextChar(':')) {
                         nextPosition -= 2;
-                        break;
+                        return TokenType.TEXT;
                     }
                 }
             }
-            return TokenType.TEXT;
         }
     }
 }
