@@ -41,29 +41,26 @@ class Tokenizer implements Iterator<Token> {
                 scanToEndOfIdentifier();
                 return TokenType.VAR;
             }
-        } else if (c == '(') {
-            if (isNextChar(':')) {
-                //TODO Support nested brackets.
-                throw new UnsupportedFeatureException("Nested brackets are not yet supported");
-            }
+        } else if (c == '(' && isNextChar(':')) {
+            //TODO Support nested brackets.
+            throw new UnsupportedFeatureException("Nested brackets are not yet supported");
         }
         while (true) {
             scanBracketedMultiCharacterToken(c);
             if (nextPosition >= chars.length()) {
-                break;
+                return TokenType.TEXT;
             }
             c = nextChar();
             if (c == ':') {
                 if (isNextChar(')') || isNextCharIdentifierStart()) {
                     nextPosition -= 2;
-                    break;
+                    return TokenType.TEXT;
                 }
             } else if (c == '(' && isNextChar(':')) {
                 nextPosition -= 2;
-                break;
+                return TokenType.TEXT;
             }
         }
-        return TokenType.TEXT;
     };
 
     /**
