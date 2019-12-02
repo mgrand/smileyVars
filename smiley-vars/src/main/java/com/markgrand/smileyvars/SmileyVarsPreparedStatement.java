@@ -1734,8 +1734,6 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         }
     }
 
-    //TODO add a toString method
-
     /**
      * Tag PreparedStatement objects with a signature so that we can reuse prepared statement objects with different
      * parameter settings.
