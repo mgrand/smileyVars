@@ -225,10 +225,27 @@ To apply values to a template, you need to put variable names and their
 values in a map. Then pass the map to the template&#x2bc;s `apply` 
 method. The apply method returns the expanded template body.
 
+### Integration with `PreparedStatement`
+SmileyVars can also be used with `PreparedStatement` objects. This
+integration uses a class named `SmileyVarsPreparedStatement`. Here is an
+example of how to use `SmileyVarsPreparedStatement`:
+
+```java
+        try (SmileyVarsPreparedStatement svps
+                 = new SmileyVarsPreparedStatement(h2Connection, "SELECT * FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            svps.setInt("x", 3);
+            svps.setInt("y", 9);
+            ResultSet rs = svps.executeQuery();
+            rs = svps.getResultSet();
+            ...
+        }
+```
+
 ### Logging
 
-SmileyVars uses slf4j for its logging.  Slf4j integrates with all of the popular logging libraries (Logback, log4j, &hellip;). You can find documentation for
-slf4j at <https://www.slf4j.org/manual.html>
+SmileyVars uses slf4j for its logging. Slf4j integrates with all of the 
+popular logging libraries (Logback, log4j, &hellip;). You can find
+documentation for slf4j at <https://www.slf4j.org/manual.html>
 
 ## Road Map
 This is a list of planned future features, in no particular order:
