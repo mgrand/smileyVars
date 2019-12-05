@@ -227,8 +227,11 @@ method. The apply method returns the expanded template body.
 
 ### Integration with `PreparedStatement`
 SmileyVars can also be used with `PreparedStatement` objects. This
-integration uses a class named `SmileyVarsPreparedStatement`. Here is an
-example of how to use `SmileyVarsPreparedStatement`:
+integration uses a class named `SmileyVarsPreparedStatement`. 
+
+The methods of the `SmileyVarsPreparedStatement` class are similar to
+the `PreparedStatement` class. Here is an example of how to use
+`SmileyVarsPreparedStatement`:
 
 ```java
         try (SmileyVarsPreparedStatement svps
@@ -240,6 +243,10 @@ example of how to use `SmileyVarsPreparedStatement`:
             ...
         }
 ```
+
+To create a `SmileyVarsPreparedStatement` object, you pass in the
+connection it will use and a string that will be used as a SmileyVars
+template.
 
 ### Logging
 
