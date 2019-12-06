@@ -246,7 +246,13 @@ the `PreparedStatement` class. Here is an example of how to use
 
 To create a `SmileyVarsPreparedStatement` object, you pass in the
 connection it will use and a string that will be used as a SmileyVars
-template.
+template. To set the values of the SmileyVars, you call "set" methods
+similar to those in the `PreparedStatement` class. However, these
+methods identify the name value you are providing rather with a name
+rather than an index number. The methods for executing queries are the
+same.
+
+There
 
 ### Logging
 
