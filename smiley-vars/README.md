@@ -252,7 +252,18 @@ methods identify the name value you are providing rather with a name
 rather than an index number. The methods for executing queries are the
 same.
 
-There
+There is another way that using `SmileyVarsPreparedStatement` is
+different than `PreparedStatement`. Most of the exceptions that would be
+thrown when you call a set method on a `PreparedStatement` object are
+not thrown at that time. Instead, they may be thrown at the time you
+make to one of the execute methods.
+
+The reason for this is `SmileyVarsPreparedStatement` uses
+`PreparedStatement` objects to execute queries. However it does not know
+what `PreparedStatement` it needs until there is the execute method is
+called. For that reason, all of the values that need to be set for the
+`PreparedStatement` object are set just before its execute statement is
+called.
 
 ### Logging
 
@@ -263,17 +274,13 @@ documentation for slf4j at <https://www.slf4j.org/manual.html>
 ## Road Map
 This is a list of planned future features, in no particular order:
 * Support dollar quoted literals for H2
-* Spring Integration
 * Support for nested smileyVars brackets.
 * Built-in support for additional data types:
-  * BitSet
   * TimeDuration
   * Time
   * Money
   * unique identifier/GUID 
-  * Arrays (PostgreSQL and Oracle)
 * Integration with Spring JdbcTemplate
-* Support for BLOBs.
 * Support for parsing national character set strings.
 * Support for parsing unicode string literals.
 
