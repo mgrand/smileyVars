@@ -1386,6 +1386,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * If the value specified is zero, then the hint is ignored. The default value is zero.
      *
      * @param rows the number of rows to fetch
+     * @return this prepared statement
      * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
      *                      or the condition {@code rows >= 0} is not satisfied.
      * @see #getFetchSize
