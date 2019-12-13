@@ -82,6 +82,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <reportOutputDirectory>${project.basedir}/../documentation</reportOutputDirectory>
                     <excludePackageNames>com.markgrand.smileyvars.util</excludePackageNames>
                 </configuration>
             </plugin>
@@ -146,6 +147,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven.javadoc.version}</version>
                 <configuration>
+                    <destDir>${project.basedir}/documentation/javadoc</destDir>
                 </configuration>
             </plugin>
         </plugins>
