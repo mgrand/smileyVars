@@ -27,7 +27,7 @@ class SmileyVarsPreparedStatementTest {
         mockConnection.setMetaData(new MockDatabaseMetaData());
         h2Connection = DriverManager.getConnection("jdbc:h2:mem:test", "sa", "");
         Statement stmt = h2Connection.createStatement();
-        stmt.execute("CREATE TABLE IF NOT EXISTS SQUARE (X INT PRIMARY KEY, Y INT)");
+        stmt.execute("CREATE TABLE IF NOT EXISTS SQUARE (X INT PRIMARY KEY, Y INT, COMNT VARCHAR(400))");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (-3,9);");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (-2,4);");
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (1,1);");
@@ -987,6 +987,34 @@ class SmileyVarsPreparedStatementTest {
                      = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setLargeMaxRows(1234567890L);
             assertEquals(1234567890L, svps.getLargeMaxRows());
+        }
+    }
+
+    @Test
+    void simpleUpdate() throws Exception {
+        try (Statement stmt = h2Connection.createStatement()) {
+            assertEquals(1, stmt.executeUpdate("INSERT INTO SQUARE (X,Y) VALUES (5,25)"));
+            h2Connection.commit();
+            try (SmileyVarsPreparedStatement svps
+                         = new SmileyVarsPreparedStatement(h2Connection, "UPDATE SQUARE SET x=-5 (:, COMNT=:comment :) where y = 25")) {
+                svps.executeUpdate();
+                try (ResultSet rs = stmt.executeQuery("SELECT x,y,comnt from SQUARE where y=25")) {
+                    assertTrue(rs.next());
+                    assertEquals(-5, rs.getInt("x"));
+                    assertEquals(25, rs.getInt("y"));
+                    assertNull(rs.getString("comnt"));
+                    assertFalse(rs.next());
+                }
+                svps.setString("comment", "qwerty");
+                svps.executeUpdate();
+                try (ResultSet rs = stmt.executeQuery("SELECT x,y,comnt from SQUARE where y=25")) {
+                    assertTrue(rs.next());
+                    assertEquals(-5, rs.getInt("x"));
+                    assertEquals(25, rs.getInt("y"));
+                    assertEquals("qwerty", rs.getString("comnt"));
+                    assertFalse(rs.next());
+                }
+            }
         }
     }
 }
