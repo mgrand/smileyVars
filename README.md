@@ -260,7 +260,6 @@ the `PreparedStatement` class. Here is an example of how to use
             svps.setInt("x", 3);
             svps.setInt("y", 9);
             ResultSet rs = svps.executeQuery();
-            rs = svps.getResultSet();
             ...
         }
 ```
@@ -285,6 +284,18 @@ what `PreparedStatement` it needs until there is the execute method is
 called. For that reason, all of the values that need to be set for the
 `PreparedStatement` object are set just before its execute statement is
 called.
+
+You can use a fluent coding style to configure a
+`SmileyVarsPreparedStatement`. Because all of its set methods return the
+`SmileyVarsPreparedStatement` object, you can write the above example
+more concisely like this:
+```java
+        try (SmileyVarsPreparedStatement svps
+                 = new SmileyVarsPreparedStatement(h2Connection, "SELECT * FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+            ResultSet rs = svps.setInt("x", 3).setInt("y", 9).executeQuery();
+            ...
+        }
+```
 
 ### Logging
 
