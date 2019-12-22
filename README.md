@@ -89,6 +89,25 @@ If a template contains more than one `:variable` between `(:` brackets
 template&#x2bc;s expansion only if values are supplied for all of the
 `:variable`s.
 
+SmileyVars is also useful for making `UPDATE`s more flexible. For
+example, if we want to update what is in a partular location, we could
+write
+
+```SQL
+UPDATE bin_tbl SET level=level (:, item_number=:item_number :)(:, quantity=:quantity :)
+WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number
+```
+
+This template requires that `aisle`, `level` and `bin_number` have
+values because they are not inside of (: :) brackets. This allows `item`
+or `quantity` to have values or not. If `item` or `quantity` does not
+have a value, it will not be updated.
+
+The `level=level` is included in the `UPDATE` for the same reason we
+include `1=1` in `WHERE` clauses. It does not change the effect of the
+command, but it does allow what follows it to be ommited by SmileyVars
+without causing any syntax errors.
+
 <!--
 In some cases there may be a concern about amount of data being transported from the database. In such cases you may 
 prefer to only include columns in the `SELECT` list that are not constrained to a single value in the `WHERE` clause.s
