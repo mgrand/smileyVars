@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,9 +70,19 @@ class SmileyVarsJdbcTemplateTest {
 
     @Test
     void withSmileyVarsPreparedStatement() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        assertEquals(9, (int)svjt.withSmileyVarsPreparedStatement("SELECT Y from SQUARE WHERE x = :x",     svps -> {
+            try (ResultSet rs = svps.setInt("x", 3).executeQuery()) {
+                assertTrue(rs.next());
+                return rs.getInt("y");
+            }
+        }));
     }
 
     @Test
     void withSmileyVarsPreparedStatementNoDatasource() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate();
+        assertThrows(IllegalStateException.class,
+                ()-> svjt.withSmileyVarsPreparedStatement("SELECT Y from SQUARE WHERE x = :x", svps -> 9));
     }
 }
