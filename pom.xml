@@ -20,9 +20,18 @@
             <version>17.0.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- JUnit 5 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <properties>
+        <junit.version>5.5.2</junit.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.javadoc.version>3.1.1</maven.javadoc.version>

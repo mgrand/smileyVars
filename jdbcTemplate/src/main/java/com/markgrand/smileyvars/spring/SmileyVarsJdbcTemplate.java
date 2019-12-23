@@ -1,20 +1,26 @@
 package com.markgrand.smileyvars.spring;
 
-import com.markgrand.smileyvars.DatabaseType;
+import com.markgrand.smileyvars.SmileyVarsPreparedStatement;
+import com.markgrand.smileyvars.util.SqlConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is an extension of {@linkplain JdbcTemplate} that supports SmileyVars Templates.
@@ -27,96 +33,72 @@ import java.util.*;
 public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(SmileyVarsJdbcTemplate.class);
 
-    private Optional<DatabaseType> dbType = Optional.empty();
-
+    /**
+     * Construct a new JdbcTemplate for bean usage.
+     * <p>Note: The DataSource has to be set before using the instance.
+     * @see #setDataSource
+     */
     public SmileyVarsJdbcTemplate() {
         super();
     }
 
+    /**
+     * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
+     * <p>Note: This will not trigger initialization of the exception translator.
+     * @param dataSource the JDBC DataSource to obtain connections from
+     */
     public SmileyVarsJdbcTemplate(@NotNull DataSource dataSource) {
         super(dataSource);
-        inferDbType(dataSource);
     }
 
-    private void inferDbType(@NotNull DataSource dataSource) {
-        try (Connection conn = dataSource.getConnection()) {
-            inferDbType(conn.getMetaData());
+    /**
+     * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
+     * <p>Note: Depending on the "lazyInit" flag, initialization of the exception translator
+     * will be triggered.
+     * @param dataSource the JDBC DataSource to obtain connections from
+     * @param lazyInit whether to lazily initialize the SQLExceptionTranslator
+     */
+    public SmileyVarsJdbcTemplate(DataSource dataSource, boolean lazyInit) {
+        super(dataSource, lazyInit);
+    }
+
+    public void withSmileyVarsPreparedStatement(String sql, SqlConsumer<SmileyVarsPreparedStatement> svpsConsumer) {
+        Connection conn = DataSourceUtils.getConnection(obtainDataSource());
+        try {
+            try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql)) {
+                svpsConsumer.accept(svps);
+            }
         } catch (SQLException e) {
-            logger.debug("Error inferring database type from connection", e);
+            throw translateException("WithSmileyVarsPreparedStatement", sql, e);
+        } finally {
+            DataSourceUtils.releaseConnection(conn, getDataSource());
+            conn=null;
         }
     }
 
-    private void inferDbType(@NotNull DatabaseMetaData databaseMetaData) {
-        dbType = Optional.of(DatabaseType.inferDatabaseType(databaseMetaData));
-    }
-
-    public SmileyVarsJdbcTemplate(DataSource dataSource, boolean lazyInit) {
-        super(dataSource, lazyInit);
-        inferDbType(dataSource);
-    }
-
-    @Override
-    public void execute(String sql) throws DataAccessException {
-        super.execute(sql);
-    }
-
-    @Override
-    public <T> T query(@NotNull String sql, @NotNull ResultSetExtractor<T> rse) throws DataAccessException {
-        return super.query(sql, rse);
-    }
-
-    @Override
-    public void query(String sql, RowCallbackHandler rch) throws DataAccessException {
-        super.query(sql, rch);
-    }
-
-    @Override
-    public <T> List<T> query(String sql, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
-        return super.query(sql, rowMapper);
-    }
-
-    @Override
-    public Map<String, Object> queryForMap(String sql) throws DataAccessException {
-        return super.queryForMap(sql);
-    }
-
-    @Override
-    public <T> T queryForObject(String sql, RowMapper<T> rowMapper) throws DataAccessException {
-        return super.queryForObject(sql, rowMapper);
-    }
-
-    @Override
-    public <T> T queryForObject(String sql, Class<T> requiredType) throws DataAccessException {
-        return super.queryForObject(sql, requiredType);
-    }
-
-    @Override
-    public <T> List<T> queryForList(String sql, Class<T> elementType) throws DataAccessException {
-        return super.queryForList(sql, elementType);
-    }
-
-    @Override
-    public List<Map<String, Object>> queryForList(String sql) throws DataAccessException {
-        return super.queryForList(sql);
-    }
-
-    @Override
-    public SqlRowSet queryForRowSet(String sql) throws DataAccessException {
-        return super.queryForRowSet(sql);
-    }
-
-    @Override
-    public int update(@NotNull String sql) throws DataAccessException {
-        return super.update(sql);
-    }
-
-    @Override
-    public int[] batchUpdate(String... sql) throws DataAccessException {
-        return super.batchUpdate(sql);
-    }
-
-    @Override
-    public <T> T execute(@NotNull PreparedStatementCreator psc, @NotNull PreparedStatementCallback<T> action) throws DataAccessException {
+    /**
+     * Execute a JDBC data access operation, implemented as callback action
+     * working on a JDBC PreparedStatement.
+     * <p>This allows for implementing arbitrary
+     * data access operations on a single Statement, within Spring's managed JDBC
+     * environment: that is, participating in Spring-managed transactions and
+     * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.</p>
+     * <p>The callback action can return a result object, for example a domain
+     * object or a collection of domain objects.</p>
+     * @param svps a {@link SmileyVarsPreparedStatement} that creates a PreparedStatement given a Connection
+     * @param action a callback that specifies the action
+     * @return a result object returned by the action, or {@code null} if none
+     * @throws DataAccessException if there is any problem
+     */
+    public <T> T execute(@NotNull SmileyVarsPreparedStatement svps, @NotNull PreparedStatementCallback<T> action) throws DataAccessException {
+        Assert.notNull(svps, "SmileyVarsPreparedStatement must not be null");
+        Assert.notNull(action, "Callback object must not be null");
+        PreparedStatementCreator psc = new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                return svps.getPreparedStatement();
+            }
+        };
         return super.execute(psc, action);
     }
 
@@ -365,20 +347,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return super.newArgTypePreparedStatementSetter(args, argTypes);
     }
 
-    @Override
-    public void setDataSource(DataSource dataSource) {
-        super.setDataSource(dataSource);
-        inferDbType(dataSource);
-    }
-
-    @Override
-    public void setDatabaseProductName(String databaseProductName) {
-        super.setDatabaseProductName(databaseProductName);
-        MockDatabaseMetadata mockDatabaseMetadata = new MockDatabaseMetadata();
-        mockDatabaseMetadata.setDatabaseProductName(databaseProductName);
-        inferDbType(mockDatabaseMetadata);
-    }
-
     /**
      * Returns a hash code value for the object. This method is supported for the benefit of hash tables such as those
      * provided by {@link HashMap}.
@@ -422,6 +390,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      */
     @Override
     public String toString() {
-        return "SmileyVarsJdbcTemplate[databaseType: " + dbType + "; " + super.toString() + "]";
+        return "SmileyVarsJdbcTemplate[DataSource: " + getDataSource() + "; " + super.toString() + "]";
     }
 }
