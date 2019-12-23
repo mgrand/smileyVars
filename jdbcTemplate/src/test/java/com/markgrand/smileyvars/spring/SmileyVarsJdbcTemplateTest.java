@@ -43,12 +43,28 @@ class SmileyVarsJdbcTemplateTest {
         assertNull(svjt.getDataSource());
         svjt.setDataSource(mockDataSource);
         assertEquals(mockDataSource, svjt.getDataSource());
+        assertTrue(svjt.isLazyInit());
     }
 
     @Test
     void constructorDataSource() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         assertEquals(mockDataSource, svjt.getDataSource());
+        assertTrue(svjt.isLazyInit());
+    }
+
+    @Test
+    void constructorDataSourceLazy() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource, true);
+        assertEquals(mockDataSource, svjt.getDataSource());
+        assertTrue(svjt.isLazyInit());
+    }
+
+    @Test
+    void constructorDataSourceNotLazy() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource, false);
+        assertEquals(mockDataSource, svjt.getDataSource());
+        assertFalse(svjt.isLazyInit());
     }
 
     @Test
