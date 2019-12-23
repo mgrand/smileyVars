@@ -36,6 +36,7 @@ class SmileyVarsPreparedStatementTest {
         stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (4,16);");
         h2Connection.commit();
         stmt.close();
+        new MockDataSource();
     }
 
     @AfterEach
