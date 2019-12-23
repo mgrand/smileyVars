@@ -1,7 +1,7 @@
 package com.markgrand.smileyvars.spring;
 
 import com.markgrand.smileyvars.SmileyVarsPreparedStatement;
-import com.markgrand.smileyvars.util.SqlConsumer;
+import com.markgrand.smileyvars.util.SqlFunction;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,6 @@ import org.springframework.util.Assert;
 import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,6 +37,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * <p>Note: The DataSource has to be set before using the instance.
      * @see #setDataSource
      */
+    @SuppressWarnings("WeakerAccess")
     public SmileyVarsJdbcTemplate() {
         super();
     }
@@ -47,6 +47,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * <p>Note: This will not trigger initialization of the exception translator.
      * @param dataSource the JDBC DataSource to obtain connections from
      */
+    @SuppressWarnings("WeakerAccess")
     public SmileyVarsJdbcTemplate(@NotNull DataSource dataSource) {
         super(dataSource);
     }
@@ -58,21 +59,23 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param dataSource the JDBC DataSource to obtain connections from
      * @param lazyInit whether to lazily initialize the SQLExceptionTranslator
      */
+    @SuppressWarnings("WeakerAccess")
     public SmileyVarsJdbcTemplate(DataSource dataSource, boolean lazyInit) {
         super(dataSource, lazyInit);
     }
 
-    public void withSmileyVarsPreparedStatement(String sql, SqlConsumer<SmileyVarsPreparedStatement> svpsConsumer) {
+    @SuppressWarnings("unused")
+    public <T> T withSmileyVarsPreparedStatement(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
         Connection conn = DataSourceUtils.getConnection(obtainDataSource());
         try {
+            logger.debug("Creating SmileyVarsPreparedStatement from sql: {}", sql);
             try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql)) {
-                svpsConsumer.accept(svps);
+                return svpsConsumer.apply(svps);
             }
         } catch (SQLException e) {
             throw translateException("WithSmileyVarsPreparedStatement", sql, e);
         } finally {
             DataSourceUtils.releaseConnection(conn, getDataSource());
-            conn=null;
         }
     }
 
@@ -93,13 +96,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     public <T> T execute(@NotNull SmileyVarsPreparedStatement svps, @NotNull PreparedStatementCallback<T> action) throws DataAccessException {
         Assert.notNull(svps, "SmileyVarsPreparedStatement must not be null");
         Assert.notNull(action, "Callback object must not be null");
-        PreparedStatementCreator psc = new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                return svps.getPreparedStatement();
-            }
-        };
-        return super.execute(psc, action);
+        return super.execute(con -> svps.getPreparedStatement(), action);
     }
 
     @Override
