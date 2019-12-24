@@ -1,6 +1,7 @@
 package com.markgrand.smileyvars.spring;
 
 import com.markgrand.smileyvars.SmileyVarsPreparedStatement;
+import com.markgrand.smileyvars.util.SqlConsumer;
 import com.markgrand.smileyvars.util.SqlFunction;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -64,6 +65,23 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         super(dataSource, lazyInit);
     }
 
+    /**
+     * Create a {@link SmileyVarsPreparedStatement} fron the given SQL and pass it to the given function. Here is a
+     * usage example:
+     * <pre>
+     * int s = svjt.withSmileyVarsPreparedStatement("SELECT Y from SQUARE WHERE x = :x", svps -> {
+     *     try (ResultSet rs = svps.setInt("x", 3).executeQuery()) {
+     *         assertTrue(rs.next());
+     *         return rs.getInt("y");
+     *     }
+     * });
+     * </pre>
+     *
+     * @param sql The sql to be used as a SmileyVars template.
+     * @param svpsConsumer The consumer function that the
+     * @param <T> The the of value to be returned.
+     * @return the value that is returned by the given function.
+     */
     @SuppressWarnings("unused")
     public <T> T withSmileyVarsPreparedStatement(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
         Connection conn = DataSourceUtils.getConnection(obtainDataSource());
@@ -79,54 +97,22 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         }
     }
 
+
     /**
-     * Execute a JDBC data access operation, implemented as callback action
-     * working on a JDBC PreparedStatement.
-     * <p>This allows for implementing arbitrary
-     * data access operations on a single Statement, within Spring's managed JDBC
-     * environment: that is, participating in Spring-managed transactions and
-     * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.</p>
-     * <p>The callback action can return a result object, for example a domain
-     * object or a collection of domain objects.</p>
-     * @param svps a {@link SmileyVarsPreparedStatement} that creates a PreparedStatement given a Connection
-     * @param action a callback that specifies the action
-     * @return a result object returned by the action, or {@code null} if none
+     * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql.
+     *
+     * @param sql The SQL to use for the SmileyVars template.
+     * @param setter a consumer function that sets the values of variables in the SmileVars template.
+     * @param rse a callback that will extract results
+     * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
      */
-    public <T> T execute(@NotNull SmileyVarsPreparedStatement svps, @NotNull PreparedStatementCallback<T> action) throws DataAccessException {
-        Assert.notNull(svps, "SmileyVarsPreparedStatement must not be null");
-        Assert.notNull(action, "Callback object must not be null");
-        return super.execute(con -> svps.getPreparedStatement(), action);
-    }
-
-    @Override
-    public <T> T execute(@NotNull String sql, PreparedStatementCallback<T> action) throws DataAccessException {
-        return super.execute(sql, action);
-    }
-
-    @Override
-    public <T> T query(PreparedStatementCreator psc, PreparedStatementSetter pss, @NotNull ResultSetExtractor<T> rse) throws DataAccessException {
-        return super.query(psc, pss, rse);
-    }
-
-    @Override
-    public <T> T query(PreparedStatementCreator psc, ResultSetExtractor<T> rse) throws DataAccessException {
-        return super.query(psc, rse);
-    }
-
-    @Override
-    public <T> T query(@NotNull String sql, PreparedStatementSetter pss, ResultSetExtractor<T> rse) throws DataAccessException {
-        return super.query(sql, pss, rse);
-    }
-
-    @Override
-    public <T> T query(String sql, Object[] args, int[] argTypes, ResultSetExtractor<T> rse) throws DataAccessException {
-        return super.query(sql, args, argTypes, rse);
-    }
-
-    @Override
-    public <T> T query(String sql, Object[] args, ResultSetExtractor<T> rse) throws DataAccessException {
-        return super.query(sql, args, rse);
+    public <T> T query(@NotNull String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, ResultSetExtractor<T> rse) throws DataAccessException {
+        return withSmileyVarsPreparedStatement(sql, svps-> {
+            setter.accept(svps);
+            return rse.extractData(svps.executeQuery());
+        });
     }
 
     @Override

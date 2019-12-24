@@ -71,7 +71,7 @@ class SmileyVarsJdbcTemplateTest {
     @Test
     void withSmileyVarsPreparedStatement() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
-        assertEquals(9, (int)svjt.withSmileyVarsPreparedStatement("SELECT Y from SQUARE WHERE x = :x",     svps -> {
+        assertEquals(9, (int)svjt.withSmileyVarsPreparedStatement("SELECT Y from SQUARE WHERE x = :x", svps -> {
             try (ResultSet rs = svps.setInt("x", 3).executeQuery()) {
                 assertTrue(rs.next());
                 return rs.getInt("y");
