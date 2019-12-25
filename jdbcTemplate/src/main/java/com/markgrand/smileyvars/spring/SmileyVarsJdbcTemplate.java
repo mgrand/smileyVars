@@ -1,6 +1,8 @@
 package com.markgrand.smileyvars.spring;
 
+import com.markgrand.smileyvars.DatabaseType;
 import com.markgrand.smileyvars.SmileyVarsPreparedStatement;
+import com.markgrand.smileyvars.SmileyVarsTemplate;
 import com.markgrand.smileyvars.util.SqlConsumer;
 import com.markgrand.smileyvars.util.SqlFunction;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +13,6 @@ import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
 import java.sql.CallableStatement;
@@ -35,6 +36,8 @@ import java.util.Map;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(SmileyVarsJdbcTemplate.class);
+
+    private DatabaseType databaseType;
 
     /**
      * Construct a new JdbcTemplate for bean usage.
@@ -71,6 +74,20 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         super(dataSource, lazyInit);
     }
 
+    @Override
+    public void setDataSource(DataSource dataSource) {
+        super.setDataSource(dataSource);
+        Connection conn = DataSourceUtils.getConnection(obtainDataSource());
+        try {
+            databaseType = DatabaseType.inferDatabaseType(conn.getMetaData());
+            logger.debug("DatabaseType is {}", databaseType);
+        } catch (SQLException e) {
+            throw translateException("getMetaData", null, e);
+        } finally {
+            DataSourceUtils.releaseConnection(conn, getDataSource());
+        }
+    }
+
     /**
      * Create a {@link SmileyVarsPreparedStatement} fron the given SQL and pass it to the given function. Here is a
      * usage example:
@@ -89,7 +106,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the value that is returned by the given function.
      */
     @SuppressWarnings("unused")
-    public <T> T withSmileyVarsPreparedStatement(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
+    public <T> T execute(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
         Connection conn = DataSourceUtils.getConnection(obtainDataSource());
         try {
             logger.debug("Creating SmileyVarsPreparedStatement from sql: {}", sql);
@@ -115,15 +132,26 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException if there is any problem
      */
     public <T> T query(@NotNull String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, ResultSetExtractor<T> rse) throws DataAccessException {
-        return withSmileyVarsPreparedStatement(sql, svps -> {
+        return execute(sql, (SmileyVarsPreparedStatement svps) -> {
             setter.accept(svps);
             return rse.extractData(svps.executeQuery());
         });
     }
 
-    @Override
-    public <T> T query(String sql, ResultSetExtractor<T> rse, Object... args) throws DataAccessException {
-        return super.query(sql, rse, args);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
+     * expanded SQL as a {@code Statement}. Take the ResultSet that is produced and use the given {@link
+     * ResultSetExtractor} to produce the value that will be returned by this method.
+     *
+     * @param sql The string to use as the SmileyVars template body.
+     * @param rse The {@link ResultSetExtractor} to use for extracting a result from the query's result set.
+     * @param values The values to use for the variables in the template body.
+     * @param <T> The type of value to be returned.
+     * @return the value produced by the {@link ResultSetExtractor}.
+     * @throws DataAccessException if there is a problem.
+     */
+    public <T> T query(String sql, ResultSetExtractor<T> rse, Map<String, ?> values) throws DataAccessException {
+        return super.query(SmileyVarsTemplate.template(databaseType, sql).apply(values), rse);
     }
 
     @Override
