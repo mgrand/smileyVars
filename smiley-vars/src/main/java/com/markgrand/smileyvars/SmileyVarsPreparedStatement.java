@@ -1695,7 +1695,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         int[] paramIndex = {1};
         template.forEachVariableInstance(name -> {
             if (signature.get(sigIndex[0])) {
-                valueMap.get(name).accept(preparedStatement, paramIndex[0]);
+                try {
+                    valueMap.get(name).accept(preparedStatement, paramIndex[0]);
+                } catch (SQLException e) {
+                    throw new SQLException("Error getting value for smileyVar named " + name, e);
+                }
                 paramIndex[0] += 1;
             }
             sigIndex[0] += 1;
