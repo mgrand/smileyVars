@@ -41,6 +41,8 @@ public class SmileyVarsTemplate {
     private final String sql;
     private final ValueFormatterRegistry formatterRegistry;
 
+    private SortedSet<String> varNames;
+
     /**
      * Constructor for internal use.
      *
@@ -364,18 +366,23 @@ public class SmileyVarsTemplate {
         }
     }
 
+
+
     /**
      * Get the names of the variables in this SmileyVars template.
      *
-     * @return the name of the variables as a Set. Each call to this method will return a new Set object.
+     * @return the names of the variables as an immutable sorted Set.
      */
     @SuppressWarnings("WeakerAccess")
-    public Set<String> getVarNames() {
-        final Set<String> varNames = new HashSet<>();
-        try {
-            forEachVariableInstance(varNames::add);
-        } catch (SQLException e) {
-            throw new SmileyVarsSqlException("Unexpected SQLException from adding a variable name to a set.", e);
+    public SortedSet<String> getVarNames() {
+        if (varNames == null) {
+            final SortedSet<String> varNameSet = new TreeSet<>();
+            try {
+                forEachVariableInstance(varNameSet::add);
+            } catch (SQLException e) {
+                throw new SmileyVarsSqlException("Unexpected SQLException from adding a variable name to a set.", e);
+            }
+            varNames = Collections.unmodifiableSortedSet(varNameSet);
         }
         return varNames;
     }
