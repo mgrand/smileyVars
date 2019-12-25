@@ -2,8 +2,8 @@
 *A template engine for SQL*
 
 SmileyVars is a lightweight java-based template engine for SQL. It helps
-you avoid having to write similar SQL many times because simple
-variations are needed.
+you avoid writing similar SQL many times because simple variations are
+needed.
 
 SmileyVars is being initially developed with an integration to Spring&#x2bc;s JdbcTemplate. Other integrations are possible.
 

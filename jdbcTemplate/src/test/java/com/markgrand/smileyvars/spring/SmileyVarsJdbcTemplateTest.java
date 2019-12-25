@@ -1,5 +1,6 @@
 package com.markgrand.smileyvars.spring;
 
+import com.markgrand.smileyvars.SmileyVarsPreparedStatement;
 import com.mockrunner.mock.jdbc.MockDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +21,17 @@ class SmileyVarsJdbcTemplateTest {
     void setUp() throws Exception {
         h2Connection = DriverManager.getConnection("jdbc:h2:mem:test", "sa", "");
         Statement stmt = h2Connection.createStatement();
-        stmt.execute("CREATE TABLE IF NOT EXISTS SQUARE (X INT PRIMARY KEY, Y INT, COMNT VARCHAR(400))");
-        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (-3,9);");
-        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (-2,4);");
-        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (1,1);");
-        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (2,4);");
-        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (3,9);");
-        stmt.execute("INSERT INTO SQUARE (X,Y) VALUES (4,16);");
+        stmt.execute("CREATE TABLE IF NOT EXISTS inventory ("
+                             + "aisle INT,"
+                             + "level INT,"
+                             + "bin_number INT,"
+                             + "item_number VARCHAR(100),"
+                             + "quantity INT,"
+                             + "CONSTRAINT inventory_pk PRIMARY KEY (aisle, level, bin_number)"
+                             + ")");
+        stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 7, 'M234', 22);");
+        stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 8, 'M8473', 31);");
+        stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 9, 'M8479', 18);");
         h2Connection.commit();
         stmt.close();
         mockDataSource = new MockDataSource();
@@ -71,18 +76,19 @@ class SmileyVarsJdbcTemplateTest {
     @Test
     void withSmileyVarsPreparedStatement() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
-        assertEquals(9, (int)svjt.execute("SELECT Y from SQUARE WHERE x = :x", svps -> {
-            try (ResultSet rs = svps.setInt("x", 3).executeQuery()) {
-                assertTrue(rs.next());
-                return rs.getInt("y");
-            }
-        }));
+        assertEquals(22, (int) svjt.withSmileyVars("SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level AND bin_number = :bin_number",
+                svps -> {
+                    try (ResultSet rs = svps.setInt("aisle", 4).setInt("level", 1). setInt("bin_number", 7).executeQuery()) {
+                        assertTrue(rs.next());
+                        return rs.getInt("quantity");
+                    }
+                }));
     }
 
     @Test
     void withSmileyVarsPreparedStatementNoDatasource() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate();
         assertThrows(IllegalStateException.class,
-                ()-> svjt.execute("SELECT Y from SQUARE WHERE x = :x", svps -> 9));
+                () -> svjt.withSmileyVars("SELECT Y from SQUARE WHERE x = :x", (SmileyVarsPreparedStatement svps) -> 9));
     }
 }

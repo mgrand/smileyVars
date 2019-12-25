@@ -77,7 +77,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     @Override
     public void setDataSource(DataSource dataSource) {
         super.setDataSource(dataSource);
-        Connection conn = DataSourceUtils.getConnection(obtainDataSource());
+        Connection conn = createConnectionProxy(DataSourceUtils.getConnection(obtainDataSource()));
         try {
             databaseType = DatabaseType.inferDatabaseType(conn.getMetaData());
             logger.debug("DatabaseType is {}", databaseType);
@@ -92,12 +92,13 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * Create a {@link SmileyVarsPreparedStatement} fron the given SQL and pass it to the given function. Here is a
      * usage example:
      * <pre>
-     * int s = svjt.withSmileyVarsPreparedStatement("SELECT Y from SQUARE WHERE x = :x", svps -> {
-     *     try (ResultSet rs = svps.setInt("x", 3).executeQuery()) {
-     *         assertTrue(rs.next());
-     *         return rs.getInt("y");
-     *     }
-     * });
+     * int quantity
+     *    = svjt.withSmileyVars("SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level AND bin_number = :bin_number",
+     *         svps -> {
+     *             try (ResultSet rs = svps.setInt("aisle", 4).setInt("level", 1). setInt("bin_number", 7).executeQuery()) {
+     *                 return rs.getInt("quantity");
+     *             }
+     *         }));
      * </pre>
      *
      * @param sql          The sql to be used as a SmileyVars template.
@@ -106,7 +107,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the value that is returned by the given function.
      */
     @SuppressWarnings("unused")
-    public <T> T execute(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
+    public <T> T withSmileyVars(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
         Connection conn = DataSourceUtils.getConnection(obtainDataSource());
         try {
             logger.debug("Creating SmileyVarsPreparedStatement from sql: {}", sql);
@@ -132,7 +133,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException if there is any problem
      */
     public <T> T query(@NotNull String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, ResultSetExtractor<T> rse) throws DataAccessException {
-        return execute(sql, (SmileyVarsPreparedStatement svps) -> {
+        return withSmileyVars(sql, (SmileyVarsPreparedStatement svps) -> {
             setter.accept(svps);
             return rse.extractData(svps.executeQuery());
         });
@@ -143,10 +144,10 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * expanded SQL as a {@code Statement}. Take the ResultSet that is produced and use the given {@link
      * ResultSetExtractor} to produce the value that will be returned by this method.
      *
-     * @param sql The string to use as the SmileyVars template body.
-     * @param rse The {@link ResultSetExtractor} to use for extracting a result from the query's result set.
+     * @param sql    The string to use as the SmileyVars template body.
+     * @param rse    The {@link ResultSetExtractor} to use for extracting a result from the query's result set.
      * @param values The values to use for the variables in the template body.
-     * @param <T> The type of value to be returned.
+     * @param <T>    The type of value to be returned.
      * @return the value produced by the {@link ResultSetExtractor}.
      * @throws DataAccessException if there is a problem.
      */
