@@ -107,7 +107,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the value that is returned by the given function.
      */
     @SuppressWarnings("unused")
-    public <T> T withSmileyVars(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
+    public <T> T executeSmileyVars(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
         Connection conn = DataSourceUtils.getConnection(obtainDataSource());
         try {
             logger.debug("Creating SmileyVarsPreparedStatement from sql: {}", sql);
@@ -132,8 +132,8 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
      */
-    public <T> T query(@NotNull String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, ResultSetExtractor<T> rse) throws DataAccessException {
-        return withSmileyVars(sql, (SmileyVarsPreparedStatement svps) -> {
+    public <T> T querySmileyVars(@NotNull String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, ResultSetExtractor<T> rse) throws DataAccessException {
+        return executeSmileyVars(sql, (SmileyVarsPreparedStatement svps) -> {
             setter.accept(svps);
             return rse.extractData(svps.executeQuery());
         });

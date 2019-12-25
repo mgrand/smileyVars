@@ -52,7 +52,7 @@ import java.util.*;
  * @author Mark Grand
  * @see SmileyVarsTemplate
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 public class SmileyVarsPreparedStatement implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(SmileyVarsPreparedStatement.class);
 
@@ -62,7 +62,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     /**
      * Map SmileyVar names to BiSqlConsumer objects that set a value of a parameter in a PreparedStatement object.
      */
-    private final LinkedHashMap<String, BiSqlConsumer<PreparedStatement, Integer>> valueMap = new LinkedHashMap<>();
+    private final SortedMap<String, BiSqlConsumer<PreparedStatement, Integer>> valueMap = new TreeMap<>();
 
     /**
      * PreparedStatement objects are collected in this map so they can be reused. The goal of the reuse is to use the
@@ -1691,18 +1691,17 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     private void updatePreparedStatementParams(PreparedStatement preparedStatement, BitSet signature) throws SQLException {
-        int[] sigIndex = {0};
         int[] paramIndex = {1};
         template.forEachVariableInstance(name -> {
-            if (signature.get(sigIndex[0])) {
+            BiSqlConsumer<PreparedStatement, Integer> setter = valueMap.get(name);
+            if (!setter.isVacuous()) {
                 try {
-                    valueMap.get(name).accept(preparedStatement, paramIndex[0]);
+                    setter.accept(preparedStatement, paramIndex[0]);
                 } catch (SQLException e) {
                     throw new SQLException("Error getting value for smileyVar named " + name, e);
                 }
                 paramIndex[0] += 1;
             }
-            sigIndex[0] += 1;
         });
     }
 

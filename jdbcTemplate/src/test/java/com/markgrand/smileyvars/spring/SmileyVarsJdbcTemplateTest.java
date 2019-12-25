@@ -5,15 +5,28 @@ import com.mockrunner.mock.jdbc.MockDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SmileyVarsJdbcTemplateTest {
+    private static ResultSetExtractor<List<Inventory>> rse = new ResultSetExtractor<List<Inventory>>() {
+        @Override
+        public List<Inventory> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            List<Inventory> inventoryList = new ArrayList<>();
+            while (rs.next()) {
+                inventoryList.add(new Inventory(rs.getInt("aisle"), rs.getInt("level"), rs.getInt("bin_number"), rs.getInt("quantity"), rs.getString("item_number")));
+            }
+            return inventoryList;
+        }
+    };
+
     private Connection h2Connection;
     private MockDataSource mockDataSource;
 
@@ -32,6 +45,7 @@ class SmileyVarsJdbcTemplateTest {
         stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 7, 'M234', 22);");
         stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 8, 'M8473', 31);");
         stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 9, 'M8479', 18);");
+        stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 2, 3, 'M255X', 18);");
         h2Connection.commit();
         stmt.close();
         mockDataSource = new MockDataSource();
@@ -76,7 +90,7 @@ class SmileyVarsJdbcTemplateTest {
     @Test
     void withSmileyVarsPreparedStatement() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
-        assertEquals(22, (int) svjt.withSmileyVars("SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level AND bin_number = :bin_number",
+        assertEquals(22, (int) svjt.executeSmileyVars("SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level AND bin_number = :bin_number",
                 svps -> {
                     try (ResultSet rs = svps.setInt("aisle", 4).setInt("level", 1). setInt("bin_number", 7).executeQuery()) {
                         assertTrue(rs.next());
@@ -89,6 +103,97 @@ class SmileyVarsJdbcTemplateTest {
     void withSmileyVarsPreparedStatementNoDatasource() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate();
         assertThrows(IllegalStateException.class,
-                () -> svjt.withSmileyVars("SELECT Y from SQUARE WHERE x = :x", (SmileyVarsPreparedStatement svps) -> 9));
+                () -> svjt.executeSmileyVars("SELECT SUM(quantity) quantity FROM inventory WHERE item_number = :item_number", (SmileyVarsPreparedStatement svps) -> 9));
+    }
+
+    @Test
+    void queryPreparedStatmentWithExtractor() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        List<Inventory> inventoryList = svjt.querySmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+                svps-> svps.setInt("aisle", 4).setInt("level", 1),
+                rse);
+        assertEquals(3, inventoryList.size());
+    }
+
+    private static class Inventory {
+        private Integer aisle, level, bin_number;
+        private Integer quantity;
+        private String itemNumber;
+
+        public Inventory(Integer aisle, Integer level, Integer bin_number, Integer quantity, String itemNumber) {
+            this.aisle = aisle;
+            this.level = level;
+            this.bin_number = bin_number;
+            this.quantity = quantity;
+            this.itemNumber = itemNumber;
+        }
+
+        public Integer getAisle() {
+            return aisle;
+        }
+
+        public void setAisle(Integer aisle) {
+            this.aisle = aisle;
+        }
+
+        public Integer getLevel() {
+            return level;
+        }
+
+        public void setLevel(Integer level) {
+            this.level = level;
+        }
+
+        public Integer getBin_number() {
+            return bin_number;
+        }
+
+        public void setBin_number(Integer bin_number) {
+            this.bin_number = bin_number;
+        }
+
+        public Integer getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(Integer quantity) {
+            this.quantity = quantity;
+        }
+
+        public String getItemNumber() {
+            return itemNumber;
+        }
+
+        public void setItemNumber(String itemNumber) {
+            this.itemNumber = itemNumber;
+        }
+
+        @Override
+        public String toString() {
+            return "Inventory{" +
+                           "aisle=" + aisle +
+                           ", level=" + level +
+                           ", bin_number=" + bin_number +
+                           ", quantity=" + quantity +
+                           ", itemNumber='" + itemNumber + '\'' +
+                           '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Inventory inventory = (Inventory) o;
+            return Objects.equals(aisle, inventory.aisle) &&
+                           Objects.equals(level, inventory.level) &&
+                           Objects.equals(bin_number, inventory.bin_number) &&
+                           Objects.equals(quantity, inventory.quantity) &&
+                           Objects.equals(itemNumber, inventory.itemNumber);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(aisle, level, bin_number, quantity, itemNumber);
+        }
     }
 }
