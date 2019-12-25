@@ -18,12 +18,14 @@ import java.util.*;
  * SmileyVars enabled version of a prepared statement. You create objects with a SmileyVars template, specify the values
  * of whichever parameters you want to specify and then run the query. It works internally by creating a {@code
  * PreparedStatement} object with the template expansion.
+ * <p>The SmileyVars template language is documented at
+ * <a href="https://mgrand.github.io/smileyVars/">https://mgrand.github.io/smileyVars/</a>.</p>
  * <p>
- * Since it does not know which parameters you will or won't specify for the template, it does not create the underlying
- * {@code PreparedStatement} object until you try to execute the query. This means that is any exceptions are going to
- * be thrown as a result of setting a parameter or some other attribute of a {@code PreparedStatement} object, they will
- * not be thrown when make a call to set the parameter or attribute, but rather when you execute the query or do
- * something else that requires the {@code PreparedStatement} to be created.
+ * Since {@code SmileyVarsPreparedStatement} does not know which parameters you will or won't specify for the template,
+ * it does not create the underlying {@code PreparedStatement} object until you try to execute the query. This means
+ * that is any exceptions are going to be thrown as a result of setting a parameter or some other attribute of a {@code
+ * PreparedStatement} object, they will not be thrown when make a call to set the parameter or attribute, but rather
+ * when you execute the query or do something else that requires the {@code PreparedStatement} to be created.
  *
  * <p>This class uses {@link PreparedStatement} objects to implement database interactions. To the extent practical,
  * it attempts to reuse the same {@code PreparedStatement} object for operations.</p>
@@ -34,8 +36,21 @@ import java.util.*;
  *
  * <p>The underlying {@code PreparedStatement} objects are closed when this object's close method is called. It is a
  * recommended good practice to always close {@code SmileyVarsPreparedStatement} objects.</p>
+ * <p>There is a related class, {@link SmileyVarsTemplate}, that expands SmileyVars templates to strings. To decide
+ * which class you want to use keep these things in mind:</p>
+ * <nl>
+ * <li>If you want to work with SQL statements, {@link SmileyVarsTemplate} is the one to use. If you want to work with
+ * prepared statements, use {@link SmileyVarsPreparedStatement}.</li>
+ * <li>{@link SmileyVarsTemplate} con infer the SQL type of the values you provide or you can explicitly include the
+ * type of a variable in the template body. {@link SmileyVarsPreparedStatement} requires you to use methods named for
+ * Java types to specify values.</li>
+ * <li>If you are working with large blobs or clobs, {@link SmileyVarsPreparedStatement} may perform better. It allows
+ * you to specify large blob or clob values using write methods that send the value directly to the database without
+ * having to represent it as an SQL literal.</li> *
+ * </nl>
  *
  * @author Mark Grand
+ * @see SmileyVarsTemplate
  */
 @SuppressWarnings("WeakerAccess")
 public class SmileyVarsPreparedStatement implements AutoCloseable {

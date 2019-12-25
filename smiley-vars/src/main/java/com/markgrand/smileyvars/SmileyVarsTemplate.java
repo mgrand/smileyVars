@@ -14,67 +14,25 @@ import java.util.*;
 /**
  * <p>SmileyVars is a lightweight template engine for SQL. It helps you avoid having to write similar SQL many times
  * because simple variations are needed.</p>
- * <p>Suppose we have a table that tracks the content of bins in a warehouse. Suppose that bins are identified by
- * <code>aisle</code>, <code>level</code> and <code>bin_number</code>. A query to get information about the contents of
- * one bin might look like</p>
- * <pre>
- * SELECT item_number, quantity FROM bin_tbl
- * WHERE aisle=:aisle and level=:level and bin_number=:bin
- * </pre>
- * <p>The first thing that you might notice about this example is that the value to be substituted into the SQL are
- * indicated by a name prefixed by "<tt>:</tt>". If we provide the values <code>aisle=32</code>, <code>level=4</code>
- * and <code>bin=17</code> this will expand to</p>
- * <pre>
- * SELECT item_number, quantity FROM bin_tbl
- * WHERE aisle=32 and level=4 and bin_number=17
- * </pre>
- * <p>Suppose that we would like to use the same SQL even for cases were we want to retrieve multiple rows. We could
- * write</p>
- * <pre>
- * SELECT item_number, quantity FROM bin_tbl
- * WHERE aisle=:aisle (: and level=:level :) (: and bin_number=:bin :)
- * </pre>
- * <p>What we have done is to bracket two parts of the query between <tt>(:</tt> and <tt>:)</tt>. When a portion of SQL
- * is bracketed this way, if the bracketed portion contains any :<i>variables</i> and values are not supplied for all of
- * the :<i>variables</i>, then that portion of the SQL is not included in the expansion. If all of the values are
- * supplied for the above example then it will expand to exactly the same SQL as the previous example. However, if we
- * supply just the values <code>aisle=32</code> and <code>bin=17</code> with no value for <code>bin</code>, it expands
- * to</p>
- * <pre>
- * SELECT item_number, quantity FROM bin_tbl
- * WHERE aisle=32 and bin_number=17
- * </pre>
- * <p>If we supply just <code>aisle=32</code>, it expands to</p>
- * <pre>
- * SELECT item_number, quantity FROM bin_tbl
- * WHERE aisle=32
- * </pre>
- * <p>What if we wanted to also have the flexibility of not specifying <code>aisle</code>? Just bracketing that part of
- * the WHERE clause <b><i>does not work</i></b>:</p>
- * <pre>
- * SELECT item_number, quantity FROM bin_tbl
- * WHERE (: aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
- * </pre>
- * <p>If the first bracketed portion of this query is not in the expansion, it is not valid SQL. There is a simple
- * syntactic trick that we can use to avoid this issue. We can begin the <code>WHERE</code> clause with <code>1=1</code>
- * like this:</p>
- * <pre>
- * SELECT item_number, quantity FROM bin_tbl
- * WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
- * </pre>
- * <p>This form of the SQL query allows us to supply all, some or none of the
- * values and have it expand to a valid SQL query.</p>
- * <p>One thing to notice about this query is that the <code>SELECT</code> list does not include the
- * <code>aisle</code>, <code>level</code> or <code>bin_number</code> columns. Because of this, when we get the results
- * of the query, we do not know which bin result rows are associated with.</p>
- * <p>A reasonable way to solve this problem is to just add those columns to the select list like this:</p>
- * <pre>
- * SELECT item_number, quantity, aisle, level, bin_number FROM bin_tbl
- * WHERE 1=1 (: and aisle=:aisle :) (: and level=:level :) (: and bin_number=:bin :)
- * </pre>
- * <p>For more SmileyVars documentation, see <a href="https://github.com/mgrand/smileyVars">https://github.com/mgrand/smileyVars</a>.</p>
+ * <p>The SmileyVars template language is documented at
+ * <a href="https://mgrand.github.io/smileyVars/">https://mgrand.github.io/smileyVars/</a>.</p>
+ *
+ * <p>This class expands SmileyVars templates into a {@code String} that can be used with anything that consumes SQL
+ * as Strings. There is a related class, {@link SmileyVarsPreparedStatement}, that uses SmileyVars templates with
+ * prepared statements. To decide which class you want to use keep these things in mind:</p>
+ * <nl>
+ * <li>If you want to work with SQL statements, {@link SmileyVarsTemplate} is the one to use. If you want to work
+ * with prepared statements, use {@link SmileyVarsPreparedStatement}.</li>
+ * <li>{@link SmileyVarsTemplate} can infer the SQL type of the values you provide or you can explicitly include the
+ * type of a variable in the template body. {@link SmileyVarsPreparedStatement} requires you to use methods named for
+ * Java types to specify values.</li>
+ * <li>If you are working with large blobs or clobs, {@link SmileyVarsPreparedStatement} may perform better. It
+ * allows you to specify large blob or clob values using write methods that send the value directly to the database
+ * without having to represent it as an SQL literal.</li>
+ * </nl>
  *
  * @author Mark Grand
+ * @see SmileyVarsPreparedStatement
  */
 public class SmileyVarsTemplate {
     private static final Logger logger = LoggerFactory.getLogger(SmileyVarsTemplate.class);
@@ -244,7 +202,7 @@ public class SmileyVarsTemplate {
     @SuppressWarnings("unused")
     public String apply(@NotNull Map<String, ?> values) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Expanding \"{}\" with mappings: {}" , sql, values);
+            logger.debug("Expanding \"{}\" with mappings: {}", sql, values);
         }
         @NotNull Tokenizer tokenizer = builder.build(sql);
         @Nullable StringBuilder segment = new StringBuilder(sql.length() * 2);

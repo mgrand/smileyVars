@@ -23,11 +23,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is an extension of {@linkplain JdbcTemplate} that supports SmileyVars Templates.
- * @see com.markgrand.smileyvars.SmileyVarsTemplate
+ * This is an extension of {@linkplain JdbcTemplate} that supports <a href="https://mgrand.github.io/smileyVars/">SmileyVars
+ * Templates</a>.
  *
- * {@inheritDoc}
  * @author Mark Grand
+ * @see com.markgrand.smileyvars.SmileyVarsTemplate
+ * @see SmileyVarsPreparedStatement
+ * <p>
+ * {@inheritDoc}
  */
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class SmileyVarsJdbcTemplate extends JdbcTemplate {
@@ -36,6 +39,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     /**
      * Construct a new JdbcTemplate for bean usage.
      * <p>Note: The DataSource has to be set before using the instance.
+     *
      * @see #setDataSource
      */
     @SuppressWarnings("WeakerAccess")
@@ -46,6 +50,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     /**
      * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
      * <p>Note: This will not trigger initialization of the exception translator.
+     *
      * @param dataSource the JDBC DataSource to obtain connections from
      */
     @SuppressWarnings("WeakerAccess")
@@ -57,8 +62,9 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
      * <p>Note: Depending on the "lazyInit" flag, initialization of the exception translator
      * will be triggered.
+     *
      * @param dataSource the JDBC DataSource to obtain connections from
-     * @param lazyInit whether to lazily initialize the SQLExceptionTranslator
+     * @param lazyInit   whether to lazily initialize the SQLExceptionTranslator
      */
     @SuppressWarnings("WeakerAccess")
     public SmileyVarsJdbcTemplate(DataSource dataSource, boolean lazyInit) {
@@ -77,9 +83,9 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * });
      * </pre>
      *
-     * @param sql The sql to be used as a SmileyVars template.
+     * @param sql          The sql to be used as a SmileyVars template.
      * @param svpsConsumer The consumer function that the
-     * @param <T> The the of value to be returned.
+     * @param <T>          The the of value to be returned.
      * @return the value that is returned by the given function.
      */
     @SuppressWarnings("unused")
@@ -102,14 +108,14 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
      * given sql.
      *
-     * @param sql The SQL to use for the SmileyVars template.
+     * @param sql    The SQL to use for the SmileyVars template.
      * @param setter a consumer function that sets the values of variables in the SmileVars template.
-     * @param rse a callback that will extract results
+     * @param rse    a callback that will extract results
      * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
      */
     public <T> T query(@NotNull String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, ResultSetExtractor<T> rse) throws DataAccessException {
-        return withSmileyVarsPreparedStatement(sql, svps-> {
+        return withSmileyVarsPreparedStatement(sql, svps -> {
             setter.accept(svps);
             return rse.extractData(svps.executeQuery());
         });
