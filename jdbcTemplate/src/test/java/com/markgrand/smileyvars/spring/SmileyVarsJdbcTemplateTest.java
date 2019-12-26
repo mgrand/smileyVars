@@ -138,11 +138,23 @@ class SmileyVarsJdbcTemplateTest {
         valueMap.put("aisle", 4);
         valueMap.put("level", 1);
         String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
-        List<Inventory> inventoryList = svjt.querySmileyVars(sql, rse, valueMap);
+        List<Inventory> inventoryList = svjt.querySmileyVars(sql, valueMap, rse);
         assertEquals(3, inventoryList.size());
         inventoryList.forEach(inventory -> {
             assertEquals(1, inventory.getLevel());
             assertEquals(4, inventory.getAisle());
+        });
+    }
+
+    @Test
+    void queryPreparedStatmentWithRowCallbackHandler() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        int[] count = {0};
+        String sql = "SELECT item_number, quantity, level, aisle FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        svjt.querySmileyVars(sql, svps-> svps.setInt("aisle", 4).setInt("level", 1), rs->{
+            count[0]++;
+            assertEquals(1, rs.getInt("level"));
+            assertEquals(4, rs.getInt("aisle"));
         });
     }
 

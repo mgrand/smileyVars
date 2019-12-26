@@ -172,7 +172,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         for (int i = 0; i < names.length; i++) {
             valueMap.put(names[i], values[i]);
         }
-        return querySmileyVars(sql, rse, valueMap);
+        return querySmileyVars(sql, valueMap, rse);
     }
 
     /**
@@ -184,23 +184,29 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      *    valueMap.put("aisle", 4);
      *    valueMap.put("level", 1);
      *    String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
-     *    List<Inventory> inventoryList = svjt.querySmileyVars(sql, rse, valueMap);
+     *    List<Inventory> inventoryList = svjt.querySmileyVars(sql, valueMap, rse);
      * </pre>
      *
      * @param sql    The string to use as the SmileyVars template body.
-     * @param rse    The {@link ResultSetExtractor} to use for extracting a result from the query's result set.
      * @param values The values to use for the variables in the template body.
+     * @param rse    The {@link ResultSetExtractor} to use for extracting a result from the query's result set.
      * @param <T>    The type of value to be returned.
      * @return the value produced by the {@link ResultSetExtractor}.
      * @throws DataAccessException if there is a problem.
      */
-    public <T> T querySmileyVars(String sql, ResultSetExtractor<T> rse, Map<String, ?> values) throws DataAccessException {
+    public <T> T querySmileyVars(String sql, Map<String, ?> values, ResultSetExtractor<T> rse) throws DataAccessException {
         return super.query(SmileyVarsTemplate.template(databaseType, sql).apply(values), rse);
     }
 
     /**
      * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
-     * given sql.
+     * given sql. Here is a usage example:
+     * <pre>
+     *     String sql = "SELECT item_number, quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     svjt.querySmileyVars(sql, svps-> svps.setInt("aisle", 4).setInt("level", 1), rs->{
+     *         processItemCount(rs.getString("item_number"), rs.getInt("quantity"));
+     *     });
+     * </pre>
      *
      * @param sql    The SQL to use for the SmileyVars template.
      * @param setter a consumer function that sets the values of variables in the SmileVars template.
