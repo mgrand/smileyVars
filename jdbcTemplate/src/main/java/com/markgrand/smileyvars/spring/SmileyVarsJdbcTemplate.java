@@ -165,14 +165,24 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
     public <T> T querySmileyVars(String sql, String[] names, Object[] values, ResultSetExtractor<T> rse) throws DataAccessException {
-        if (names.length != values.length) {
-            throw new IllegalArgumentException("Length of names array (" + names.length + ") and length of values array(" + values.length + ") should be the same.");
-        }
+        ensureEqualLengthArrays(names, values);
+        Map<String, Object> valueMap = arraysToMap(names, values);
+        return querySmileyVars(sql, valueMap, rse);
+    }
+
+    @NotNull
+    private Map<String, Object> arraysToMap(String[] names, Object[] values) {
         Map<String, Object> valueMap = new HashMap<>();
         for (int i = 0; i < names.length; i++) {
             valueMap.put(names[i], values[i]);
         }
-        return querySmileyVars(sql, valueMap, rse);
+        return valueMap;
+    }
+
+    private void ensureEqualLengthArrays(String[] names, Object[] values) {
+        if (names.length != values.length) {
+            throw new IllegalArgumentException("Length of names array (" + names.length + ") and length of values array(" + values.length + ") should be the same.");
+        }
     }
 
     /**
@@ -225,19 +235,55 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         });
     }
 
-    @Override
-    public void query(String sql, Object[] args, int[] argTypes, RowCallbackHandler rch) throws DataAccessException {
-        super.query(sql, args, argTypes, rch);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
+     * arrays. Execute the expanded SQL as a {@code Statement}. Take the ResultSet that is produced and process each row
+     * by passing it to the given {@link RowCallbackHandler}. Here is a usage example:
+     * <pre>
+     *    String[] names = {"aisle", "level"};
+     *    Integer[] values = {4, 1};
+     *    int[] count = {0};
+     *    String sql = "SELECT item_number, quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    svjt.querySmileyVars(sql, names, values, rs->{
+     *        processItemCount(rs.getString("item_number"), rs.getInt("quantity"));
+     *    });
+     * </pre>
+     *
+     * @param sql    The string to use as the SmileyVars template body.
+     * @param names  The name of the variables whose values are being specified.
+     * @param values The corresponding values to use for the variables in the template body.
+     * @param rch    The {@link RowCallbackHandler} to use for processing each row from the query's result set.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public void querySmileyVars(String sql, String[] names, Object[] values, RowCallbackHandler rch) throws DataAccessException {
+        ensureEqualLengthArrays(names, values);
+        Map<String, Object> valueMap = arraysToMap(names, values);
+        querySmileyVars(sql, valueMap, rch);
     }
 
-    @Override
-    public void query(String sql, Object[] args, RowCallbackHandler rch) throws DataAccessException {
-        super.query(sql, args, rch);
-    }
-
-    @Override
-    public <T> List<T> query(PreparedStatementCreator psc, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
-        return super.query(psc, rowMapper);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
+     * expanded SQL as a {@code Statement}. Execute the expanded SQL as a {@code Statement}. Take the ResultSet that is
+     * produced and process each row by passing it to the given {@link RowCallbackHandler}. Here is a usage example:
+     * <pre>
+     *    Map<String, Object> valueMap = new HashMap<>();
+     *    valueMap.put("aisle", 4);
+     *    valueMap.put("level", 1);
+     *    int[] count = {0};
+     *    String sql = "SELECT item_number, quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    svjt.querySmileyVars(sql, valueMap, rs->{
+     *        processItemCount(rs.getString("item_number"), rs.getInt("quantity"));
+     *    });
+     * </pre>
+     *
+     * @param sql    The string to use as the SmileyVars template body.
+     * @param values The values to use for the variables in the template body.
+     * @param rch    The {@link RowCallbackHandler} to use for processing each row from the query's result set.
+     * @throws DataAccessException if there is a problem.
+     */
+    public void querySmileyVars(String sql, Map<String, ?> values, RowCallbackHandler rch) throws DataAccessException {
+        super.query(SmileyVarsTemplate.template(databaseType, sql).apply(values), rch);
     }
 
     @Override
@@ -256,11 +302,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public <T> List<T> query(String sql, @NotNull RowMapper<T> rowMapper, Object... args) throws DataAccessException {
-        return super.query(sql, rowMapper, args);
-    }
-
-    @Override
     public <T> T queryForObject(String sql, Object[] args, int[] argTypes, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.queryForObject(sql, args, argTypes, rowMapper);
     }
@@ -268,11 +309,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     @Override
     public <T> T queryForObject(String sql, Object[] args, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.queryForObject(sql, args, rowMapper);
-    }
-
-    @Override
-    public <T> T queryForObject(String sql, @NotNull RowMapper<T> rowMapper, Object... args) throws DataAccessException {
-        return super.queryForObject(sql, rowMapper, args);
     }
 
     @Override
@@ -296,11 +332,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public Map<String, Object> queryForMap(String sql, Object... args) throws DataAccessException {
-        return super.queryForMap(sql, args);
-    }
-
-    @Override
     public <T> List<T> queryForList(String sql, Object[] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
         return super.queryForList(sql, args, argTypes, elementType);
     }
@@ -308,11 +339,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     @Override
     public <T> List<T> queryForList(String sql, Object[] args, Class<T> elementType) throws DataAccessException {
         return super.queryForList(sql, args, elementType);
-    }
-
-    @Override
-    public <T> List<T> queryForList(String sql, Class<T> elementType, Object... args) throws DataAccessException {
-        return super.queryForList(sql, elementType, args);
     }
 
     @Override
