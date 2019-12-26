@@ -124,7 +124,12 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
 
     /**
      * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
-     * given sql.
+     * given sql. A return value is produced by executing the sql and passing the result set to the given {@link
+     * ResultSetExtractor} object. Here is a usage example:
+     * <pre>
+     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     List<Inventory> inventoryList = svjt.querySmileyVars(sql, svps-> svps.setInt("aisle", 4).setInt("level", 1), rse);
+     * </pre>
      *
      * @param sql    The SQL to use for the SmileyVars template.
      * @param setter a consumer function that sets the values of variables in the SmileVars template.
@@ -142,7 +147,13 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     /**
      * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
      * arrays. Execute the expanded SQL as a {@code Statement}. Take the ResultSet that is produced and use the given
-     * {@link ResultSetExtractor} to produce the value that will be returned by this method.
+     * {@link ResultSetExtractor} to produce the value that will be returned by this method. Here is a usage example:
+     * <pre>
+     *     String[] names = {"aisle", "level"};
+     *     Integer[] values = {4, 1};
+     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     List<Inventory> inventoryList = svjt.querySmileyVars(sql, names, values, rse);
+     * </pre>
      *
      * @param sql    The string to use as the SmileyVars template body.
      * @param names  The name of the variables whose values are being specified.
@@ -167,7 +178,14 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     /**
      * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
      * expanded SQL as a {@code Statement}. Take the ResultSet that is produced and use the given {@link
-     * ResultSetExtractor} to produce the value that will be returned by this method.
+     * ResultSetExtractor} to produce the value that will be returned by this method. Here is a usage example:
+     * <pre>
+     *    Map<String, Object> valueMap = new HashMap<>();
+     *    valueMap.put("aisle", 4);
+     *    valueMap.put("level", 1);
+     *    String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    List<Inventory> inventoryList = svjt.querySmileyVars(sql, rse, valueMap);
+     * </pre>
      *
      * @param sql    The string to use as the SmileyVars template body.
      * @param rse    The {@link ResultSetExtractor} to use for extracting a result from the query's result set.
