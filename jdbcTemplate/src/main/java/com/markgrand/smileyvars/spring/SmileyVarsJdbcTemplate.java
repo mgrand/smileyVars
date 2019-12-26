@@ -236,11 +236,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public void query(String sql, RowCallbackHandler rch, Object... args) throws DataAccessException {
-        super.query(sql, rch, args);
-    }
-
-    @Override
     public <T> List<T> query(PreparedStatementCreator psc, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return super.query(psc, rowMapper);
     }
