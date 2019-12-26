@@ -9,9 +9,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,9 +118,32 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryTemplateWithExtractor() {
+    void queryTemplateArraysWithExtractor() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String[] names = {"aisle", "level"};
+        Integer[] values = {4, 1};
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        List<Inventory> inventoryList = svjt.querySmileyVars(sql, names, values, rse);
+        assertEquals(3, inventoryList.size());
+        inventoryList.forEach(inventory -> {
+            assertEquals(1, inventory.getLevel());
+            assertEquals(4, inventory.getAisle());
+        });
+    }
 
+    @Test
+    void queryTemplateMapWithExtractor() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("aisle", 4);
+        valueMap.put("level", 1);
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        List<Inventory> inventoryList = svjt.querySmileyVars(sql, rse, valueMap);
+        assertEquals(3, inventoryList.size());
+        inventoryList.forEach(inventory -> {
+            assertEquals(1, inventory.getLevel());
+            assertEquals(4, inventory.getAisle());
+        });
     }
 
     private static class Inventory {
