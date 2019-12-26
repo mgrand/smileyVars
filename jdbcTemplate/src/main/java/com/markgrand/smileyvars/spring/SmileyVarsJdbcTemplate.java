@@ -17,6 +17,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -121,7 +122,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         }
     }
 
-
     /**
      * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
      * given sql.
@@ -180,14 +180,25 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return super.query(SmileyVarsTemplate.template(databaseType, sql).apply(values), rse);
     }
 
-    @Override
-    public void query(PreparedStatementCreator psc, RowCallbackHandler rch) throws DataAccessException {
-        super.query(psc, rch);
-    }
-
-    @Override
-    public void query(String sql, PreparedStatementSetter pss, RowCallbackHandler rch) throws DataAccessException {
-        super.query(sql, pss, rch);
+    /**
+     * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql.
+     *
+     * @param sql    The SQL to use for the SmileyVars template.
+     * @param setter a consumer function that sets the values of variables in the SmileVars template.
+     * @param rch    a callback that is called to process each row.
+     * @throws DataAccessException if there is any problem
+     */
+    public void querySmileyVars(String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, RowCallbackHandler rch) throws DataAccessException {
+        executeSmileyVars(sql, (SmileyVarsPreparedStatement svps) -> {
+            setter.accept(svps);
+            try (ResultSet rs = svps.executeQuery()) {
+                while (rs.next()) {
+                    rch.processRow(rs);
+                }
+            }
+            return null;
+        });
     }
 
     @Override
