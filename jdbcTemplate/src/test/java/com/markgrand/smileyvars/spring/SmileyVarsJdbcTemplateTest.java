@@ -113,6 +113,16 @@ class SmileyVarsJdbcTemplateTest {
                 svps-> svps.setInt("aisle", 4).setInt("level", 1),
                 rse);
         assertEquals(3, inventoryList.size());
+        inventoryList.forEach(inventory -> {
+            assertEquals(1, inventory.getLevel());
+            assertEquals(4, inventory.getAisle());
+        });
+    }
+
+    @Test
+    void queryTemplateWithExtractor() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+
     }
 
     private static class Inventory {

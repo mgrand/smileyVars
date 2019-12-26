@@ -140,6 +140,31 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
+     * arrays. Execute the expanded SQL as a {@code Statement}. Take the ResultSet that is produced and use the given
+     * {@link ResultSetExtractor} to produce the value that will be returned by this method.
+     *
+     * @param sql    The string to use as the SmileyVars template body.
+     * @param names  The name of the variables whose values are being specified.
+     * @param values The corresponding values to use for the variables in the template body.
+     * @param rse    The {@link ResultSetExtractor} to use for extracting a result from the query's result set.
+     * @param <T>    The type of value to be returned.
+     * @return the value produced by the {@link ResultSetExtractor}.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public <T> T querySmileyVars(String sql, String[] names, Object[] values, ResultSetExtractor<T> rse) throws DataAccessException {
+        if (names.length != values.length) {
+            throw new IllegalArgumentException("Length of names array (" + names.length + ") and length of values array(" + values.length + ") should be the same.");
+        }
+        Map<String, Object> valueMap = new HashMap<>();
+        for (int i = 0; i < names.length; i++) {
+            valueMap.put(names[i], values[i]);
+        }
+        return querySmileyVars(sql, rse, valueMap);
+    }
+
+    /**
      * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
      * expanded SQL as a {@code Statement}. Take the ResultSet that is produced and use the given {@link
      * ResultSetExtractor} to produce the value that will be returned by this method.
@@ -151,7 +176,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the value produced by the {@link ResultSetExtractor}.
      * @throws DataAccessException if there is a problem.
      */
-    public <T> T query(String sql, ResultSetExtractor<T> rse, Map<String, ?> values) throws DataAccessException {
+    public <T> T querySmileyVars(String sql, ResultSetExtractor<T> rse, Map<String, ?> values) throws DataAccessException {
         return super.query(SmileyVarsTemplate.template(databaseType, sql).apply(values), rse);
     }
 
