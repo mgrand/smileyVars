@@ -13,6 +13,7 @@ import java.net.URL;
 import java.sql.Date;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * SmileyVars enabled version of a prepared statement. You create objects with a SmileyVars template, specify the values
@@ -38,7 +39,7 @@ import java.util.*;
  * recommended good practice to always close {@code SmileyVarsPreparedStatement} objects.</p>
  * <p>There is a related class, {@link SmileyVarsTemplate}, that expands SmileyVars templates to strings. To decide
  * which class you want to use keep these things in mind:</p>
- * <nl>
+ * <ul>
  * <li>If you want to work with SQL statements, {@link SmileyVarsTemplate} is the one to use. If you want to work with
  * prepared statements, use {@link SmileyVarsPreparedStatement}.</li>
  * <li>{@link SmileyVarsTemplate} con infer the SQL type of the values you provide or you can explicitly include the
@@ -46,8 +47,8 @@ import java.util.*;
  * Java types to specify values.</li>
  * <li>If you are working with large blobs or clobs, {@link SmileyVarsPreparedStatement} may perform better. It allows
  * you to specify large blob or clob values using write methods that send the value directly to the database without
- * having to represent it as an SQL literal.</li> *
- * </nl>
+ * having to represent it as an SQL literal.</li>
+ * </ul>
  *
  * @author Mark Grand
  * @see SmileyVarsTemplate
@@ -1666,7 +1667,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         BitSet signature = computeParametersSignature();
         PreparedStatementTag ptag = taggedPstmtMap.get(signature);
         if (ptag == null) {
-            ptag = new PreparedStatementTag(signature, connection.prepareStatement(template.apply(filterVacuousEntries(valueMap))), changeCount);
+            ptag = new PreparedStatementTag(connection.prepareStatement(template.apply(filterVacuousEntries(valueMap))), changeCount);
             taggedPstmtMap.put(signature, ptag);
         } else if (ptag.getChangeCount() != changeCount) {
             ptag.setChangeCount(changeCount);
@@ -1686,11 +1687,10 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     private void updatePreparedStatement(PreparedStatementTag ptag) throws SQLException {
         PreparedStatement preparedStatement = ptag.getPreparedStatement();
         updatePreparedStatementConfig(preparedStatement);
-        BitSet signature = ptag.getSignature();
-        updatePreparedStatementParams(preparedStatement, signature);
+        updatePreparedStatementParams(preparedStatement);
     }
 
-    private void updatePreparedStatementParams(PreparedStatement preparedStatement, BitSet signature) throws SQLException {
+    private void updatePreparedStatementParams(PreparedStatement preparedStatement) throws SQLException {
         int[] paramIndex = {1};
         template.forEachVariableInstance(name -> {
             BiSqlConsumer<PreparedStatement, Integer> setter = valueMap.get(name);
@@ -1721,9 +1721,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * to a parameter value.
      */
     public Set<String> getBoundVarNames() {
-        Set<String> varNames = template.getVarNames();
-        varNames.removeIf(name -> valueMap.get(name).isVacuous());
-        return varNames;
+        return template.getVarNames().stream().filter(name-> !valueMap.get(name).isVacuous()).collect(Collectors.toSet());
     }
 
     private void updatePreparedStatementConfig(PreparedStatement preparedStatement) throws SQLException {
@@ -1758,18 +1756,12 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * parameter settings.
      */
     private static class PreparedStatementTag {
-        private final BitSet signature;
         private final PreparedStatement preparedStatement;
         private long changeCount;
 
-        PreparedStatementTag(BitSet signature, PreparedStatement preparedStatement, long changeCount) {
-            this.signature = signature;
+        PreparedStatementTag(PreparedStatement preparedStatement, long changeCount) {
             this.preparedStatement = preparedStatement;
             this.changeCount = changeCount;
-        }
-
-        BitSet getSignature() {
-            return signature;
         }
 
         PreparedStatement getPreparedStatement() {

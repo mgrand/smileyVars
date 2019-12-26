@@ -20,7 +20,7 @@ import java.util.*;
  * <p>This class expands SmileyVars templates into a {@code String} that can be used with anything that consumes SQL
  * as Strings. There is a related class, {@link SmileyVarsPreparedStatement}, that uses SmileyVars templates with
  * prepared statements. To decide which class you want to use keep these things in mind:</p>
- * <nl>
+ * <ul>
  * <li>If you want to work with SQL statements, {@link SmileyVarsTemplate} is the one to use. If you want to work
  * with prepared statements, use {@link SmileyVarsPreparedStatement}.</li>
  * <li>{@link SmileyVarsTemplate} can infer the SQL type of the values you provide or you can explicitly include the
@@ -29,7 +29,7 @@ import java.util.*;
  * <li>If you are working with large blobs or clobs, {@link SmileyVarsPreparedStatement} may perform better. It
  * allows you to specify large blob or clob values using write methods that send the value directly to the database
  * without having to represent it as an SQL literal.</li>
- * </nl>
+ * </ul>
  *
  * @author Mark Grand
  * @see SmileyVarsPreparedStatement
