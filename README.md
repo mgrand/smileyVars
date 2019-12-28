@@ -105,7 +105,7 @@ have a value, it will not be updated.
 
 The `level=level` is included in the `UPDATE` for the same reason we
 include `1=1` in `WHERE` clauses. It does not change the effect of the
-command, but it does allow what follows it to be ommited by SmileyVars
+command, but it does allow what follows it to be omitted by SmileyVars
 without causing any syntax errors.
 
 <!--
