@@ -90,7 +90,7 @@ template&#x2bc;s expansion only if values are supplied for all of the
 `:variable`s.
 
 SmileyVars is also useful for making `UPDATE`s more flexible. For
-example, if we want to update what is in a partular location, we could
+example, if we want to update what is in a particular location, we could
 write
 
 ```SQL
