@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.*;
 import java.util.*;
@@ -14,16 +15,16 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SmileyVarsJdbcTemplateTest {
-    private static ResultSetExtractor<List<Inventory>> rse = new ResultSetExtractor<List<Inventory>>() {
-        @Override
-        public List<Inventory> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            List<Inventory> inventoryList = new ArrayList<>();
-            while (rs.next()) {
-                inventoryList.add(new Inventory(rs.getInt("aisle"), rs.getInt("level"), rs.getInt("bin_number"), rs.getInt("quantity"), rs.getString("item_number")));
-            }
-            return inventoryList;
+    private static ResultSetExtractor<List<Inventory>> rse = rs -> {
+        List<Inventory> inventoryList = new ArrayList<>();
+        while (rs.next()) {
+            inventoryList.add(new Inventory(rs.getInt("aisle"), rs.getInt("level"), rs.getInt("bin_number"), rs.getInt("quantity"), rs.getString("item_number")));
         }
+        return inventoryList;
     };
+
+    private static RowMapper<Inventory> rowMapper
+            = (rs, rowNum) -> new Inventory(rs.getInt("aisle"), rs.getInt("level"), rs.getInt("bin_number"), rs.getInt("quantity"), rs.getString("item_number"));
 
     private Connection h2Connection;
     private MockDataSource mockDataSource;
@@ -90,7 +91,7 @@ class SmileyVarsJdbcTemplateTest {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         assertEquals(22, (int) svjt.executeSmileyVars("SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level AND bin_number = :bin_number",
                 svps -> {
-                    try (ResultSet rs = svps.setInt("aisle", 4).setInt("level", 1). setInt("bin_number", 7).executeQuery()) {
+                    try (ResultSet rs = svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 7).executeQuery()) {
                         assertTrue(rs.next());
                         return rs.getInt("quantity");
                     }
@@ -108,7 +109,7 @@ class SmileyVarsJdbcTemplateTest {
     void queryPreparedStatmentWithExtractor() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         List<Inventory> inventoryList = svjt.querySmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
-                svps-> svps.setInt("aisle", 4).setInt("level", 1),
+                svps -> svps.setInt("aisle", 4).setInt("level", 1),
                 rse);
         assertEquals(3, inventoryList.size());
         inventoryList.forEach(inventory -> {
@@ -151,11 +152,12 @@ class SmileyVarsJdbcTemplateTest {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         int[] count = {0};
         String sql = "SELECT item_number, quantity, level, aisle FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
-        svjt.querySmileyVars(sql, svps-> svps.setInt("aisle", 4).setInt("level", 1), rs->{
+        svjt.querySmileyVars(sql, svps -> svps.setInt("aisle", 4).setInt("level", 1), rs -> {
             count[0]++;
             assertEquals(1, rs.getInt("level"));
             assertEquals(4, rs.getInt("aisle"));
         });
+        assertEquals(3, count[0]);
     }
 
     @Test
@@ -165,11 +167,12 @@ class SmileyVarsJdbcTemplateTest {
         Integer[] values = {4, 1};
         int[] count = {0};
         String sql = "SELECT item_number, quantity, level, aisle FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
-        svjt.querySmileyVars(sql, names, values, rs->{
+        svjt.querySmileyVars(sql, names, values, rs -> {
             count[0]++;
             assertEquals(1, rs.getInt("level"));
             assertEquals(4, rs.getInt("aisle"));
         });
+        assertEquals(3, count[0]);
     }
 
     @Test
@@ -180,10 +183,53 @@ class SmileyVarsJdbcTemplateTest {
         valueMap.put("level", 1);
         int[] count = {0};
         String sql = "SELECT item_number, quantity, level, aisle FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
-        svjt.querySmileyVars(sql, valueMap, rs->{
+        svjt.querySmileyVars(sql, valueMap, rs -> {
             count[0]++;
             assertEquals(1, rs.getInt("level"));
             assertEquals(4, rs.getInt("aisle"));
+        });
+        assertEquals(3, count[0]);
+    }
+
+    @Test
+    void queryPreparedStatmentWithRowMapper() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        List<Inventory> inventoryList = svjt.querySmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+                svps -> svps.setInt("aisle", 4).setInt("level", 1),
+                rowMapper);
+        assertEquals(3, inventoryList.size());
+        inventoryList.forEach(inventory -> {
+            assertEquals(1, inventory.getLevel());
+            assertEquals(4, inventory.getAisle());
+        });
+    }
+
+    @Test
+    void queryTemplateArraysWithRowMapper() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String[] names = {"aisle", "level"};
+        Integer[] values = {4, 1};
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        List<Inventory> inventoryList = svjt.querySmileyVars(sql, names, values, rowMapper);
+        assertEquals(3, inventoryList.size());
+        inventoryList.forEach(inventory -> {
+            assertEquals(1, inventory.getLevel());
+            assertEquals(4, inventory.getAisle());
+        });
+    }
+
+    @Test
+    void queryTemplateMapWithRowMapper() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("aisle", 4);
+        valueMap.put("level", 1);
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        List<Inventory> inventoryList = svjt.querySmileyVars(sql, valueMap, rowMapper);
+        assertEquals(3, inventoryList.size());
+        inventoryList.forEach(inventory -> {
+            assertEquals(1, inventory.getLevel());
+            assertEquals(4, inventory.getAisle());
         });
     }
 
