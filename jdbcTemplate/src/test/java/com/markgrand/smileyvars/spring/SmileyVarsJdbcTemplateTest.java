@@ -5,11 +5,13 @@ import com.mockrunner.mock.jdbc.MockDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -233,6 +235,17 @@ class SmileyVarsJdbcTemplateTest {
         });
     }
 
+    @Test
+    void queryPreparedStatmentForObjectWithRowMapper() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Inventory inventory = svjt.queryForObjectSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+                svps -> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8),
+                rowMapper);
+        assertEquals(1, inventory.getLevel());
+        assertEquals(4, inventory.getAisle());
+        assertEquals( 8, inventory.getBinNumber());
+    }
+
     private static class Inventory {
         private Integer aisle, level, bin_number;
         private Integer quantity;
@@ -262,7 +275,7 @@ class SmileyVarsJdbcTemplateTest {
             this.level = level;
         }
 
-        public Integer getBin_number() {
+        public Integer getBinNumber() {
             return bin_number;
         }
 
