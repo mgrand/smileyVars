@@ -244,6 +244,8 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals(1, inventory.getLevel());
         assertEquals(4, inventory.getAisle());
         assertEquals( 8, inventory.getBinNumber());
+        assertEquals( "M8473", inventory.getItemNumber());
+        assertEquals( 31, inventory.getQuantity());
     }
 
     @Test
@@ -256,6 +258,8 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals(1, inventory.getLevel());
         assertEquals(4, inventory.getAisle());
         assertEquals( 8, inventory.getBinNumber());
+        assertEquals( "M8473", inventory.getItemNumber());
+        assertEquals( 31, inventory.getQuantity());
     }
 
     @Test
@@ -270,6 +274,8 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals(1, inventory.getLevel());
         assertEquals(4, inventory.getAisle());
         assertEquals( 8, inventory.getBinNumber());
+        assertEquals( "M8473", inventory.getItemNumber());
+        assertEquals( 31, inventory.getQuantity());
     }
 
     private static class Inventory {
@@ -289,40 +295,20 @@ class SmileyVarsJdbcTemplateTest {
             return aisle;
         }
 
-        public void setAisle(Integer aisle) {
-            this.aisle = aisle;
-        }
-
         public Integer getLevel() {
             return level;
-        }
-
-        public void setLevel(Integer level) {
-            this.level = level;
         }
 
         public Integer getBinNumber() {
             return bin_number;
         }
 
-        public void setBin_number(Integer bin_number) {
-            this.bin_number = bin_number;
-        }
-
         public Integer getQuantity() {
             return quantity;
         }
 
-        public void setQuantity(Integer quantity) {
-            this.quantity = quantity;
-        }
-
         public String getItemNumber() {
             return itemNumber;
-        }
-
-        public void setItemNumber(String itemNumber) {
-            this.itemNumber = itemNumber;
         }
 
         @Override
