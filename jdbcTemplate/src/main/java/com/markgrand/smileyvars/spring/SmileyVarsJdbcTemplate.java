@@ -306,7 +306,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return querySmileyVars(sql, setter, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
-
     /**
      * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
      * arrays. Execute the expanded SQL as a {@code Statement}. Each row of the ResultSet that is produced is passed it
@@ -342,8 +341,8 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
      * List<Inventory> inventoryList = svjt.querySmileyVars(sql, valueMap, rowMapper);
      *
-     * @param sql      The string to use as the SmileyVars template body.
-     * @param valueMap The values to use for the variables in the template body.
+     * @param sql       The string to use as the SmileyVars template body.
+     * @param valueMap  The values to use for the variables in the template body.
      * @param rowMapper a callback that is called to process each row into a value.
      * @throws DataAccessException if there is a problem.
      */
@@ -353,27 +352,70 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
 
     /**
      * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
-     * given sql. A return value is produced by executing the sql and passing the result set containing a single row to
-     * the given {@link RowMapper} object. Here is a usage example:
+     * given sql. A return value is produced by executing the prepared statement and passing the result set containing a
+     * single row to the given {@link RowMapper} object. Here is a usage example:
      * <pre>
      *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
      *     Inventory inventory = svjt.queryForObjectSmileyVars(sql, svps-> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8), rowMapper);
      * </pre>
      *
-     * @param sql    The SQL to use for the SmileyVars template.
-     * @param setter a consumer function that sets the values of variables in the SmileVars template.
+     * @param sql       The SQL to use for the SmileyVars template.
+     * @param setter    a consumer function that sets the values of variables in the SmileVars template.
      * @param rowMapper a callback that is called to process the single row into a value.
      * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
      */
     public <T> T queryForObjectSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
-        List<T> results = querySmileyVars(sql, setter, new RowMapperResultSetExtractor<>(rowMapper, 1));
-        return DataAccessUtils.nullableSingleResult(results);
+        List<T> result = querySmileyVars(sql, setter, new RowMapperResultSetExtractor<>(rowMapper, 1));
+        return DataAccessUtils.nullableSingleResult(result);
     }
 
-    @Override
-    public <T> T queryForObject(String sql, Object[] args, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
-        return super.queryForObject(sql, args, rowMapper);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
+     * arrays. Execute the expanded SQL as a {@code Statement}. A return value is produced by passing result set
+     * containing a single row to the given {@link RowMapper} object. Here is a usage example:
+     * <pre>
+     *    String[] names = {"aisle", "level", "bin_number"};
+     *    Object[] values = {4, 1, 8};
+     *    String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    Inventory inventory = svjt.queryForObjectSmileyVars(sql, names, values, rowMapper);
+     * </pre>
+     *
+     * @param sql       The string to use as the SmileyVars template body.
+     * @param names     The name of the variables whose values are being specified.
+     * @param values    The corresponding values to use for the variables in the template body.
+     * @param rowMapper a callback that is called to process each row into a value.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public <T> T queryForObjectSmileyVars(String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+        List<T> result = querySmileyVars(sql, names, values, new RowMapperResultSetExtractor<>(rowMapper, 1));
+        return DataAccessUtils.nullableSingleResult(result);
+    }
+
+
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
+     * expanded SQL as a {@code Statement}. A return value is produced by passing result set containing a single row to
+     * the given {@link RowMapper} object. Here is a usage example:
+     * <pre>
+     *    Map<String, Object> valueMap = new HashMap<>();
+     *    valueMap.put("aisle", 4);
+     *    valueMap.put("level", 1);
+     *    valueMap.put("bin_number", 8);
+     *    String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    Inventory inventory  = svjt.queryForObjectSmileyVars(sql, valueMap, rowMapper);
+     * </pre>
+     *
+     * @param sql       The string to use as the SmileyVars template body.
+     * @param valueMap  The values to use for the variables in the template body.
+     * @param rowMapper a callback that is called to process each row into a value.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public <T> T queryForObjectSmileyVars(String sql, Map<String, Object> valueMap, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+        List<T> result = querySmileyVars(sql, valueMap, new RowMapperResultSetExtractor<>(rowMapper, 1));
+        return DataAccessUtils.nullableSingleResult(result);
     }
 
     @Override

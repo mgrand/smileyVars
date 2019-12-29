@@ -246,6 +246,32 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals( 8, inventory.getBinNumber());
     }
 
+    @Test
+    void queryTemplateArraysForObjectWithRowMapper() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String[] names = {"aisle", "level", "bin_number"};
+        Object[] values = {4, 1, 8};
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        Inventory inventory = svjt.queryForObjectSmileyVars(sql, names, values, rowMapper);
+        assertEquals(1, inventory.getLevel());
+        assertEquals(4, inventory.getAisle());
+        assertEquals( 8, inventory.getBinNumber());
+    }
+
+    @Test
+    void queryTemplateMapForObjectWithRowMapper() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("aisle", 4);
+        valueMap.put("level", 1);
+        valueMap.put("bin_number", 8);
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        Inventory inventory  = svjt.queryForObjectSmileyVars(sql, valueMap, rowMapper);
+        assertEquals(1, inventory.getLevel());
+        assertEquals(4, inventory.getAisle());
+        assertEquals( 8, inventory.getBinNumber());
+    }
+
     private static class Inventory {
         private Integer aisle, level, bin_number;
         private Integer quantity;
