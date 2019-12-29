@@ -418,9 +418,24 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return DataAccessUtils.nullableSingleResult(result);
     }
 
-    @Override
-    public <T> T queryForObject(String sql, Object[] args, int[] argTypes, Class<T> requiredType) throws DataAccessException {
-        return super.queryForObject(sql, args, argTypes, requiredType);
+    /**
+     * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql. A return value is produced by executing the prepared statement to produce result set containing a
+     * single row and single column to to be converted to the specified required type. Here is a usage example:
+     * <pre>
+     *    Integer quantity = svjt.queryForObjectSmileyVars("SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+     *         svps -> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8),
+     *         Integer.class);
+     * </pre>
+     *
+     * @param sql       The SQL to use for the SmileyVars template.
+     * @param setter    a consumer function that sets the values of variables in the SmileVars template.
+     * @param requiredType The type of return value to be produced.
+     * @return the result object returned by the ResultSetExtractor
+     * @throws DataAccessException if there is any problem
+     */
+    public <T> T queryForObjectSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, Class<T> requiredType) throws DataAccessException {
+        return queryForObjectSmileyVars(sql, setter, getSingleColumnRowMapper(requiredType));
     }
 
     @Override

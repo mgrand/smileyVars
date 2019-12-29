@@ -278,6 +278,15 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals( 31, inventory.getQuantity());
     }
 
+    @Test
+    void queryPreparedStatmentForObjectWithRequiredType() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Integer quantity = svjt.queryForObjectSmileyVars("SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+                svps -> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8),
+                Integer.class);
+        assertEquals( 31, quantity);
+    }
+
     private static class Inventory {
         private Integer aisle, level, bin_number;
         private Integer quantity;
