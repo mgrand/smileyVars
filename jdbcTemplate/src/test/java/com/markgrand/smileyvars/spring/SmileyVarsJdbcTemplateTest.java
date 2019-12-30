@@ -287,6 +287,28 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals( 31, quantity);
     }
 
+    @Test
+    void queryTemplateArraysForObjectWithRequiredType() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String[] names = {"aisle", "level", "bin_number"};
+        Object[] values = {4, 1, 8};
+        String sql = "SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        Integer quantity = svjt.queryForObjectSmileyVars(sql, names, values, Integer.class);
+        assertEquals( 31, quantity);
+    }
+
+    @Test
+    void queryTemplateMapForObjectWithRequiredType() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("aisle", 4);
+        valueMap.put("level", 1);
+        valueMap.put("bin_number", 8);
+        String sql = "SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        Integer quantity = svjt.queryForObjectSmileyVars(sql, valueMap, Integer.class);
+        assertEquals( 31, quantity);
+    }
+
     private static class Inventory {
         private Integer aisle, level, bin_number;
         private Integer quantity;

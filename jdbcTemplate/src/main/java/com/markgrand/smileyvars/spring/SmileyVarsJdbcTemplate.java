@@ -428,8 +428,8 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      *         Integer.class);
      * </pre>
      *
-     * @param sql       The SQL to use for the SmileyVars template.
-     * @param setter    a consumer function that sets the values of variables in the SmileVars template.
+     * @param sql          The SQL to use for the SmileyVars template.
+     * @param setter       a consumer function that sets the values of variables in the SmileVars template.
      * @param requiredType The type of return value to be produced.
      * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
@@ -438,14 +438,50 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return queryForObjectSmileyVars(sql, setter, getSingleColumnRowMapper(requiredType));
     }
 
-    @Override
-    public <T> T queryForObject(String sql, Object[] args, Class<T> requiredType) throws DataAccessException {
-        return super.queryForObject(sql, args, requiredType);
+
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
+     * arrays. Execute the expanded SQL as a {@code Statement}. A return value is produced by passing result set
+     * containing a single row and single column to to be converted to the specified required type. Here is a usage
+     * example:
+     * <pre>
+     *    String[] names = {"aisle", "level", "bin_number"};
+     *    Object[] values = {4, 1, 8};
+     *    String sql = "SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    Integer quantity = svjt.queryForObjectSmileyVars(sql, names, values, Integer.class);
+     * </pre>
+     *
+     * @param sql          The string to use as the SmileyVars template body.
+     * @param names        The name of the variables whose values are being specified.
+     * @param values       The corresponding values to use for the variables in the template body.
+     * @param requiredType The type of return value to be produced.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public <T> T queryForObjectSmileyVars(String sql, String[] names, Object[] values, Class<T> requiredType) throws DataAccessException {
+        return queryForObjectSmileyVars(sql, names, values, getSingleColumnRowMapper(requiredType));
     }
 
-    @Override
-    public <T> T queryForObject(String sql, Class<T> requiredType, Object... args) throws DataAccessException {
-        return super.queryForObject(sql, requiredType, args);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
+     * expanded SQL as a {@code Statement}. A return value is produced by passing result set containing a single row and
+     * single column to to be converted to the specified required type. Here is a usage example:
+     * <pre>
+     *     valueMap.put("aisle", 4);
+     *     valueMap.put("level", 1);
+     *     valueMap.put("bin_number", 8);
+     *     String sql = "SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     Integer quantity = svjt.queryForObjectSmileyVars(sql, valueMap, Integer.class);
+     * </pre>
+     *
+     * @param sql       The string to use as the SmileyVars template body.
+     * @param valueMap  The values to use for the variables in the template body.
+     * @param requiredType The type of return value to be produced.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public <T> T queryForObjectSmileyVars(String sql, Map<String, Object> valueMap, Class<T> requiredType) throws DataAccessException {
+        return queryForObjectSmileyVars(sql, valueMap, getSingleColumnRowMapper(requiredType));
     }
 
     @Override
