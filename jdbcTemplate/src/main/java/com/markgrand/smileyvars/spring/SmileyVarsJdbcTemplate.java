@@ -551,11 +551,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public Map<String, Object> queryForMap(String sql, Object[] args, int[] argTypes) throws DataAccessException {
-        return super.queryForMap(sql, args, argTypes);
-    }
-
-    @Override
     public <T> List<T> queryForList(String sql, Object[] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
         return super.queryForList(sql, args, argTypes, elementType);
     }
