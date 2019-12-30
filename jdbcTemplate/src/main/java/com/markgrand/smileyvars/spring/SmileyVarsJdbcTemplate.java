@@ -431,7 +431,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param sql          The SQL to use for the SmileyVars template.
      * @param setter       a consumer function that sets the values of variables in the SmileVars template.
      * @param requiredType The type of return value to be produced.
-     * @return the result object returned by the ResultSetExtractor
+     * @return the result object
      * @throws DataAccessException if there is any problem
      */
     public <T> T queryForObjectSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, Class<T> requiredType) throws DataAccessException {
@@ -455,6 +455,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param names        The name of the variables whose values are being specified.
      * @param values       The corresponding values to use for the variables in the template body.
      * @param requiredType The type of return value to be produced.
+     * @return the result object
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
@@ -474,14 +475,79 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      *     Integer quantity = svjt.queryForObjectSmileyVars(sql, valueMap, Integer.class);
      * </pre>
      *
-     * @param sql       The string to use as the SmileyVars template body.
-     * @param valueMap  The values to use for the variables in the template body.
+     * @param sql          The string to use as the SmileyVars template body.
+     * @param valueMap     The values to use for the variables in the template body.
      * @param requiredType The type of return value to be produced.
+     * @return the result object
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
     public <T> T queryForObjectSmileyVars(String sql, Map<String, Object> valueMap, Class<T> requiredType) throws DataAccessException {
         return queryForObjectSmileyVars(sql, valueMap, getSingleColumnRowMapper(requiredType));
+    }
+
+    /**
+     * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql. A return value is produced by executing the prepared statement to produce result set containing a
+     * single row and converting the row to a Map. Here is a usage example:
+     * <pre>
+     *    Map<String, Object> resultMap = svjt.queryForMapSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+     *         svps -> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8));
+     * </pre>
+     *
+     * @param sql    The SQL to use for the SmileyVars template.
+     * @param setter a consumer function that sets the values of variables in the SmileVars template.
+     * @return A map whose keys are the value in the result row and whose values are the values from the result row.
+     * @throws DataAccessException if there is any problem
+     */
+    public Map<String, Object> queryForMapSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) throws DataAccessException {
+        return queryForObjectSmileyVars(sql, setter, getColumnMapRowMapper());
+    }
+
+
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
+     * arrays. Execute the expanded SQL as a {@code Statement}. A return value is produced by executing the prepared
+     * statement to produce result set containing a single row and converting the row to a Map. Here is a usage
+     * example:
+     * <pre>
+     *    String[] names = {"aisle", "level", "bin_number"};
+     *    Object[] values = {4, 1, 8};
+     *    String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    Map<String, Object> resultMap = svjt.queryForMapSmileyVars(sql, names, values);
+     * </pre>
+     *
+     * @param sql    The string to use as the SmileyVars template body.
+     * @param names  The name of the variables whose values are being specified.
+     * @param values The corresponding values to use for the variables in the template body.
+     * @return A map whose keys are the value in the result row and whose values are the values from the result row.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public Map<String, Object> queryForMapSmileyVars(String sql, String[] names, Object[] values) throws DataAccessException {
+        return queryForObjectSmileyVars(sql, names, values, getColumnMapRowMapper());
+    }
+
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
+     * expanded SQL as a {@code Statement}. A return value is produced by executing the prepared statement to produce
+     * result set containing a single row and converting the row to a Map. Here is a usage example:
+     * <pre>
+     *     valueMap.put("aisle", 4);
+     *     valueMap.put("level", 1);
+     *     valueMap.put("bin_number", 8);
+     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     Map<String, Object> resultMap = svjt.queryForObjectSmileyVars(sql, valueMap);
+     * </pre>
+     *
+     * @param sql          The string to use as the SmileyVars template body.
+     * @param valueMap     The values to use for the variables in the template body.
+     * @return A map whose keys are the value in the result row and whose values are the values from the result row.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public Map<String, Object> queryForMapSmileyVars(String sql, Map<String, Object> valueMap) throws DataAccessException {
+        return queryForObjectSmileyVars(sql, valueMap, getColumnMapRowMapper());
     }
 
     @Override

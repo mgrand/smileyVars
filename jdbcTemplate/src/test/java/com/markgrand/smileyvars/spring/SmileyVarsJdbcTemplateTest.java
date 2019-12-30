@@ -309,6 +309,39 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals( 31, quantity);
     }
 
+    @Test
+    void queryPreparedStatmentForMap() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> resultMap = svjt.queryForMapSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+                svps -> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8));
+        assertEquals( 5, resultMap.size());
+        assertEquals(31, resultMap.get("quantity"));
+    }
+
+    @Test
+    void queryTemplateArraysForMap() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String[] names = {"aisle", "level", "bin_number"};
+        Object[] values = {4, 1, 8};
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        Map<String, Object> resultMap = svjt.queryForMapSmileyVars(sql, names, values);
+        assertEquals( 5, resultMap.size());
+        assertEquals(31, resultMap.get("quantity"));
+    }
+
+    @Test
+    void queryTemplateMapForMap() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("aisle", 4);
+        valueMap.put("level", 1);
+        valueMap.put("bin_number", 8);
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        Map<String, Object> resultMap = svjt.queryForMapSmileyVars(sql, valueMap);
+        assertEquals( 5, resultMap.size());
+        assertEquals(31, resultMap.get("quantity"));
+    }
+
     private static class Inventory {
         private Integer aisle, level, bin_number;
         private Integer quantity;
