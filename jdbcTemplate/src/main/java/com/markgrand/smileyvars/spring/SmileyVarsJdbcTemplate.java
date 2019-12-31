@@ -16,11 +16,13 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is an extension of {@linkplain JdbcTemplate} that supports <a href="https://mgrand.github.io/smileyVars/">SmileyVars
@@ -628,41 +630,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     @Override
     public <T> int[][] batchUpdate(String sql, @NotNull Collection<T> batchArgs, int batchSize, ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
         return super.batchUpdate(sql, batchArgs, batchSize, pss);
-    }
-
-    @Override
-    public <T> T execute(@NotNull CallableStatementCreator csc, @NotNull CallableStatementCallback<T> action) throws DataAccessException {
-        return super.execute(csc, action);
-    }
-
-    @Override
-    public <T> T execute(@NotNull String callString, CallableStatementCallback<T> action) throws DataAccessException {
-        return super.execute(callString, action);
-    }
-
-    @Override
-    public Map<String, Object> call(CallableStatementCreator csc, @NotNull List<SqlParameter> declaredParameters) throws DataAccessException {
-        return super.call(csc, declaredParameters);
-    }
-
-    @Override
-    protected Map<String, Object> extractReturnedResults(CallableStatement cs, List<SqlParameter> updateCountParameters, List<SqlParameter> resultSetParameters, int updateCount) throws SQLException {
-        return super.extractReturnedResults(cs, updateCountParameters, resultSetParameters, updateCount);
-    }
-
-    @Override
-    protected Map<String, Object> extractOutputParameters(CallableStatement cs, @NotNull List<SqlParameter> parameters) throws SQLException {
-        return super.extractOutputParameters(cs, parameters);
-    }
-
-    @Override
-    protected PreparedStatementSetter newArgPreparedStatementSetter(Object[] args) {
-        return super.newArgPreparedStatementSetter(args);
-    }
-
-    @Override
-    protected PreparedStatementSetter newArgTypePreparedStatementSetter(Object[] args, int[] argTypes) {
-        return super.newArgTypePreparedStatementSetter(args, argTypes);
     }
 
     /**
