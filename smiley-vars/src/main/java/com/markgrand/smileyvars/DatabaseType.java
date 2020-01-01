@@ -28,12 +28,12 @@ public enum DatabaseType {
     /**
      * Template specialized for SQL Server.
      */
-    SQL_SERVER(Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiInstance())
-    ;
+    SQL_SERVER(Tokenizer.builder().configureForSqlServer(), ValueFormatterRegistry.ansiInstance());
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseType.class);
 
     private static Map<String, DatabaseType> nameToDatabaseTypeMap = new HashMap<>();
+
     static {
         nameToDatabaseTypeMap.put("CUBRID", ANSI);
         nameToDatabaseTypeMap.put("DB2", ANSI);
@@ -70,29 +70,33 @@ public enum DatabaseType {
      * inferring the type of database, the problem is logged and {@link DatabaseType#ANSI} is returned.
      */
     @NotNull
-    public static DatabaseType inferDatabaseType(@NotNull  DatabaseMetaData databaseMetaData) {
+    public static DatabaseType inferDatabaseType(@NotNull DatabaseMetaData databaseMetaData) {
         try {
-            String productName = databaseMetaData.getDatabaseProductName();
-            if (productName == null) {
-                return ANSI;
-            }
-            DatabaseType type = nameToDatabaseTypeMap.get(productName.toUpperCase());
-            if (type != null) {
-                return type;
-            }
-            if (databaseMetaData.getDriverName() != null && databaseMetaData.getDriverName().startsWith("MariaDB")) {
-                return ANSI;
-            }
-            if (productName.startsWith("Microsoft SQL Server")) {
-                return SQL_SERVER;
-            }
-            logger.warn("Defaulting unknown database product {} to use ANSI templates.", productName);
-            return ANSI;
+            return inferDatabaseType(databaseMetaData.getDatabaseProductName());
         } catch (SQLException e) {
             logger.warn("Attempt to get type of database failed", e);
             return ANSI;
         }
+    }
 
+    /**
+     * Infer the type of database that this is for based on a connection's metadata.
+     *
+     * @param productName the productName value returned by the connection's metadata
+     * @return The {@code DatabaseType} value that corresponds to the inferred type of database. If there is a problem
+     * inferring the type of database, the problem is logged and {@link DatabaseType#ANSI} is returned.
+     */
+    @NotNull
+    public static DatabaseType inferDatabaseType(@NotNull String productName) {
+        DatabaseType type = nameToDatabaseTypeMap.get(productName.toUpperCase());
+        if (type != null) {
+            return type;
+        }
+        if (productName.startsWith("Microsoft SQL Server")) {
+            return SQL_SERVER;
+        }
+        logger.warn("Defaulting unknown database product {} to use ANSI templates.", productName);
+        return ANSI;
     }
 
     Tokenizer.TokenizerBuilder getTokenizerBuilder() {
