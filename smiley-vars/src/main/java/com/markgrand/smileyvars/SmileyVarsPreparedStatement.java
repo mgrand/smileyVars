@@ -21,6 +21,12 @@ import java.util.stream.Collectors;
  * PreparedStatement} object with the template expansion.
  * <p>The SmileyVars template language is documented at
  * <a href="https://mgrand.github.io/smileyVars/">https://mgrand.github.io/smileyVars/</a>.</p>
+ * <p>All of this class's set methods return this object, so you can use a fluent coding style to configure a prepared
+ * statement like this:</p>
+ * <pre>
+ *     String sql = "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)";
+ *     SmileyVarsPreparedStatement svps2 = new SmileyVarsPreparedStatement(connection, sql).setInt("x", 2).setInt("y", 4);
+ * </pre>
  * <p>
  * Since {@code SmileyVarsPreparedStatement} does not know which parameters you will or won't specify for the template,
  * it does not create the underlying {@code PreparedStatement} object until you try to execute the query. This means
