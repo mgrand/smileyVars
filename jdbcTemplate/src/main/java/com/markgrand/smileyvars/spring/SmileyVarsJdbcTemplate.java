@@ -9,10 +9,13 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
@@ -78,14 +81,11 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     @Override
     public void setDataSource(DataSource dataSource) {
         super.setDataSource(dataSource);
-        Connection conn = createConnectionProxy(DataSourceUtils.getConnection(obtainDataSource()));
         try {
-            databaseType = DatabaseType.inferDatabaseType(conn.getMetaData());
+            databaseType = DatabaseType.inferDatabaseType(JdbcUtils.<String>extractDatabaseMetaData(dataSource, "getDatabaseProductName"));
             logger.debug("DatabaseType is {}", databaseType);
-        } catch (SQLException e) {
-            throw translateException("getMetaData", null, e);
-        } finally {
-            DataSourceUtils.releaseConnection(conn, getDataSource());
+        } catch (MetaDataAccessException e) {
+            throw new DataAccessResourceFailureException("Error while determining type of database.", e);
         }
     }
 
@@ -156,7 +156,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * </pre>
      *
      * @param sql    The string to use as the SmileyVars template body.
-     * @param names  The name of the variables whose values are being specified.
+     * @param names  The names of the variables whose values are being specified.
      * @param values The corresponding values to use for the variables in the template body.
      * @param rse    The {@link ResultSetExtractor} to use for extracting a result from the query's result set.
      * @param <T>    The type of value to be returned.
@@ -251,7 +251,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * </pre>
      *
      * @param sql    The string to use as the SmileyVars template body.
-     * @param names  The name of the variables whose values are being specified.
+     * @param names  The names of the variables whose values are being specified.
      * @param values The corresponding values to use for the variables in the template body.
      * @param rch    The {@link RowCallbackHandler} to use for processing each row from the query's result set.
      * @throws DataAccessException      if there is a problem.
@@ -321,7 +321,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * </pre>
      *
      * @param sql       The string to use as the SmileyVars template body.
-     * @param names     The name of the variables whose values are being specified.
+     * @param names     The names of the variables whose values are being specified.
      * @param values    The corresponding values to use for the variables in the template body.
      * @param rowMapper a callback that is called to process each row into a value.
      * @throws DataAccessException      if there is a problem.
@@ -384,7 +384,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * </pre>
      *
      * @param sql       The string to use as the SmileyVars template body.
-     * @param names     The name of the variables whose values are being specified.
+     * @param names     The names of the variables whose values are being specified.
      * @param values    The corresponding values to use for the variables in the template body.
      * @param rowMapper a callback that is called to process each row into a value.
      * @throws DataAccessException      if there is a problem.
@@ -454,7 +454,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * </pre>
      *
      * @param sql          The string to use as the SmileyVars template body.
-     * @param names        The name of the variables whose values are being specified.
+     * @param names        The names of the variables whose values are being specified.
      * @param values       The corresponding values to use for the variables in the template body.
      * @param requiredType The type of return value to be produced.
      * @return the result object
@@ -506,7 +506,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return queryForObjectSmileyVars(sql, setter, getColumnMapRowMapper());
     }
 
-
     /**
      * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
      * arrays. Execute the expanded SQL as a {@code Statement}. A return value is produced by executing the prepared
@@ -520,7 +519,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * </pre>
      *
      * @param sql    The string to use as the SmileyVars template body.
-     * @param names  The name of the variables whose values are being specified.
+     * @param names  The names of the variables whose values are being specified.
      * @param values The corresponding values to use for the variables in the template body.
      * @return A map whose keys are the value in the result row and whose values are the values from the result row.
      * @throws DataAccessException      if there is a problem.
@@ -542,8 +541,8 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      *     Map<String, Object> resultMap = svjt.queryForObjectSmileyVars(sql, valueMap);
      * </pre>
      *
-     * @param sql          The string to use as the SmileyVars template body.
-     * @param valueMap     The values to use for the variables in the template body.
+     * @param sql      The string to use as the SmileyVars template body.
+     * @param valueMap The values to use for the variables in the template body.
      * @return A map whose keys are the value in the result row and whose values are the values from the result row.
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
@@ -552,14 +551,70 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return queryForObjectSmileyVars(sql, valueMap, getColumnMapRowMapper());
     }
 
-    @Override
-    public <T> List<T> queryForList(String sql, Object[] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
-        return super.queryForList(sql, args, argTypes, elementType);
+    /**
+     * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql. A list of return values of specified type is produced by executing the prepared statement to produce
+     * result set containing a single column. Here is a usage example:
+     * <pre>
+     *     String sql = "SELECT item_number FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     List<String> itemNumbers = svjt.queryForListSmileyVars(sql,
+     *         svps -> svps.setInt("aisle", 4).setInt("level", 1),
+     *         String.class);
+     * </pre>
+     *
+     * @param sql         The SQL to use for the SmileyVars template.
+     * @param setter      a consumer function that sets the values of variables in the SmileVars template.
+     * @param elementType the required type of element in the result list (for example, {@code Integer.class})
+     * @return A List whose elements are the single value in each result row.
+     * @throws DataAccessException if there is any problem
+     */
+    public <T> List<T> queryForListSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, Class<T> elementType) throws DataAccessException {
+        return querySmileyVars(sql, setter, getSingleColumnRowMapper(elementType));
     }
 
-    @Override
-    public <T> List<T> queryForList(String sql, Object[] args, Class<T> elementType) throws DataAccessException {
-        return super.queryForList(sql, args, elementType);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
+     * arrays. Execute the expanded SQL as a {@code Statement}. A list of return values of specified type is produced by
+     * executing the prepared statement to produce result set containing a single column. Here is a usage example:
+     * <pre>
+     *    String[] names = {"aisle", "level"};
+     *    Object[] values = {4, 1};
+     *    String sql = "SELECT item_number FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    List<String> itemNumbers = svjt.queryForListSmileyVars(sql, names, values, String.class);
+     * </pre>
+     *
+     * @param sql         The string to use as the SmileyVars template body.
+     * @param names       The names of the variables whose values are being specified.
+     * @param values      The corresponding values to use for the variables in the template body.
+     * @param elementType the required type of element in the result list (for example, {@code Integer.class})
+     * @return A List whose elements are the single value in each result row.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public <T> List<T> queryForListSmileyVars(String sql, String[] names, Object[] values, Class<T> elementType) throws DataAccessException {
+        return querySmileyVars(sql, names, values, getSingleColumnRowMapper(elementType));
+    }
+
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
+     * expanded SQL as a {@code Statement}. A list of return values of specified type is produced by executing the
+     * prepared statement to produce result set containing a single column. Here is a usage example:
+     * <pre>
+     *     valueMap.put("aisle", 4);
+     *     valueMap.put("level", 1);
+     *     String sql = "SELECT item_number FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     List<String> itemNumbers = svjt.queryForObjectSmileyVars(sql, valueMap, String.class);
+     * </pre>
+     *
+     * @param sql      The string to use as the SmileyVars template body.
+     * @param valueMap The values to use for the variables in the template body.
+     * @param elementType the required type of element in the result list (for example, {@code Integer.class})
+     * @return A List whose elements are the single value in each result row.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public <T> List<T> queryForListSmileyVars(String sql, Map<String, Object> valueMap, Class<T> elementType) throws DataAccessException {
+        return querySmileyVars(sql, valueMap, getSingleColumnRowMapper(elementType));
     }
 
     @Override
