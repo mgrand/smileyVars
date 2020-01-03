@@ -25,14 +25,15 @@ class SmileyVarsJdbcTemplateTest {
     private static RowMapper<Inventory> rowMapper
             = (rs, rowNum) -> new Inventory(rs.getInt("aisle"), rs.getInt("level"), rs.getInt("bin_number"), rs.getInt("quantity"), rs.getString("item_number"));
 
-    private Connection h2Connection;
+    private static Connection h2Connection;
     private MockDataSource mockDataSource;
 
     @BeforeEach
     void setUp() throws Exception {
+        assertTrue(h2Connection == null || h2Connection.isClosed());
         h2Connection = getConnection();
         Statement stmt = h2Connection.createStatement();
-        stmt.execute("CREATE TABLE IF NOT EXISTS inventory ("
+        stmt.execute("CREATE TABLE inventory ("
                              + "aisle INT,"
                              + "level INT,"
                              + "bin_number INT,"
@@ -46,7 +47,7 @@ class SmileyVarsJdbcTemplateTest {
         stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 2, 3, 'M255X', 18);");
         h2Connection.commit();
         stmt.close();
-        mockDataSource = new MockDataSource(){
+        mockDataSource = new MockDataSource() {
             @Override
             public Connection getConnection() throws SQLException {
                 return SmileyVarsJdbcTemplateTest.this.getConnection();
@@ -60,6 +61,7 @@ class SmileyVarsJdbcTemplateTest {
 
     @AfterEach
     void tearDown() throws Exception {
+        h2Connection.createStatement().execute("drop table inventory");
         h2Connection.close();
     }
 
@@ -357,7 +359,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryTemplateArraysForList() {
+    void queryTemplateArraysForList() throws Exception {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         String[] names = {"aisle", "level"};
         Object[] values = {4, 1};
@@ -375,6 +377,15 @@ class SmileyVarsJdbcTemplateTest {
         String sql = "SELECT item_number FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
         List<String> itemNumbers = svjt.queryForListSmileyVars(sql, valueMap, String.class);
         assertEquals(3, itemNumbers.size());
+    }
+
+    @Test
+    void queryPreparedStatmentForListMap() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        List<Map<String, Object>> resultList = svjt.queryForListSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+                svps -> svps.setInt("aisle", 4).setInt("level", 1));
+        assertEquals(3, resultList.size());
+        assertEquals(5, resultList.get(0).size());
     }
 
     private static class Inventory {

@@ -606,8 +606,8 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      *     List<String> itemNumbers = svjt.queryForObjectSmileyVars(sql, valueMap, String.class);
      * </pre>
      *
-     * @param sql      The string to use as the SmileyVars template body.
-     * @param valueMap The values to use for the variables in the template body.
+     * @param sql         The string to use as the SmileyVars template body.
+     * @param valueMap    The values to use for the variables in the template body.
      * @param elementType the required type of element in the result list (for example, {@code Integer.class})
      * @return A List whose elements are the single value in each result row.
      * @throws DataAccessException      if there is a problem.
@@ -617,9 +617,25 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return querySmileyVars(sql, valueMap, getSingleColumnRowMapper(elementType));
     }
 
-    @Override
-    public List<Map<String, Object>> queryForList(String sql, Object[] args, int[] argTypes) throws DataAccessException {
-        return super.queryForList(sql, args, argTypes);
+    /**
+     * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql. The prepared statement is executed to produce a result set. A Map is created for each row. The keys of
+     * these maps are the column names and the value are the values from the row. A list of these Map objects is
+     * returned. Here is a usage example:
+     * <pre>
+     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     List<Map<String, Object>> inventoryMapList = svjt.queryForListSmileyVars(sql,
+     *         svps -> svps.setInt("aisle", 4).setInt("level", 1),
+     *         String.class);
+     * </pre>
+     *
+     * @param sql    The SQL to use for the SmileyVars template.
+     * @param setter a consumer function that sets the values of variables in the SmileVars template.
+     * @return A List that contains a Map for each returned row.
+     * @throws DataAccessException if there is any problem
+     */
+    public List<Map<String, Object>> queryForListSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) throws DataAccessException {
+        return querySmileyVars(sql, setter, getColumnMapRowMapper());
     }
 
     @Override
