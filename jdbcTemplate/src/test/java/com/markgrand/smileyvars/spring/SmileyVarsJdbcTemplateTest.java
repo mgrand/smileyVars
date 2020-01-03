@@ -388,6 +388,29 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals(5, resultList.get(0).size());
     }
 
+    @Test
+    void queryTemplateArraysForListMap() throws Exception {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String[] names = {"aisle", "level"};
+        Object[] values = {4, 1};
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        List<Map<String, Object>> resultList = svjt.queryForListSmileyVars(sql, names, values);
+        assertEquals(3, resultList.size());
+        assertEquals(5, resultList.get(0).size());
+    }
+
+    @Test
+    void queryTemplateListForListMap() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("aisle", 4);
+        valueMap.put("level", 1);
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        List<Map<String, Object>> resultList = svjt.queryForListSmileyVars(sql, valueMap);
+        assertEquals(3, resultList.size());
+        assertEquals(5, resultList.get(0).size());
+    }
+
     private static class Inventory {
         private Integer aisle, level, bin_number;
         private Integer quantity;
