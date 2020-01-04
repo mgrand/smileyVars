@@ -454,19 +454,43 @@ class SmileyVarsJdbcTemplateTest {
     @Test
     void updatePreparedStatement() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
-//        Map<String, Object> valueMap = new HashMap<>();
-//        valueMap.put("aisle", 4);
-//        valueMap.put("level", 2);
-//        valueMap.put("bin_number", 3);
-        String insertSql = "SELECT quantity FROM inventory WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+        String selectSql = "SELECT quantity FROM inventory WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
         SqlConsumer<SmileyVarsPreparedStatement> setter
                 = svps -> svps.setInt("aisle", 4).setInt("level", 2).setInt("bin_number", 3);
-        Integer originalQuantity = svjt.queryForObjectSmileyVars(insertSql, setter, Integer.class);
+        Integer originalQuantity = svjt.queryForObjectSmileyVars(selectSql, setter, Integer.class);
         assertEquals(27, originalQuantity);
         String updateSql = "UPDATE inventory SET quantity = quantity + 1 WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
         int updateCount = svjt.updateSmileyVars(updateSql, setter);
         assertEquals(1, updateCount);
-        Integer newQuantity = svjt.queryForObjectSmileyVars(insertSql, setter, Integer.class);
+        Integer newQuantity = svjt.queryForObjectSmileyVars(selectSql, setter, Integer.class);
+        assertEquals(28, newQuantity);
+    }
+
+    @Test
+    void updateTemplateArrays() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String[] names = {"aisle", "level", "bin_number"};
+        Object[] values = {4, 2, 3};
+        String updateSql = "UPDATE inventory SET quantity = quantity + 1 WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+        int updateCount = svjt.updateSmileyVars(updateSql, names, values);
+        assertEquals(1, updateCount);
+        String selectSql = "SELECT quantity FROM inventory WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+        Integer newQuantity = svjt.queryForObjectSmileyVars(selectSql, names, values, Integer.class);
+        assertEquals(28, newQuantity);
+    }
+
+    @Test
+    void updateTemplateMap() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("aisle", 4);
+        valueMap.put("level", 2);
+        valueMap.put("bin_number", 3);
+        String updateSql = "UPDATE inventory SET quantity = quantity + 1 WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+        int updateCount = svjt.updateSmileyVars(updateSql, valueMap);
+        assertEquals(1, updateCount);
+        String selectSql = "SELECT quantity FROM inventory WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+        Integer newQuantity = svjt.queryForObjectSmileyVars(selectSql, valueMap, Integer.class);
         assertEquals(28, newQuantity);
     }
 

@@ -204,7 +204,12 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException if there is a problem.
      */
     public <T> T querySmileyVars(String sql, Map<String, ?> valueMap, ResultSetExtractor<T> rse) throws DataAccessException {
-        return super.query(SmileyVarsTemplate.template(databaseType, sql).apply(valueMap), rse);
+        return super.query(expand(sql, valueMap), rse);
+    }
+
+    @NotNull
+    private String expand(String sql, Map<String, ?> valueMap) {
+        return SmileyVarsTemplate.template(databaseType, sql).apply(valueMap);
     }
 
     /**
@@ -283,7 +288,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException if there is a problem.
      */
     public void querySmileyVars(String sql, Map<String, ?> valueMap, RowCallbackHandler rch) throws DataAccessException {
-        super.query(SmileyVarsTemplate.template(databaseType, sql).apply(valueMap), rch);
+        super.query(expand(sql, valueMap), rch);
     }
 
     /**
@@ -338,9 +343,11 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * is a usage example:
      * <pre>
      * </pre>
-     * Map<String, Object> valueMap = new HashMap<>(); valueMap.put("aisle", 4); valueMap.put("level", 1); String sql =
-     * "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
-     * List<Inventory> inventoryList = svjt.querySmileyVars(sql, valueMap, rowMapper);
+     *     Map<String, Object> valueMap = new HashMap<>();
+     *     valueMap.put("aisle", 4);
+     *     valueMap.put("level", 1);
+     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     List<Inventory> inventoryList = svjt.querySmileyVars(sql, valueMap, rowMapper);
      *
      * @param sql       The string to use as the SmileyVars template body.
      * @param valueMap  The values to use for the variables in the template body.
@@ -469,6 +476,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * expanded SQL as a {@code Statement}. A return value is produced by passing result set containing a single row and
      * single column to to be converted to the specified required type. Here is a usage example:
      * <pre>
+     *     Map<String, Object> valueMap = new HashMap<>();
      *     valueMap.put("aisle", 4);
      *     valueMap.put("level", 1);
      *     valueMap.put("bin_number", 8);
@@ -533,6 +541,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * expanded SQL as a {@code Statement}. A return value is produced by executing the prepared statement to produce
      * result set containing a single row and converting the row to a Map. Here is a usage example:
      * <pre>
+     *     Map<String, Object> valueMap = new HashMap<>();
      *     valueMap.put("aisle", 4);
      *     valueMap.put("level", 1);
      *     valueMap.put("bin_number", 8);
@@ -599,6 +608,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * expanded SQL as a {@code Statement}. A list of return values of specified type is produced by executing the
      * prepared statement to produce result set containing a single column. Here is a usage example:
      * <pre>
+     *     Map<String, Object> valueMap = new HashMap<>();
      *     valueMap.put("aisle", 4);
      *     valueMap.put("level", 1);
      *     String sql = "SELECT item_number FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
@@ -664,6 +674,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * expanded SQL as a {@code Statement}. A Map is created for each row. The keys of these maps are the column names
      * and the value are the values from the row. A list of these Map objects is returned. Here is a usage example:
      * <pre>
+     *     Map<String, Object> valueMap = new HashMap<>();
      *     valueMap.put("aisle", 4);
      *     valueMap.put("level", 1);
      *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
@@ -725,6 +736,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
      * expanded SQL as a {@code Statement}. Return the results an {@link SqlRowSet} object. Here is a usage example:
      * <pre>
+     *     Map<String, Object> valueMap = new HashMap<>();
      *     valueMap.put("aisle", 4);
      *     valueMap.put("level", 1);
      *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
@@ -762,29 +774,74 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         });
     }
 
-    @Override
-    public int update(PreparedStatementCreator psc) throws DataAccessException {
-        return super.update(psc);
+    /**
+     * Update using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql. Generated keys will be put into the given KeyHolder. Here is a usage example:
+     * <pre>
+     *    String sql = "UPDATE inventory SET quantity = quantity + 1 WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+     *    int updateCount = svjt.updateSmileyVars(sql, svps -> svps.setInt("aisle", 4).setInt("level", 2).setInt("bin_number", 3));
+     * </pre>
+     *
+     * @param sql                The SQL to use for the SmileyVars template.
+     * @param setter             a consumer function that sets the values of variables in the SmileVars template.
+     * @param generatedKeyHolder a KeyHolder to hold the generated keys
+     * @return the number of affected rows.
+     * @throws DataAccessException if there is any problem
+     */
+    public int updateSmileyVars(@NotNull String sql,
+                                @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter,
+                                @NotNull KeyHolder generatedKeyHolder) throws DataAccessException {
+        return update(conn -> {
+                    SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql);
+                    setter.accept(svps);
+                    return svps.getPreparedStatement();
+                },
+                generatedKeyHolder);
     }
 
-    @Override
-    public int update(PreparedStatementCreator psc, @NotNull KeyHolder generatedKeyHolder) throws DataAccessException {
-        return super.update(psc, generatedKeyHolder);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
+     * arrays. Use the expanded SQL to update the database. Here is a usage example:
+     * <pre>
+     *    String[] names = {"aisle", "level", "bin_number"};
+     *    Object[] values = {4, 2, 3};
+     *    String sql = "UPDATE inventory SET quantity = quantity + 1 WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+     *    int updateCount = svjt.updateSmileyVars(sql, names, values);
+     * </pre>
+     *
+     * @param sql    The string to use as the SmileyVars template body.
+     * @param names  The names of the variables whose values are being specified.
+     * @param values The corresponding values to use for the variables in the template body.
+     * @return the number of affected rows.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public int updateSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) throws DataAccessException {
+        ensureEqualLengthArrays(names, values);
+        return updateSmileyVars(sql, arraysToMap(names, values));
     }
 
-    @Override
-    public int update(@NotNull String sql, PreparedStatementSetter pss) throws DataAccessException {
-        return super.update(sql, pss);
-    }
 
-    @Override
-    public int update(String sql, Object[] args, int[] argTypes) throws DataAccessException {
-        return super.update(sql, args, argTypes);
-    }
-
-    @Override
-    public int update(String sql, Object... args) throws DataAccessException {
-        return super.update(sql, args);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Use the
+     * expanded SQL to update the database. Here is a usage example:
+     * <pre>
+     *     Map<String, Object> valueMap = new HashMap<>();
+     *     valueMap.put("aisle", 4);
+     *     valueMap.put("level", 2);
+     *     valueMap.put("bin_number", 3);
+     *    String sql = "UPDATE inventory SET quantity = quantity + 1 WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+     *    int updateCount = svjt.updateSmileyVars(sql, valueMap);
+     * </pre>
+     *
+     * @param sql      The string to use as the SmileyVars template body.
+     * @param valueMap The values to use for the variables in the template body.
+     * @return the number of affected rows.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public int updateSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) throws DataAccessException {
+        return update(expand(sql, valueMap));
     }
 
     @Override
