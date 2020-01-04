@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import java.sql.*;
 import java.util.*;
@@ -359,7 +360,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryTemplateArraysForList() throws Exception {
+    void queryTemplateArraysForList() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         String[] names = {"aisle", "level"};
         Object[] values = {4, 1};
@@ -389,7 +390,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryTemplateArraysForListMap() throws Exception {
+    void queryTemplateArraysForListMap() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         String[] names = {"aisle", "level"};
         Object[] values = {4, 1};
@@ -409,6 +410,17 @@ class SmileyVarsJdbcTemplateTest {
         List<Map<String, Object>> resultList = svjt.queryForListSmileyVars(sql, valueMap);
         assertEquals(3, resultList.size());
         assertEquals(5, resultList.get(0).size());
+    }
+
+    @Test
+    void queryPreparedStatmentForRowSet() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        SqlRowSet rowSet = svjt.queryForRowSetSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+                svps -> svps.setInt("aisle", 4).setInt("level", 1));
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.isLast());
     }
 
     private static class Inventory {

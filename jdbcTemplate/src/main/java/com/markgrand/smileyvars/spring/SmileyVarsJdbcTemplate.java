@@ -257,7 +257,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public void querySmileyVars(String sql, String[] names, Object[] values, RowCallbackHandler rch) throws DataAccessException {
+    public void querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowCallbackHandler rch) throws DataAccessException {
         ensureEqualLengthArrays(names, values);
         Map<String, Object> valueMap = arraysToMap(names, values);
         querySmileyVars(sql, valueMap, rch);
@@ -625,8 +625,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * <pre>
      *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
      *     List<Map<String, Object>> inventoryMapList = svjt.queryForListSmileyVars(sql,
-     *         svps -> svps.setInt("aisle", 4).setInt("level", 1),
-     *         String.class);
+     *         svps -> svps.setInt("aisle", 4).setInt("level", 1));
      * </pre>
      *
      * @param sql    The SQL to use for the SmileyVars template.
@@ -657,7 +656,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public List<Map<String, Object>> queryForListSmileyVars(String sql, String[] names, Object[] values) throws DataAccessException {
+    public List<Map<String, Object>> queryForListSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) throws DataAccessException {
         return querySmileyVars(sql, names, values, getColumnMapRowMapper());
     }
 
@@ -678,8 +677,27 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public List<Map<String, Object>> queryForListSmileyVars(String sql, Map<String, Object> valueMap) throws DataAccessException {
+    public List<Map<String, Object>> queryForListSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) throws DataAccessException {
         return querySmileyVars(sql, valueMap, getColumnMapRowMapper());
+    }
+
+    /**
+     * Query using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql. The prepared statement is executed to produce a result set. The result set is returned as an {@link
+     * SqlRowSet} object. Here is a usage example:
+     * <pre>
+     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     SqlRowSet inventoryMapList = svjt.queryForListSmileyVars(sql,
+     *         svps -> svps.setInt("aisle", 4).setInt("level", 1));
+     * </pre>
+     *
+     * @param sql    The SQL to use for the SmileyVars template.
+     * @param setter a consumer function that sets the values of variables in the SmileVars template.
+     * @return result rows as an {@link SqlRowSet} object.
+     * @throws DataAccessException if there is any problem
+     */
+    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) throws DataAccessException {
+        return querySmileyVars(sql, setter, new SqlRowSetResultSetExtractor());
     }
 
     @Override
