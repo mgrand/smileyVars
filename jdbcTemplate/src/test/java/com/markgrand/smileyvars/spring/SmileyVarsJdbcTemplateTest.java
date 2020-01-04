@@ -1,6 +1,7 @@
 package com.markgrand.smileyvars.spring;
 
 import com.markgrand.smileyvars.SmileyVarsPreparedStatement;
+import com.markgrand.smileyvars.util.SqlConsumer;
 import com.mockrunner.mock.jdbc.MockDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +46,7 @@ class SmileyVarsJdbcTemplateTest {
         stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 7, 'M234', 22);");
         stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 8, 'M8473', 31);");
         stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 1, 9, 'M8479', 18);");
-        stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 2, 3, 'M255X', 18);");
+        stmt.execute("INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 2, 3, 'M255X', 27);");
         h2Connection.commit();
         stmt.close();
         mockDataSource = new MockDataSource() {
@@ -448,6 +449,25 @@ class SmileyVarsJdbcTemplateTest {
         assertTrue(rowSet.next());
         assertTrue(rowSet.next());
         assertTrue(rowSet.isLast());
+    }
+
+    @Test
+    void updatePreparedStatement() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+//        Map<String, Object> valueMap = new HashMap<>();
+//        valueMap.put("aisle", 4);
+//        valueMap.put("level", 2);
+//        valueMap.put("bin_number", 3);
+        String insertSql = "SELECT quantity FROM inventory WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+        SqlConsumer<SmileyVarsPreparedStatement> setter
+                = svps -> svps.setInt("aisle", 4).setInt("level", 2).setInt("bin_number", 3);
+        Integer originalQuantity = svjt.queryForObjectSmileyVars(insertSql, setter, Integer.class);
+        assertEquals(27, originalQuantity);
+        String updateSql = "UPDATE inventory SET quantity = quantity + 1 WHERE aisle=:aisle AND level=:level AND bin_number=:bin_number";
+        int updateCount = svjt.updateSmileyVars(updateSql, setter);
+        assertEquals(1, updateCount);
+        Integer newQuantity = svjt.queryForObjectSmileyVars(insertSql, setter, Integer.class);
+        assertEquals(28, newQuantity);
     }
 
     private static class Inventory {

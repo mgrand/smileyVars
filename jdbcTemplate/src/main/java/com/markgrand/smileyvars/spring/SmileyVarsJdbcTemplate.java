@@ -73,12 +73,12 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param lazyInit   whether to lazily initialize the SQLExceptionTranslator
      */
     @SuppressWarnings("WeakerAccess")
-    public SmileyVarsJdbcTemplate(DataSource dataSource, boolean lazyInit) {
+    public SmileyVarsJdbcTemplate(@NotNull DataSource dataSource, boolean lazyInit) {
         super(dataSource, lazyInit);
     }
 
     @Override
-    public void setDataSource(DataSource dataSource) {
+    public void setDataSource(@NotNull DataSource dataSource) {
         super.setDataSource(dataSource);
         try {
             databaseType = DatabaseType.inferDatabaseType(JdbcUtils.<String>extractDatabaseMetaData(dataSource, "getDatabaseProductName"));
@@ -107,7 +107,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the value that is returned by the given function.
      */
     @SuppressWarnings("unused")
-    public <T> T executeSmileyVars(String sql, SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
+    public <T> T executeSmileyVars(@NotNull String sql, @NotNull SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
         Connection conn = DataSourceUtils.getConnection(obtainDataSource());
         try {
             logger.debug("Creating SmileyVarsPreparedStatement from sql: {}", sql);
@@ -136,7 +136,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
      */
-    public <T> T querySmileyVars(@NotNull String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, ResultSetExtractor<T> rse) throws DataAccessException {
+    public <T> T querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull ResultSetExtractor<T> rse) throws DataAccessException {
         return executeSmileyVars(sql, (SmileyVarsPreparedStatement svps) -> {
             setter.accept(svps);
             return rse.extractData(svps.executeQuery());
@@ -741,9 +741,25 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return querySmileyVars(sql, valueMap, new SqlRowSetResultSetExtractor());
     }
 
-    @Override
-    protected int update(PreparedStatementCreator psc, PreparedStatementSetter pss) throws DataAccessException {
-        return super.update(psc, pss);
+    /**
+     * Update using a {@link SmileyVarsPreparedStatement}. A {@link SmileyVarsPreparedStatement} is created from the
+     * given sql. Here is a usage example:
+     * <pre>
+     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     List<Inventory> inventoryList = svjt.querySmileyVars(sql, svps-> svps.setInt("aisle", 4).setInt("level", 1), rse);
+     * </pre>
+     *
+     * @param sql    The SQL to use for the SmileyVars template.
+     * @param setter a consumer function that sets the values of variables in the SmileVars template.
+     * @return the number of effected rows.
+     * @throws DataAccessException if there is any problem
+     */
+    public int updateSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) throws DataAccessException {
+        return update(conn -> {
+            SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql);
+            setter.accept(svps);
+            return svps.getPreparedStatement();
+        });
     }
 
     @Override
