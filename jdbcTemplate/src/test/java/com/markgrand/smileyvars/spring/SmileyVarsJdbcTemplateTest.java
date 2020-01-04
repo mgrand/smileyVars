@@ -423,6 +423,33 @@ class SmileyVarsJdbcTemplateTest {
         assertTrue(rowSet.isLast());
     }
 
+    @Test
+    void queryTemplateArraysForRowSet() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String[] names = {"aisle", "level"};
+        Object[] values = {4, 1};
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        SqlRowSet rowSet = svjt.queryForRowSetSmileyVars(sql, names, values);
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.isLast());
+    }
+
+    @Test
+    void queryTemplateListForRowSet() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("aisle", 4);
+        valueMap.put("level", 1);
+        String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        SqlRowSet rowSet = svjt.queryForRowSetSmileyVars(sql, valueMap);
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.next());
+        assertTrue(rowSet.isLast());
+    }
+
     private static class Inventory {
         private final Integer aisle;
         private final Integer level;

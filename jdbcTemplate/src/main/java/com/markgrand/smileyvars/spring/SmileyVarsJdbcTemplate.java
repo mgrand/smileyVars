@@ -686,7 +686,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * SqlRowSet} object. Here is a usage example:
      * <pre>
      *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
-     *     SqlRowSet inventoryMapList = svjt.queryForListSmileyVars(sql,
+     *     SqlRowSet rowSet = svjt.queryForRowSetSmileyVars(sql,
      *         svps -> svps.setInt("aisle", 4).setInt("level", 1));
      * </pre>
      *
@@ -699,14 +699,46 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return querySmileyVars(sql, setter, new SqlRowSetResultSetExtractor());
     }
 
-    @Override
-    public SqlRowSet queryForRowSet(String sql, Object[] args, int[] argTypes) throws DataAccessException {
-        return super.queryForRowSet(sql, args, argTypes);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given name and value
+     * arrays. Execute the expanded SQL as a {@code Statement}. Return the results an {@link SqlRowSet} object. Here is
+     * a usage example:
+     * <pre>
+     *    String[] names = {"aisle", "level"};
+     *    Object[] values = {4, 1};
+     *    String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *    SqlRowSet rowSet = svjt.queryForRowSetSmileyVars(sql, names, values);
+     * </pre>
+     *
+     * @param sql    The string to use as the SmileyVars template body.
+     * @param names  The names of the variables whose values are being specified.
+     * @param values The corresponding values to use for the variables in the template body.
+     * @return result rows as an {@link SqlRowSet} object.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) throws DataAccessException {
+        return querySmileyVars(sql, names, values, new SqlRowSetResultSetExtractor());
     }
 
-    @Override
-    public SqlRowSet queryForRowSet(String sql, Object... args) throws DataAccessException {
-        return super.queryForRowSet(sql, args);
+    /**
+     * Expand the given SQL as a SmileyVars template using the variable values specified in the given map. Execute the
+     * expanded SQL as a {@code Statement}. Return the results an {@link SqlRowSet} object. Here is a usage example:
+     * <pre>
+     *     valueMap.put("aisle", 4);
+     *     valueMap.put("level", 1);
+     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     *     SqlRowSet rowSet = svjt.queryForObjectSmileyVars(sql, valueMap);
+     * </pre>
+     *
+     * @param sql      The string to use as the SmileyVars template body.
+     * @param valueMap The values to use for the variables in the template body.
+     * @return result rows as an {@link SqlRowSet} object.
+     * @throws DataAccessException      if there is a problem.
+     * @throws IllegalArgumentException if the names and values arrays are not the same length
+     */
+    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) throws DataAccessException {
+        return querySmileyVars(sql, valueMap, new SqlRowSetResultSetExtractor());
     }
 
     @Override
