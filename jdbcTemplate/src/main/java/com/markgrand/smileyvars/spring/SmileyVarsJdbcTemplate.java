@@ -37,7 +37,6 @@ import java.util.Map;
  * <p>
  * {@inheritDoc}
  */
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     private static final Logger logger = LoggerFactory.getLogger(SmileyVarsJdbcTemplate.class);
 
@@ -90,7 +89,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     /**
-     * Create a {@link SmileyVarsPreparedStatement} fron the given SQL and pass it to the given function. Here is a
+     * Create a {@link SmileyVarsPreparedStatement} from the given SQL and pass it to the given function. Here is a
      * usage example:
      * <pre>
      * int quantity

@@ -220,7 +220,7 @@ class SmileyVarsTemplateTest {
     }
 
     @Test
-    void nonexistantFormatterType() {
+    void nonexistentFormatterType() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where 1=1 (:and x=:x:bogus :)");
         @NotNull Map<String, Object> map = new HashMap<>();
         map.put("x", this);

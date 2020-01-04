@@ -32,7 +32,7 @@ public enum DatabaseType {
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseType.class);
 
-    private static Map<String, DatabaseType> nameToDatabaseTypeMap = new HashMap<>();
+    private static final Map<String, DatabaseType> nameToDatabaseTypeMap = new HashMap<>();
 
     static {
         nameToDatabaseTypeMap.put("CUBRID", ANSI);

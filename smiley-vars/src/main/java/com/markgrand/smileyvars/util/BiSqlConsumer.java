@@ -22,6 +22,7 @@ public interface BiSqlConsumer<T, U> {
      *
      * @return false to indicate that this object represent an assigned value for a SmileyVar.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     default boolean isVacuous() {
         return false;
     }

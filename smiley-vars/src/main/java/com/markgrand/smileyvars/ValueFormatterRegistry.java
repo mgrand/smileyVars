@@ -177,7 +177,7 @@ class ValueFormatterRegistry {
     }
 
     private static void registerFormatter(@NotNull String name,
-                                          @NotNull Class clazz,
+                                          @NotNull Class<?> clazz,
                                           @NotNull Function<Object, String> formatter,
                                           @NotNull LinkedHashMap<String, ValueFormatter> map) {
         map.put(name, new ValueFormatter(clazz::isInstance, clazz::isInstance, formatter, name));
@@ -209,7 +209,7 @@ class ValueFormatterRegistry {
      */
     @NotNull
     @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
-    ValueFormatterRegistry registerFormatter(String name, @NotNull Class clazz, Function<Object, String> formatter) {
+    ValueFormatterRegistry registerFormatter(String name, @NotNull Class<?> clazz, Function<Object, String> formatter) {
         return registerFormatter(name, clazz::isInstance, clazz::isInstance, formatter);
     }
 

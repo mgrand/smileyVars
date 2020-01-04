@@ -15,7 +15,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SmileyVarsJdbcTemplateTest {
-    private static ResultSetExtractor<List<Inventory>> rse = rs -> {
+    private static final ResultSetExtractor<List<Inventory>> rse = rs -> {
         List<Inventory> inventoryList = new ArrayList<>();
         while (rs.next()) {
             inventoryList.add(new Inventory(rs.getInt("aisle"), rs.getInt("level"), rs.getInt("bin_number"), rs.getInt("quantity"), rs.getString("item_number")));
@@ -23,7 +23,7 @@ class SmileyVarsJdbcTemplateTest {
         return inventoryList;
     };
 
-    private static RowMapper<Inventory> rowMapper
+    private static final RowMapper<Inventory> rowMapper
             = (rs, rowNum) -> new Inventory(rs.getInt("aisle"), rs.getInt("level"), rs.getInt("bin_number"), rs.getInt("quantity"), rs.getString("item_number"));
 
     private static Connection h2Connection;
@@ -116,7 +116,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentWithExtractor() {
+    void queryPreparedStatementWithExtractor() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         List<Inventory> inventoryList = svjt.querySmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
                 svps -> svps.setInt("aisle", 4).setInt("level", 1),
@@ -158,7 +158,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentWithRowCallbackHandler() {
+    void queryPreparedStatementWithRowCallbackHandler() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         int[] count = {0};
         String sql = "SELECT item_number, quantity, level, aisle FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
@@ -202,7 +202,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentWithRowMapper() {
+    void queryPreparedStatementWithRowMapper() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         List<Inventory> inventoryList = svjt.querySmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
                 svps -> svps.setInt("aisle", 4).setInt("level", 1),
@@ -244,7 +244,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentForObjectWithRowMapper() {
+    void queryPreparedStatementForObjectWithRowMapper() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         Inventory inventory = svjt.queryForObjectSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
                 svps -> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8),
@@ -287,7 +287,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentForObjectWithRequiredType() {
+    void queryPreparedStatementForObjectWithRequiredType() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         Integer quantity = svjt.queryForObjectSmileyVars("SELECT quantity FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
                 svps -> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8),
@@ -318,7 +318,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentForMap() {
+    void queryPreparedStatementForMap() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         Map<String, Object> resultMap = svjt.queryForMapSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
                 svps -> svps.setInt("aisle", 4).setInt("level", 1).setInt("bin_number", 8));
@@ -351,7 +351,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentForList() {
+    void queryPreparedStatementForList() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         List<String> itemNumbers = svjt.queryForListSmileyVars("SELECT item_number FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
                 svps -> svps.setInt("aisle", 4).setInt("level", 1),
@@ -381,7 +381,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentForListMap() {
+    void queryPreparedStatementForListMap() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         List<Map<String, Object>> resultList = svjt.queryForListSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
                 svps -> svps.setInt("aisle", 4).setInt("level", 1));
@@ -413,7 +413,7 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
-    void queryPreparedStatmentForRowSet() {
+    void queryPreparedStatementForRowSet() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         SqlRowSet rowSet = svjt.queryForRowSetSmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
                 svps -> svps.setInt("aisle", 4).setInt("level", 1));
@@ -424,9 +424,11 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     private static class Inventory {
-        private Integer aisle, level, bin_number;
-        private Integer quantity;
-        private String itemNumber;
+        private final Integer aisle;
+        private final Integer level;
+        private final Integer bin_number;
+        private final Integer quantity;
+        private final String itemNumber;
 
         public Inventory(Integer aisle, Integer level, Integer bin_number, Integer quantity, String itemNumber) {
             this.aisle = aisle;

@@ -233,7 +233,7 @@ The methods of the `SmileyVarsPreparedStatement` class are similar to
 the `PreparedStatement` class. Here is an example of how to use
 `SmileyVarsPreparedStatement`:
 
-```java
+```
         try (SmileyVarsPreparedStatement svps
                  = new SmileyVarsPreparedStatement(h2Connection, "SELECT * FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
             svps.setInt("x", 3);
