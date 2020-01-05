@@ -1652,15 +1652,16 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     }
 
     /**
-     * Get a prepared statement that is configured with the SQL that is an expansion of this object's SmileyVars
-     * template based on the parameters that are or are not set.  If this is the first time this prepared statement is
-     * being used, all the of previously provided parameter values and configuration values (concurrency, holdability,
-     * maxRows, ...) will be set during this method call.
-     * <p>Prepared statement objects are reused if the set of parameter values that have and do not have values is the
-     * same as the last time the prepared statement was used. If any parameter or configuration values have changed
-     * since the last time that the prepared statement was used, this method call will update the prepared statement
-     * with those changes.
-     * </p>
+     * <p>Get a {@link PreparedStatement} that is configured with the SQL that is an expansion of this object's
+     * SmileyVars template based on the parameters that are or are not set.  If this is the first time this {@link
+     * PreparedStatement} is being used, all the of previously provided parameter values and configuration values
+     * (concurrency, holdability, maxRows, ...) will be set during this method call.</p>
+     * <p>{@link PreparedStatement} objects are reused if the set of parameter values that have and do not have values
+     * is the same as the last time the prepared statement was used. If any parameter or configuration values have
+     * changed since the last time that the prepared statement was used, this method call will update the prepared
+     * statement with those changes.</p>
+     * <p>The reuse of a {@link PreparedStatement} continues until a call to {@link #deepClearParameters()} or {@link
+     * #close()}, which calls {@link #deepClearParameters()}.</p>
      *
      * @return a prepared statement that will be configured based the the SmileyVars template that this object was
      * created with and any parameter or configuration values that have been specified since this object's creation.
