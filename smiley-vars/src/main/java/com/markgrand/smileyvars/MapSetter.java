@@ -12,9 +12,9 @@ import java.util.Map;
  * set each column when the {@code MapSetter} is constructor. You do this by passing a map to the constructor that pairs
  * column names with setter methods like this:
  * <pre>
- *     Map<String, BiSqlConsumer<SmileyVarsPreparedStatement, Object>> setterMap;
- *     setterMap.put("quantity", (svps, value) -> svps.setInt(svps, (int)value);
- *     setterMap.put("description", (svps, value) -> svps.setString(svps, (String)value);
+ *     Map&lt;String, BiSqlConsumer&lt;SmileyVarsPreparedStatement, Object&gt;&gt; setterMap;
+ *     setterMap.put("quantity", (svps, value) -&gt; svps.setInt(svps, (int)value);
+ *     setterMap.put("description", (svps, value) -&gt; svps.setString(svps, (String)value);
  *     MapSetter mapSetter = new MapSetter(setterMap);
  * </pre>
  *
@@ -27,9 +27,9 @@ public class MapSetter {
      * Constructor.  The argument to this is a map that will tell the constructed {@code MapSetter} object how to set
      * each column like this:
      * <pre>
-     *     Map<String, BiSqlConsumer<SmileyVarsPreparedStatement, Object>> setterMap;
-     *     setterMap.put("quantity", (svps, value) -> svps.setInt(svps, (int)value);
-     *     setterMap.put("description", (svps, value) -> svps.setString(svps, (String)value);
+     *     Map&lt;String, BiSqlConsumer&lt;SmileyVarsPreparedStatement, Object&gt;&gt; setterMap;
+     *     setterMap.put("quantity", (svps, value) -&gt; svps.setInt(svps, (int)value);
+     *     setterMap.put("description", (svps, value) -&gt; svps.setString(svps, (String)value);
      *     MapSetter mapSetter = new MapSetter(setterMap);
      * </pre>
      *
@@ -46,8 +46,8 @@ public class MapSetter {
      * @param svps the {@link SmileyVarsPreparedStatement} whose parameters are to be set.
      * @param valueMap a Map containing the names and values to be set.
      * @return the {@link SmileyVarsPreparedStatement}
-     * @throws SQLException if any of the setter
-     * @throws SmileyVarsException
+     * @throws SQLException if any of the setters throw an SQLException
+     * @throws SmileyVarsException If there is a problem setting the values of the smileyVars.
      */
     public SmileyVarsPreparedStatement setSmileyVars(@NotNull SmileyVarsPreparedStatement svps, Map<String, Object> valueMap) throws SQLException {
         svps.clearParameters();
