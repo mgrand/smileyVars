@@ -1762,6 +1762,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
     private static class PreparedStatementTag {
         private final PreparedStatement preparedStatement;
         private long changeCount;
+        private boolean pendingBatch;
 
         PreparedStatementTag(PreparedStatement preparedStatement, long changeCount) {
             this.preparedStatement = preparedStatement;
@@ -1778,6 +1779,14 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
         void setChangeCount(long changeCount) {
             this.changeCount = changeCount;
+        }
+
+        public boolean isPendingBatch() {
+            return pendingBatch;
+        }
+
+        public void setPendingBatch(boolean pendingBatch) {
+            this.pendingBatch = pendingBatch;
         }
     }
 }
