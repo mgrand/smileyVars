@@ -1018,4 +1018,9 @@ class SmileyVarsPreparedStatementTest {
             }
         }
     }
+
+    @Test
+    void singleBatch() throws Exception {
+        assertTrue(h2Connection.getMetaData().supportsBatchUpdates());
+    }
 }
