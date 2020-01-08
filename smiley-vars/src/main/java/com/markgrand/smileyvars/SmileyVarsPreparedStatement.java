@@ -1321,11 +1321,11 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @return the current result as an update count; -1 if the current result is a
      * <code>ResultSet</code> object or there are no more results
-     * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>Statement</code>
+     * @throws SQLException if a database access error occurs or this method is called on a closed object.
      * @see #execute
      */
     public int getUpdateCount() throws SQLException {
+        ensureNotClosed();
         return getPreparedStatement().getUpdateCount();
     }
 
@@ -1341,12 +1341,59 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @return <code>true</code> if the next result is a <code>ResultSet</code>
      * object; <code>false</code> if it is an update count or there are no more results
-     * @throws SQLException if a database access error occurs or this method is called on a closed
-     *                      <code>Statement</code>
+     * @throws SQLException if a database access error occurs or this method is called on a closed object.
      * @see #execute
      */
     public boolean getMoreResults() throws SQLException {
+        ensureNotClosed();
         return getPreparedStatement().getMoreResults();
+    }
+
+    /**
+     * Adds a set of parameters to this object's batch of commands.
+     *
+     * @return this object;
+     * @throws SQLException if a database access error occurs, the JDBC driver does not support batches or this method
+     *                      is called on a closed PreparedStatement.
+     * @see #clearBatch()
+     */
+    public SmileyVarsPreparedStatement addBatch() throws SQLException {
+        ensureNotClosed();
+        PreparedStatementTag ptag = getPreparedStatementTag();
+        ptag.getPreparedStatement().addBatch();
+        ptag.setPendingBatch(true);
+        return this;
+    }
+
+    /**
+     * Empties this object's batch of commands.
+     *
+     * @return this object;
+     * @throws SQLException if a database access error occurs, the JDBC driver does not support batches or this method
+     *                      is called on a closed PreparedStatement.
+     * @see #addBatch()
+     */
+    public SmileyVarsPreparedStatement clearBatch() throws SQLException {
+        ensureNotClosed();
+        for (PreparedStatementTag ptag : taggedPstmtMap.values()) {
+            if (ptag.isPendingBatch()) {
+                ptag.getPreparedStatement().clearBatch();
+                ptag.setPendingBatch(false);
+            }
+        }
+        return this;
+    }
+
+    public int[][] executeBatch() throws SQLException {
+        ensureNotClosed();
+        List<int[]> resultList = new ArrayList<>();
+        for (PreparedStatementTag ptag : taggedPstmtMap.values()) {
+            if (ptag.isPendingBatch()) {
+                resultList.add(ptag.getPreparedStatement().executeBatch());
+                ptag.setPendingBatch(false);
+            }
+        }
+        return resultList.toArray(new int[resultList.size()][]);
     }
 
     /**
@@ -1362,6 +1409,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @see #setFetchDirection
      */
     public int getFetchDirection() throws SQLException {
+        ensureNotClosed();
         return getPreparedStatement().getFetchDirection();
     }
 
@@ -1406,8 +1454,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @param rows the number of rows to fetch
      * @return this prepared statement
-     * @throws SQLException if a database access error occurs, this method is called on a closed <code>Statement</code>
-     *                      or the condition {@code rows >= 0} is not satisfied.
+     * @throws SQLException if this method is called on a closed <code>Statement</code> or the condition {@code rows >=
+     *                      0} is not satisfied.
      * @see #getFetchSize
      */
     public SmileyVarsPreparedStatement setFetchSize(int rows) throws SQLException {
@@ -1665,19 +1713,25 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @return a prepared statement that will be configured based the the SmileyVars template that this object was
      * created with and any parameter or configuration values that have been specified since this object's creation.
-     * @throws SQLException if there is a problem creating a {@link PreparedStatement} object.
+     * @throws SQLException if there is a problem creating a {@link PreparedStatement} objector this object is closed.
      */
     public PreparedStatement getPreparedStatement() throws SQLException {
+        ensureNotClosed();
+        return getPreparedStatementTag().getPreparedStatement();
+    }
+
+    private PreparedStatementTag getPreparedStatementTag() throws SQLException {
         BitSet signature = computeParametersSignature();
         PreparedStatementTag ptag = taggedPstmtMap.get(signature);
         if (ptag == null) {
-            ptag = new PreparedStatementTag(connection.prepareStatement(template.apply(filterVacuousEntries(valueMap))), changeCount);
+            ptag = new PreparedStatementTag(connection.prepareStatement(template.apply(filterVacuousEntries(valueMap))));
             taggedPstmtMap.put(signature, ptag);
-        } else if (ptag.getChangeCount() != changeCount) {
-            ptag.setChangeCount(changeCount);
         }
-        updatePreparedStatement(ptag);
-        return ptag.getPreparedStatement();
+        if (ptag.getChangeCount() != changeCount) {
+            ptag.setChangeCount(changeCount);
+            updatePreparedStatement(ptag);
+        }
+        return ptag;
     }
 
     private Map<String, BiSqlConsumer<PreparedStatement, Integer>> filterVacuousEntries(Map<String, BiSqlConsumer<PreparedStatement, Integer>> map) {
@@ -1764,9 +1818,9 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         private long changeCount;
         private boolean pendingBatch;
 
-        PreparedStatementTag(PreparedStatement preparedStatement, long changeCount) {
+        PreparedStatementTag(PreparedStatement preparedStatement) {
             this.preparedStatement = preparedStatement;
-            this.changeCount = changeCount;
+            this.changeCount = -1;
         }
 
         PreparedStatement getPreparedStatement() {

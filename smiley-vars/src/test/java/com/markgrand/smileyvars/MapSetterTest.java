@@ -3,11 +3,12 @@ package com.markgrand.smileyvars;
 import com.markgrand.smileyvars.util.BiSqlConsumer;
 import mockit.Mocked;
 import mockit.Verifications;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MapSetterTest {
 

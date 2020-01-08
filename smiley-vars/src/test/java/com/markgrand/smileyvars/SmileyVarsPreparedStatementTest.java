@@ -1022,5 +1022,12 @@ class SmileyVarsPreparedStatementTest {
     @Test
     void singleBatch() throws Exception {
         assertTrue(h2Connection.getMetaData().supportsBatchUpdates());
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "UPDATE square SET y = y * 100 WHERE y = :y");
+        svps.setInt("y", 1).addBatch();
+        svps.setInt("y", 9).addBatch();
+        int[][] counts = svps.executeBatch();
+        assertEquals(2, counts[0].length);
+        assertEquals(1, counts[0][0]);
+        assertEquals(2, counts[0][1]);
     }
 }
