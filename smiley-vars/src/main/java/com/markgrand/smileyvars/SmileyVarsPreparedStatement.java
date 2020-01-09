@@ -1092,11 +1092,24 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * Clear the value for the named SmileyVar.
      *
      * @param name The name of the SmileyVar whose value is to be cleared.
-     * @return true if the value was cleared or false if there is no SmileyVar in this object with the given name.
+     * @return this object
      */
-    @SuppressWarnings("UnusedReturnValue")
-    public boolean clearParameter(String name) {
-        return null != valueMap.replace(name, VacuousBiSqlConsumer.getInstance());
+    public SmileyVarsPreparedStatement clearParameter(String name) {
+        ensureNotClosed();
+        valueMap.replace(name, VacuousBiSqlConsumer.getInstance());
+        return this;
+    }
+
+    /**
+     * Determine if the named smileyVar has a value set for it.
+     *
+     * @param name The name of the smileyVar to check.
+     * @return true of the named smileyVar has a value; otherwise false.
+     */
+    public boolean isParameterSet (String name) {
+        ensureNotClosed();
+        BiSqlConsumer<PreparedStatement, Integer> biSqlConsumer = valueMap.get(name);
+        return biSqlConsumer != null && !biSqlConsumer.isVacuous();
     }
 
     /**
@@ -1109,6 +1122,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      */
     @SuppressWarnings("UnusedReturnValue")
     public SmileyVarsPreparedStatement clearParameters() {
+        ensureNotClosed();
         valueMap.entrySet().forEach(entry -> entry.setValue(VacuousBiSqlConsumer.getInstance()));
         changeCount++;
         return this;

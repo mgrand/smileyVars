@@ -467,10 +467,12 @@ class SmileyVarsPreparedStatementTest {
     void clearParameter() throws Exception {
         try (SmileyVarsPreparedStatement svps
                      = new SmileyVarsPreparedStatement(h2Connection, "SELECT x,y FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
-            assertFalse(svps.clearParameter("bogus"));
-            assertTrue(svps.clearParameter("y"));
+            assertFalse(svps.isParameterSet("bogus"));
+            assertFalse(svps.isParameterSet("y"));
             svps.setInt("y", 9);
-            assertTrue(svps.clearParameter("y"));
+            assertTrue(svps.isParameterSet("y"));
+            svps.clearParameter("y");
+            assertFalse(svps.isParameterSet("y"));
             ResultSet rs = svps.executeQuery();
             assertHasRows(rs, 6);
             rs.close();
@@ -1026,8 +1028,36 @@ class SmileyVarsPreparedStatementTest {
         svps.setInt("y", 1).addBatch();
         svps.setInt("y", 9).addBatch();
         int[][] counts = svps.executeBatch();
+        assertEquals(1, counts.length);
         assertEquals(2, counts[0].length);
         assertEquals(1, counts[0][0]);
         assertEquals(2, counts[0][1]);
+    }
+
+    @Test
+    void doubleBatch() throws Exception {
+        assertTrue(h2Connection.getMetaData().supportsBatchUpdates());
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "UPDATE square SET y = y * 100 WHERE y = :y (: AND x = :x :)");
+        svps.setInt("x", 1).setInt("y", 1).addBatch();
+        svps.clearParameter("x").setInt("y", 9).addBatch();
+        int[][] counts = svps.executeBatch();
+        assertEquals(2, counts.length);
+        assertEquals(1, counts[0].length);
+        assertEquals(1, counts[1].length);
+        assertTrue(counts[0][0]==1 && counts[1][0]==2 || counts[0][0]==2 && counts[1][0]==1);
+    }
+
+    @Test
+    void clearBatch() throws Exception {
+        assertTrue(h2Connection.getMetaData().supportsBatchUpdates());
+        SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "UPDATE square SET y = y * 100 WHERE y = :y");
+        svps.clearBatch();
+        int[][] countsBefore = svps.executeBatch();
+        assertEquals(0, countsBefore.length);
+        svps.setInt("y", 1).addBatch();
+        svps.setInt("y", 9).addBatch();
+        svps.clearBatch();
+        int[][] countsAfter = svps.executeBatch();
+        assertEquals(0, countsAfter.length);
     }
 }
