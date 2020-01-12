@@ -284,4 +284,11 @@ class ValueFormatterRegistry {
         }
         return valueFormatter.format(value);
     }
+
+    @Override
+    public String toString() {
+        return "ValueFormatterRegistry{" +
+                       "name='" + name + '\'' +
+                       '}';
+    }
 }
