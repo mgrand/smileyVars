@@ -38,7 +38,9 @@ public class SmileyVarsTemplate {
     private static final Logger logger = LoggerFactory.getLogger(SmileyVarsTemplate.class);
 
     private final Tokenizer.TokenizerBuilder builder;
+    @NotNull
     private final String sql;
+    @NotNull
     private final ValueFormatterRegistry formatterRegistry;
 
     private SortedSet<String> varNames;
@@ -395,5 +397,27 @@ public class SmileyVarsTemplate {
     @SuppressWarnings("WeakerAccess")
     public String getTemplateString() {
         return sql;
+    }
+
+    @Override
+    public String toString() {
+        return "SmileyVarsTemplate{" +
+                       "sql='" + sql + '\'' +
+                       ", formatterRegistry=" + formatterRegistry +
+                       '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SmileyVarsTemplate)) return false;
+        SmileyVarsTemplate that = (SmileyVarsTemplate) o;
+        return sql.equals(that.sql) &&
+                       formatterRegistry.equals(that.formatterRegistry);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sql, formatterRegistry);
     }
 }
