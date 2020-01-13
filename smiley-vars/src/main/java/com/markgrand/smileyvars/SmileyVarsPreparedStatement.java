@@ -62,8 +62,9 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 public class SmileyVarsPreparedStatement implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(SmileyVarsPreparedStatement.class);
-
+    @NotNull
     private final Connection connection;
+    @NotNull
     private final SmileyVarsTemplate template;
 
     /**
@@ -1094,7 +1095,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param name The name of the SmileyVar whose value is to be cleared.
      * @return this object
      */
-    public SmileyVarsPreparedStatement clearParameter(String name) {
+    public SmileyVarsPreparedStatement clearParameter(@NotNull String name) {
         ensureNotClosed();
         valueMap.replace(name, VacuousBiSqlConsumer.getInstance());
         return this;
@@ -1106,7 +1107,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      * @param name The name of the smileyVar to check.
      * @return true of the named smileyVar has a value; otherwise false.
      */
-    public boolean isParameterSet (String name) {
+    public boolean isParameterSet(String name) {
         ensureNotClosed();
         BiSqlConsumer<PreparedStatement, Integer> biSqlConsumer = valueMap.get(name);
         return biSqlConsumer != null && !biSqlConsumer.isVacuous();
@@ -1114,7 +1115,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     /**
      * Clears the current parameter values immediately. This just clears the values that have been set for SmileyVars.
-     * If this is being done to release resources, call {@link #deepClearParameters()}, which also clears the parameter
+     * If this ios being done to release resources, call {@link #deepClearParameters()}, which also clears the parameter
      * values in the underlying {@link PreparedStatement} objects.
      *
      * @return this object
@@ -1398,6 +1399,29 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         return this;
     }
 
+    /**
+     * Call this method after previous calls to {@link #addBatch()} to execute the values collected by those calls as a
+     * batches of updates. The updates are organized into batches according to which parameters are specified. Updates
+     * that specify the same parameters are be batched together. For example consider this code snippet in which {@code
+     * svps} refers to a {@code SmileyVarsPreparedStatement}:
+     * <pre>
+     *     svps.setInt("x", 3).setInt("y", 42).addBatch();
+     *     svps.setInt("x", 7).setInt("y", 58).addBatch();
+     *     svps.setInt("x", 8).clearParameter.addBatch();
+     *     svps.setInt("x", 3).addBatch();
+     *     svps.setInt("x", 7).setInt("z", -4).addBatch();
+     * </pre>
+     * The first two sets of parameters specify {@code x} and {@code y}. The next two sets of parameters specify just
+     * {@code x}. The last set of parameters specifies {@code x} and {@code z}. These are organized into three batches.
+     *
+     * @return a two-dimensional array. The first dimension correspond to the batches. In the preceding example the
+     * length of the first dimension would be 3. The second dimension corresponds to the individual updates in each
+     * batch. The length of the arrays in the second dimension can be different. In this case, the lengths would be 2, 2
+     * and 1, though not necessarily in that order.
+     * @throws SQLException If there is a problem.
+     * @see #addBatch()
+     * @see #clearBatch()
+     */
     public int[][] executeBatch() throws SQLException {
         ensureNotClosed();
         List<int[]> resultList = new ArrayList<>();
@@ -1514,6 +1538,7 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
      *
      * @return the connection that produced this statement
      */
+    @NotNull
     public Connection getConnection() {
         return connection;
     }
@@ -1821,6 +1846,50 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         if (poolable.isPresent()) {
             preparedStatement.setPoolable(poolable.get());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SmileyVarsPreparedStatement)) return false;
+        SmileyVarsPreparedStatement that = (SmileyVarsPreparedStatement) o;
+        return closed == that.closed &&
+                       changeCount == that.changeCount &&
+                       connection.equals(that.connection) &&
+                       template.equals(that.template) &&
+                       valueMap.equals(that.valueMap) &&
+                       maxFieldSize.equals(that.maxFieldSize) &&
+                       maxRows.equals(that.maxRows) &&
+                       largeMaxRows.equals(that.largeMaxRows) &&
+                       queryTimeout.equals(that.queryTimeout) &&
+                       cursorName.equals(that.cursorName) &&
+                       fetchDirection.equals(that.fetchDirection) &&
+                       fetchSize.equals(that.fetchSize) &&
+                       poolable.equals(that.poolable);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(connection, template, valueMap, closed, changeCount, maxFieldSize, maxRows, largeMaxRows, queryTimeout, cursorName, fetchDirection, fetchSize, poolable);
+    }
+
+    @Override
+    public String toString() {
+        return "SmileyVarsPreparedStatement{" +
+                       "connection=" + connection +
+                       ", template=" + template +
+                       ", valueMap=" + valueMap +
+                       ", closed=" + closed +
+                       ", changeCount=" + changeCount +
+                       ", maxFieldSize=" + maxFieldSize +
+                       ", maxRows=" + maxRows +
+                       ", largeMaxRows=" + largeMaxRows +
+                       ", queryTimeout=" + queryTimeout +
+                       ", cursorName=" + cursorName +
+                       ", fetchDirection=" + fetchDirection +
+                       ", fetchSize=" + fetchSize +
+                       ", poolable=" + poolable +
+                       '}';
     }
 
     /**
