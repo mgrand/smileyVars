@@ -1401,37 +1401,37 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
 
     /**
      * Call this method after previous calls to {@link #addBatch()} to execute the values collected by those calls as a
-     * batches of updates. The updates are organized into batches according to which parameters are specified. Updates
-     * that specify the same parameters are be batched together. For example consider this code snippet in which {@code
-     * svps} refers to a {@code SmileyVarsPreparedStatement}:
-     * <pre>
-     *     svps.setInt("x", 3).setInt("y", 42).addBatch();
-     *     svps.setInt("x", 7).setInt("y", 58).addBatch();
-     *     svps.setInt("x", 8).clearParameter.addBatch();
-     *     svps.setInt("x", 3).addBatch();
-     *     svps.setInt("x", 7).setInt("z", -4).addBatch();
-     * </pre>
-     * The first two sets of parameters specify {@code x} and {@code y}. The next two sets of parameters specify just
-     * {@code x}. The last set of parameters specifies {@code x} and {@code z}. These are organized into three batches.
+     * batch of updates.
      *
-     * @return a two-dimensional array. The first dimension correspond to the batches. In the preceding example the
-     * length of the first dimension would be 3. The second dimension corresponds to the individual updates in each
-     * batch. The length of the arrays in the second dimension can be different. In this case, the lengths would be 2, 2
-     * and 1, though not necessarily in that order.
+     * @return an array of the number of rows affected by each update. The order of the elements in the array will be
+     * arbitrary and generally not match the order in which sets of updates parameters were added.
      * @throws SQLException If there is a problem.
      * @see #addBatch()
      * @see #clearBatch()
      */
-    public int[][] executeBatch() throws SQLException {
+    public int[] executeBatch() throws SQLException {
         ensureNotClosed();
         List<int[]> resultList = new ArrayList<>();
+        int resultCount = 0;
         for (PreparedStatementTag ptag : taggedPstmtMap.values()) {
             if (ptag.isPendingBatch()) {
-                resultList.add(ptag.getPreparedStatement().executeBatch());
+                int[] result = ptag.getPreparedStatement().executeBatch();
+                resultList.add(result);
+                resultCount += result.length;
                 ptag.setPendingBatch(false);
             }
         }
-        return resultList.toArray(new int[resultList.size()][]);
+        return combineBatchResults(resultList, resultCount);
+    }
+
+    private int[] combineBatchResults(List<int[]> resultList, int resultCount) {
+        int[] resultArray = new int[resultCount];
+        int count = 0;
+        for (int[] batchResult : resultList) {
+            System.arraycopy(batchResult, 0, resultArray, count, resultArray.length);
+            count += resultArray.length;
+        }
+        return resultArray;
     }
 
     /**

@@ -12,6 +12,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -30,7 +31,9 @@ class ValueFormatterRegistry {
     private static final ValueFormatterRegistry preparedStatementRegistry = new ValueFormatterRegistry()
                                                                                     .registerFormatter("preparedStatementParameter", o -> true, o -> true, o -> "?");
     private static LinkedHashMap<String, ValueFormatter> commonBuiltinFormatters;
+    @NotNull
     private final LinkedHashMap<String, ValueFormatter> formatterMap = new LinkedHashMap<>();
+    @NotNull
     private final String name;
 
     /**
@@ -40,7 +43,7 @@ class ValueFormatterRegistry {
         this.name = "PreparedStatementFormatterRegistry";
     }
 
-    private ValueFormatterRegistry(String name) {
+    private ValueFormatterRegistry(@NotNull String name) {
         ensureCommonBuiltinFormattersAreRegistered();
         formatterMap.putAll(commonBuiltinFormatters);
         this.name = name;
@@ -191,6 +194,7 @@ class ValueFormatterRegistry {
         map.put(name, new ValueFormatter(isDefault, isApplicable, formatter, name));
     }
 
+    @NotNull
     String getName() {
         return name;
     }
@@ -283,6 +287,20 @@ class ValueFormatterRegistry {
             throw new NoFormatterException("The formatter named " + formatterName + " cannot be applied to the value " + value.toString());
         }
         return valueFormatter.format(value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ValueFormatterRegistry)) return false;
+        ValueFormatterRegistry that = (ValueFormatterRegistry) o;
+        return formatterMap.equals(that.formatterMap) &&
+                       name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(formatterMap, name);
     }
 
     @Override
