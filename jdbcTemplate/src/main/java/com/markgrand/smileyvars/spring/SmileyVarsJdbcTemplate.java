@@ -1,6 +1,7 @@
 package com.markgrand.smileyvars.spring;
 
 import com.markgrand.smileyvars.DatabaseType;
+import com.markgrand.smileyvars.MapSetter;
 import com.markgrand.smileyvars.SmileyVarsPreparedStatement;
 import com.markgrand.smileyvars.SmileyVarsTemplate;
 import com.markgrand.smileyvars.util.SqlConsumer;
@@ -22,10 +23,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This is an extension of {@linkplain JdbcTemplate} that supports <a href="https://mgrand.github.io/smileyVars/">SmileyVars
@@ -102,17 +100,18 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * </pre>
      *
      * @param sql          The sql to be used as a SmileyVars template.
-     * @param svpsConsumer The consumer function that the
+     * @param svpsFunction A function that takes the {@link SmileyVarsPreparedStatement} created from the SQL and
+     *                     returns the desired result.
      * @param <T>          The the of value to be returned.
      * @return the value that is returned by the given function.
      */
     @SuppressWarnings("unused")
-    public <T> T executeSmileyVars(@NotNull String sql, @NotNull SqlFunction<SmileyVarsPreparedStatement, T> svpsConsumer) {
+    public <T> T executeSmileyVars(@NotNull String sql, @NotNull SqlFunction<SmileyVarsPreparedStatement, T> svpsFunction) {
         Connection conn = DataSourceUtils.getConnection(obtainDataSource());
         try {
             logger.debug("Creating SmileyVarsPreparedStatement from sql: {}", sql);
             try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql)) {
-                return svpsConsumer.apply(svps);
+                return svpsFunction.apply(svps);
             }
         } catch (SQLException e) {
             throw translateException("WithSmileyVarsPreparedStatement", sql, e);
@@ -163,7 +162,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> T querySmileyVars(String sql, String[] names, Object[] values, ResultSetExtractor<T> rse) throws DataAccessException {
+    public <T> T querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull ResultSetExtractor<T> rse) throws DataAccessException {
         ensureEqualLengthArrays(names, values);
         Map<String, Object> valueMap = arraysToMap(names, values);
         return querySmileyVars(sql, valueMap, rse);
@@ -208,7 +207,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @NotNull
-    private String expand(String sql, Map<String, ?> valueMap) {
+    private String expand(@NotNull String sql, @NotNull Map<String, ?> valueMap) {
         return SmileyVarsTemplate.template(databaseType, sql).apply(valueMap);
     }
 
@@ -228,7 +227,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param rch    a callback that is called to process each row.
      * @throws DataAccessException if there is any problem
      */
-    public void querySmileyVars(String sql, SqlConsumer<SmileyVarsPreparedStatement> setter, RowCallbackHandler rch) throws DataAccessException {
+    public void querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowCallbackHandler rch) throws DataAccessException {
         executeSmileyVars(sql, (SmileyVarsPreparedStatement svps) -> {
             setter.accept(svps);
             try (ResultSet rs = svps.executeQuery()) {
@@ -287,7 +286,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param rch      The {@link RowCallbackHandler} to use for processing each row from the query's result set.
      * @throws DataAccessException if there is a problem.
      */
-    public void querySmileyVars(String sql, Map<String, ?> valueMap, RowCallbackHandler rch) throws DataAccessException {
+    public void querySmileyVars(@NotNull String sql, @NotNull Map<String, ?> valueMap, @NotNull RowCallbackHandler rch) throws DataAccessException {
         super.query(expand(sql, valueMap), rch);
     }
 
@@ -308,7 +307,8 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return a list of the values returned by the calls to the RowMapper.
      * @throws DataAccessException if there is any problem
      */
-    public <T> List<T> querySmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper)
+            throws DataAccessException {
         return querySmileyVars(sql, setter, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
@@ -331,7 +331,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> List<T> querySmileyVars(String sql, String[] names, Object[] values, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return querySmileyVars(sql, names, values, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
@@ -343,18 +343,16 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * is a usage example:
      * <pre>
      * </pre>
-     *     Map<String, Object> valueMap = new HashMap<>();
-     *     valueMap.put("aisle", 4);
-     *     valueMap.put("level", 1);
-     *     String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
-     *     List<Inventory> inventoryList = svjt.querySmileyVars(sql, valueMap, rowMapper);
+     * Map<String, Object> valueMap = new HashMap<>(); valueMap.put("aisle", 4); valueMap.put("level", 1); String sql =
+     * "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+     * List<Inventory> inventoryList = svjt.querySmileyVars(sql, valueMap, rowMapper);
      *
      * @param sql       The string to use as the SmileyVars template body.
      * @param valueMap  The values to use for the variables in the template body.
      * @param rowMapper a callback that is called to process each row into a value.
      * @throws DataAccessException if there is a problem.
      */
-    public <T> List<T> querySmileyVars(String sql, Map<String, Object> valueMap, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         return querySmileyVars(sql, valueMap, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
@@ -373,7 +371,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
      */
-    public <T> T queryForObjectSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> T queryForObjectSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
         List<T> result = querySmileyVars(sql, setter, new RowMapperResultSetExtractor<>(rowMapper, 1));
         return DataAccessUtils.nullableSingleResult(result);
     }
@@ -844,6 +842,58 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return update(expand(sql, valueMap));
     }
 
+    @NotNull
+    public int[] batchUpdate(@NotNull String sql, @NotNull MapSetter mapSetter, @NotNull Collection<Map<String, Object>> valueMaps) {
+        if (valueMaps.isEmpty()) {
+            return new int[0];
+        }
+        return executeSmileyVars(sql, svps -> internalBatchUpdate(svps, mapSetter, valueMaps));
+    }
+
+    /**
+     * 
+     * @param svps
+     * @param mapSetter
+     * @param valueMaps
+     * @return
+     */
+    private int[] internalBatchUpdate(SmileyVarsPreparedStatement svps, MapSetter mapSetter, Collection<Map<String, Object>> valueMaps) {
+        boolean batchSupported = JdbcUtils.supportsBatchUpdates(svps.getConnection());
+        if (batchSupported) {
+            return supportedBatchUpdate(svps, mapSetter, valueMaps);
+        } else {
+            return unsupportedBatchUpdate(svps, mapSetter, valueMaps);
+        }
+    }
+
+    private int[] supportedBatchUpdate(SmileyVarsPreparedStatement svps, MapSetter mapSetter, Collection<Map<String, Object>> valueMaps) {
+        int[] rowsAffected = new int[valueMaps.size()];
+        int count = 0;
+        try {
+            for (Map<String, Object> valueMap : valueMaps) {
+                mapSetter.setSmileyVars(svps, valueMap);
+                svps.addBatch();
+            }
+            return svps.executeBatch();
+        } catch (SQLException e) {
+            throw translateException("batchUpdate", svps.toString(), e);
+        }
+    }
+
+    private int[] unsupportedBatchUpdate(SmileyVarsPreparedStatement svps, MapSetter mapSetter, Collection<Map<String, Object>> valueMaps) {
+        int[] rowsAffected = new int[valueMaps.size()];
+        try {
+            int i = 0;
+            for (Map<String, Object> valueMap : valueMaps) {
+                mapSetter.setSmileyVars(svps, valueMap);
+                rowsAffected[i] = svps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw translateException("batchUpdate", svps.toString(), e);
+        }
+        return rowsAffected;
+    }
+
     @Override
     public int[] batchUpdate(String sql, @NotNull BatchPreparedStatementSetter pss) throws DataAccessException {
         return super.batchUpdate(sql, pss);
@@ -855,39 +905,8 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    public int[] batchUpdate(String sql, @NotNull List<Object[]> batchArgs, int[] argTypes) throws DataAccessException {
-        return super.batchUpdate(sql, batchArgs, argTypes);
-    }
-
-    @Override
     public <T> int[][] batchUpdate(String sql, @NotNull Collection<T> batchArgs, int batchSize, ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
         return super.batchUpdate(sql, batchArgs, batchSize, pss);
-    }
-
-    /**
-     * Returns a hash code value for the object. This method is supported for the benefit of hash tables such as those
-     * provided by {@link HashMap}.
-     *
-     * @return a hash code value for this object.
-     * @see Object#equals(Object)
-     * @see System#identityHashCode
-     */
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    /**
-     * Indicates whether some other object is "equal to" this one.
-     *
-     * @param obj the reference object with which to compare.
-     * @return {@code true} if this object is the same as the obj argument; {@code false} otherwise.
-     * @see #hashCode()
-     * @see HashMap
-     */
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
     }
 
     /**
