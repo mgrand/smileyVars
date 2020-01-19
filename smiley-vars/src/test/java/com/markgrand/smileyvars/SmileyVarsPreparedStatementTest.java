@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -1027,11 +1029,20 @@ class SmileyVarsPreparedStatementTest {
         SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "UPDATE square SET y = y * 100 WHERE y = :y");
         svps.setInt("y", 1).addBatch();
         svps.setInt("y", 9).addBatch();
-        int[][] counts = svps.executeBatch();
-        assertEquals(1, counts.length);
-        assertEquals(2, counts[0].length);
-        assertEquals(1, counts[0][0]);
-        assertEquals(2, counts[0][1]);
+        int[] counts = svps.executeBatch();
+        assertEquals(2, counts.length);
+        Map<Integer, Integer> countMap = valueCounts(counts);
+        assertEquals(2, countMap.size());
+        assertEquals(1, countMap.get(2));
+        assertEquals(1, countMap.get(1));
+    }
+
+    private Map<Integer, Integer> valueCounts(int[] values) {
+        Map<Integer, Integer> countMap = new HashMap<>();
+        for (int value : values) {
+            countMap.put(value, 1 + countMap.getOrDefault(value, 0));
+        }
+        return countMap;
     }
 
     @Test
@@ -1040,11 +1051,11 @@ class SmileyVarsPreparedStatementTest {
         SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "UPDATE square SET y = y * 100 WHERE y = :y (: AND x = :x :)");
         svps.setInt("x", 1).setInt("y", 1).addBatch();
         svps.clearParameter("x").setInt("y", 9).addBatch();
-        int[][] counts = svps.executeBatch();
-        assertEquals(2, counts.length);
-        assertEquals(1, counts[0].length);
-        assertEquals(1, counts[1].length);
-        assertTrue(counts[0][0]==1 && counts[1][0]==2 || counts[0][0]==2 && counts[1][0]==1);
+        int[] counts = svps.executeBatch();
+        Map<Integer, Integer> countMap = valueCounts(counts);
+        assertEquals(2, countMap.size());
+        assertEquals(1, countMap.get(2));
+        assertEquals(1, countMap.get(1));
     }
 
     @Test
@@ -1052,12 +1063,12 @@ class SmileyVarsPreparedStatementTest {
         assertTrue(h2Connection.getMetaData().supportsBatchUpdates());
         SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(h2Connection, "UPDATE square SET y = y * 100 WHERE y = :y");
         svps.clearBatch();
-        int[][] countsBefore = svps.executeBatch();
+        int[] countsBefore = svps.executeBatch();
         assertEquals(0, countsBefore.length);
         svps.setInt("y", 1).addBatch();
         svps.setInt("y", 9).addBatch();
         svps.clearBatch();
-        int[][] countsAfter = svps.executeBatch();
+        int[] countsAfter = svps.executeBatch();
         assertEquals(0, countsAfter.length);
     }
 }

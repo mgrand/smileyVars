@@ -1428,8 +1428,8 @@ public class SmileyVarsPreparedStatement implements AutoCloseable {
         int[] resultArray = new int[resultCount];
         int count = 0;
         for (int[] batchResult : resultList) {
-            System.arraycopy(batchResult, 0, resultArray, count, resultArray.length);
-            count += resultArray.length;
+            System.arraycopy(batchResult, 0, resultArray, count, batchResult.length);
+            count += batchResult.length;
         }
         return resultArray;
     }

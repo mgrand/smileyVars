@@ -842,6 +842,16 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return update(expand(sql, valueMap));
     }
 
+    /**
+     * Execute a batch of updates/inserts using the given SQL as a SmileyVars template.
+     *
+     * @param sql       The sql to use as the body of a SmileyVars template.
+     * @param mapSetter A {@link MapSetter} that specifies the methods to use for setting the parameter values in the
+     *                  SmileyVars template.
+     * @param valueMaps A collection of Maps that specify sets of values to be used for the batch.
+     * @return an array of the number of rows affected by each update. The order of the elements in the array will be
+     * arbitrary and generally not match the order in which sets of updates parameters were added.
+     */
     @NotNull
     public int[] batchUpdate(@NotNull String sql, @NotNull MapSetter mapSetter, @NotNull Collection<Map<String, Object>> valueMaps) {
         if (valueMaps.isEmpty()) {
@@ -850,13 +860,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         return executeSmileyVars(sql, svps -> internalBatchUpdate(svps, mapSetter, valueMaps));
     }
 
-    /**
-     * 
-     * @param svps
-     * @param mapSetter
-     * @param valueMaps
-     * @return
-     */
     private int[] internalBatchUpdate(SmileyVarsPreparedStatement svps, MapSetter mapSetter, Collection<Map<String, Object>> valueMaps) {
         boolean batchSupported = JdbcUtils.supportsBatchUpdates(svps.getConnection());
         if (batchSupported) {
@@ -867,8 +870,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     }
 
     private int[] supportedBatchUpdate(SmileyVarsPreparedStatement svps, MapSetter mapSetter, Collection<Map<String, Object>> valueMaps) {
-        int[] rowsAffected = new int[valueMaps.size()];
-        int count = 0;
         try {
             for (Map<String, Object> valueMap : valueMaps) {
                 mapSetter.setSmileyVars(svps, valueMap);
@@ -892,21 +893,6 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
             throw translateException("batchUpdate", svps.toString(), e);
         }
         return rowsAffected;
-    }
-
-    @Override
-    public int[] batchUpdate(String sql, @NotNull BatchPreparedStatementSetter pss) throws DataAccessException {
-        return super.batchUpdate(sql, pss);
-    }
-
-    @Override
-    public int[] batchUpdate(String sql, List<Object[]> batchArgs) throws DataAccessException {
-        return super.batchUpdate(sql, batchArgs);
-    }
-
-    @Override
-    public <T> int[][] batchUpdate(String sql, @NotNull Collection<T> batchArgs, int batchSize, ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
-        return super.batchUpdate(sql, batchArgs, batchSize, pss);
     }
 
     /**

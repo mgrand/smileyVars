@@ -70,6 +70,7 @@ class SmileyVarsJdbcTemplateTest {
     @Test
     void simpleConstructor() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate();
+        //noinspection ConstantConditions
         assertNull(svjt.getDataSource());
         svjt.setDataSource(mockDataSource);
         assertEquals(mockDataSource, svjt.getDataSource());
