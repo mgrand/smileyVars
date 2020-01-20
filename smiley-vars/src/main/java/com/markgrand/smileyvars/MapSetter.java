@@ -97,7 +97,7 @@ public class MapSetter {
          * @param name The name of the smileyVar to be configured.
          * @return this object.
          */
-        Builder booleanVar(@SuppressWarnings("SameParameterValue") String name) {
+        public Builder booleanVar(@SuppressWarnings("SameParameterValue") String name) {
             setterMap.put(name, (svps, value) -> svps.setBoolean(name, (boolean) value));
             return this;
         }
@@ -109,7 +109,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder byteVar(String name) {
+        public Builder byteVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setByte(name, (byte) value));
             return this;
         }
@@ -121,7 +121,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder shortVar(String name) {
+        public Builder shortVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setShort(name, (short) value));
             return this;
         }
@@ -133,7 +133,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder intVar(String name) {
+        public Builder intVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setInt(name, (int) value));
             return this;
         }
@@ -145,7 +145,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder longVar(String name) {
+        public Builder longVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setLong(name, (long) value));
             return this;
         }
@@ -157,7 +157,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder floatVar(String name) {
+        public Builder floatVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setFloat(name, (float) value));
             return this;
         }
@@ -169,7 +169,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder doubleVar(String name) {
+        public Builder doubleVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setDouble(name, (double) value));
             return this;
         }
@@ -181,7 +181,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder bigDecimalVar(String name) {
+        public Builder bigDecimalVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setBigDecimal(name, (BigDecimal) value));
             return this;
         }
@@ -193,7 +193,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder stringVar(String name) {
+        public Builder stringVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setString(name, (String) value));
             return this;
         }
@@ -205,7 +205,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder bytesVar(String name) {
+        public Builder bytesVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setBytes(name, (byte[]) value));
             return this;
         }
@@ -217,7 +217,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder dateVar(String name) {
+        public Builder dateVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setDate(name, (Date) value));
             return this;
         }
@@ -229,7 +229,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder timeVar(String name) {
+        public Builder timeVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setTime(name, (Time) value));
             return this;
         }
@@ -241,7 +241,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder timestampVar(String name) {
+        public Builder timestampVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setTimestamp(name, (Timestamp) value));
             return this;
         }
@@ -254,7 +254,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder objectVar(String name, int targetSqlType) {
+        public Builder objectVar(String name, int targetSqlType) {
             setterMap.put(name, (svps, value) -> svps.setObject(name, value, targetSqlType));
             return this;
         }
@@ -266,7 +266,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder blobVar(String name) {
+        public Builder blobVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setBlob(name, (Blob) value));
             return this;
         }
@@ -278,7 +278,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder clobVar(String name) {
+        public Builder clobVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setClob(name, (Clob) value));
             return this;
         }
@@ -290,7 +290,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder arrayVar(String name) {
+        public Builder arrayVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setArray(name, (Array) value));
             return this;
         }
@@ -303,7 +303,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder dateVar(String name, Calendar calendar) {
+        public Builder dateVar(String name, Calendar calendar) {
             setterMap.put(name, (svps, value) -> svps.setDate(name, (Date) value, calendar));
             return this;
         }
@@ -316,7 +316,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder timeVar(String name, Calendar calendar) {
+        public Builder timeVar(String name, Calendar calendar) {
             setterMap.put(name, (svps, value) -> svps.setTime(name, (Time) value, calendar));
             return this;
         }
@@ -329,7 +329,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder timestampVar(String name, Calendar calendar) {
+        public Builder timestampVar(String name, Calendar calendar) {
             setterMap.put(name, (svps, value) -> svps.setTimestamp(name, (Timestamp) value, calendar));
             return this;
         }
@@ -341,7 +341,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder urlVar(String name) {
+        public Builder urlVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setURL(name, (URL) value));
             return this;
         }
@@ -353,7 +353,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder nStringVar(String name) {
+        public Builder nStringVar(String name) {
             setterMap.put(name, (svps, value) -> svps.setNString(name, (String) value));
             return this;
         }
@@ -365,7 +365,7 @@ public class MapSetter {
          * @return this object.
          */
         @SuppressWarnings("SameParameterValue")
-        Builder nClob(String name) {
+        public Builder nClob(String name) {
             setterMap.put(name, (svps, value) -> svps.setNClob(name, (NClob) value));
             return this;
         }
