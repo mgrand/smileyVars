@@ -370,7 +370,7 @@ public class MapSetter {
             return this;
         }
 
-        MapSetter build() {
+        public MapSetter build() {
             return new MapSetter(setterMap);
         }
     }
