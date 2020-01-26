@@ -850,7 +850,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      *                  SmileyVars template.
      * @param valueMaps A collection of Maps that specify sets of values to be used for the batch.
      * @return an array of the number of rows affected by each update. The order of the elements in the array will be
-     * arbitrary and generally not match the order in which sets of updates parameters were added.
+     * arbitrary.
      */
     @NotNull
     public int[] batchUpdate(@NotNull String sql, @NotNull MapSetter mapSetter, @NotNull Collection<Map<String, Object>> valueMaps) {
