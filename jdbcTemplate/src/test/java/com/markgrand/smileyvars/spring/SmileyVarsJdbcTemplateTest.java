@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("SqlNoDataSourceInspection")
 class SmileyVarsJdbcTemplateTest {
     private static final int COLUMN_COUNT = 7;
 
@@ -77,7 +78,6 @@ class SmileyVarsJdbcTemplateTest {
     @Test
     void simpleConstructor() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate();
-        //noinspection ConstantConditions
         assertNull(svjt.getDataSource());
         svjt.setDataSource(mockDataSource);
         assertEquals(mockDataSource, svjt.getDataSource());
@@ -555,7 +555,7 @@ class SmileyVarsJdbcTemplateTest {
         private final Integer quantity;
         private final String itemNumber;
 
-        public Inventory(Integer aisle, Integer level, Integer bin_number, Integer quantity, String itemNumber) {
+        Inventory(Integer aisle, Integer level, Integer bin_number, Integer quantity, String itemNumber) {
             this.aisle = aisle;
             this.level = level;
             this.bin_number = bin_number;
@@ -563,23 +563,23 @@ class SmileyVarsJdbcTemplateTest {
             this.itemNumber = itemNumber;
         }
 
-        public Integer getAisle() {
+        Integer getAisle() {
             return aisle;
         }
 
-        public Integer getLevel() {
+        Integer getLevel() {
             return level;
         }
 
-        public Integer getBinNumber() {
+        Integer getBinNumber() {
             return bin_number;
         }
 
-        public Integer getQuantity() {
+        Integer getQuantity() {
             return quantity;
         }
 
-        public String getItemNumber() {
+        String getItemNumber() {
             return itemNumber;
         }
 
