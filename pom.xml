@@ -11,6 +11,7 @@
 
     <modules>
         <module>smiley-vars</module>
+        <module>jdbcTemplate</module>
     </modules>
 
     <dependencies>
