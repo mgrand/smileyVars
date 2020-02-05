@@ -475,6 +475,13 @@ class SmileyVarsJdbcTemplateTest {
     }
 
     @Test
+    void insertWithGeneratedKeyHolder() {
+        SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        String sql = "INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 2, 2, 'M8851', 27);";
+
+    }
+
+    @Test
     void updateTemplateArrays() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         String[] names = {"aisle", "level", "bin_number"};
