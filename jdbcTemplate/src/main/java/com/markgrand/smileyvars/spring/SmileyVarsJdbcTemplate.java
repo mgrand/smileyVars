@@ -75,8 +75,11 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         super(dataSource, lazyInit);
     }
 
+    /**
+     * Set the JDBC DataSource to obtain connections from.
+     */
     @Override
-    public void setDataSource(@NotNull DataSource dataSource) {
+    public void setDataSource(DataSource dataSource) {
         super.setDataSource(dataSource);
         try {
             databaseType = DatabaseType.inferDatabaseType(JdbcUtils.<String>extractDatabaseMetaData(dataSource, "getDatabaseProductName"));
@@ -791,6 +794,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
                                 @NotNull KeyHolder generatedKeyHolder) throws DataAccessException {
         return update(conn -> {
                     SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql);
+
                     setter.accept(svps);
                     return svps.getPreparedStatement();
                 },
