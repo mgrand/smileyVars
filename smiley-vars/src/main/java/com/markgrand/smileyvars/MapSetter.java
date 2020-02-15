@@ -22,7 +22,15 @@ import java.util.Map;
  *     setterMap.put("description", (svps, value) -&gt; svps.setString(svps, (String)value);
  *     MapSetter mapSetter = new MapSetter(setterMap);
  * </pre>
- *
+ *<p>Once the {@code MapSetter} is created, you can use it to do bulk updates like this:</p>
+ * <pre>
+ *     Collection&lt;Map&lt;String, Object&gt;&gt; records;
+ *     SmileyVarsPreparedStatement svps;
+ *     &#x22EE;
+ *      for (Map&lt;String, Object&gt; record: records) {
+ *          mapSetter.setSmileyVars(svps, record).executeUpdate();
+ *      }
+ * </pre>
  * @author Mark Grand
  */
 public class MapSetter {
