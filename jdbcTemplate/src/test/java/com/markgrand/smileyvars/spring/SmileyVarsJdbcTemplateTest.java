@@ -4,9 +4,10 @@ import com.markgrand.smileyvars.MapSetter;
 import com.markgrand.smileyvars.SmileyVarsPreparedStatement;
 import com.markgrand.smileyvars.util.SqlConsumer;
 import com.mockrunner.mock.jdbc.MockDataSource;
+import mockit.Expectations;
+import mockit.Mocked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -476,25 +477,22 @@ class SmileyVarsJdbcTemplateTest {
         assertEquals(28, newQuantity);
     }
 
-    private int getMaxId() throws SQLException {
-        try (Statement stmt = mockDataSource.getConnection().createStatement()) {
-            String sql = "SELECT max(id) FROM inventory";
-            ResultSet rs = stmt.executeQuery(sql);
-            assertTrue(rs.next());
-            return rs.getInt(1);
-        }
-    }
-
-    @Disabled // H2 does ot support getting generated keys through prepared statements.
+    // H2 does ot support getting generated keys through prepared statements, so we will mock the JDBC call to getGeneratedKeys.
     @Test
-    void insertWithGeneratedKeyHolder() throws SQLException {
-        int prevMaxId = getMaxId();
+    void insertWithGeneratedKeyHolder(@Mocked org.h2.jdbc.JdbcPreparedStatement preparedStatement) throws SQLException {
+        new Expectations() {{
+            preparedStatement.executeUpdate(); result = 1;
+            ResultSet rs = preparedStatement.getGeneratedKeys();
+            rs.getMetaData().getColumnCount(); result = 1;
+            rs.getMetaData().getColumnName(1); result = "id";
+            rs.next(); returns(true, false);
+            rs.getObject(anyInt); result = 999;
+        }};
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
         String sql = "INSERT INTO inventory (aisle, level, bin_number, item_number, quantity) VALUES (4, 2, 2, 'M8851', 27);";
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         assertEquals(1, svjt.updateSmileyVars(sql, pstmt ->{}, keyHolder));
-        assertEquals(1 + prevMaxId, getMaxId());
-        //assertEquals(1 + prevMaxId, keyHolder.getKey(), "Expect generated key to be one greater than previous");
+        assertEquals(999, keyHolder.getKey(), "Expect generated key to be the mocked value");
     }
 
     @Test
