@@ -34,7 +34,7 @@ import java.util.Map;
  * @author Mark Grand
  */
 public class MapSetter {
-    private Map<String, BiSqlConsumer<SmileyVarsPreparedStatement, Object>> setterMap;
+    private final Map<String, BiSqlConsumer<SmileyVarsPreparedStatement, Object>> setterMap;
 
     /**
      * Constructor.  The argument to this is a map that will tell the constructed {@code MapSetter} object how to set
@@ -94,7 +94,7 @@ public class MapSetter {
      * Builder class for creating {@link MapSetter} objects.
      */
     public static class Builder {
-        private Map<String, BiSqlConsumer<SmileyVarsPreparedStatement, Object>> setterMap = new HashMap<>();
+        private final Map<String, BiSqlConsumer<SmileyVarsPreparedStatement, Object>> setterMap = new HashMap<>();
 
         private Builder() {
         }

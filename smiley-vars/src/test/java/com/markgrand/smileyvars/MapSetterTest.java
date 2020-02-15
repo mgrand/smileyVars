@@ -68,14 +68,14 @@ class MapSetterTest {
         assertThrows(SmileyVarsException.class, () -> mapSetter.setSmileyVars(svps, valueMap));
     }
 
-    private Array mockArray = new MockArray(new int[]{0, 1, 2, 3});
-    private Blob mockBlob = new MockBlob("Bogus".getBytes());
-    private Calendar calendar = Calendar.getInstance();
-    private Clob mockClob = new MockClob("eieio");
-    private Date date = Date.valueOf(LocalDate.now());
-    private NClob mockNClob = new MockNClob("Banjo");
-    private Time time = Time.valueOf(LocalTime.now());
-    private Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+    private final Array mockArray = new MockArray(new int[]{0, 1, 2, 3});
+    private final Blob mockBlob = new MockBlob("Bogus".getBytes());
+    private final Calendar calendar = Calendar.getInstance();
+    private final Clob mockClob = new MockClob("eieio");
+    private final Date date = Date.valueOf(LocalDate.now());
+    private final NClob mockNClob = new MockNClob("Banjo");
+    private final Time time = Time.valueOf(LocalTime.now());
+    private final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
 
     @Test
     void builder(@Mocked SmileyVarsPreparedStatement svps) throws Exception {
