@@ -255,13 +255,13 @@ the `PreparedStatement` class. Here is an example of how to use
 `SmileyVarsPreparedStatement`:
 
 ```
-        try (SmileyVarsPreparedStatement svps
-                 = new SmileyVarsPreparedStatement(h2Connection, "SELECT * FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
-            svps.setInt("x", 3);
-            svps.setInt("y", 9);
-            ResultSet rs = svps.executeQuery();
-            ...
-        }
+    try (SmileyVarsPreparedStatement svps
+             = new SmileyVarsPreparedStatement(h2Connection, "SELECT * FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        svps.setInt("x", 3);
+        svps.setInt("y", 9);
+        ResultSet rs = svps.executeQuery();
+        ...
+    }
 ```
 
 To create a `SmileyVarsPreparedStatement` object, you pass in the
@@ -290,12 +290,20 @@ You can use a fluent coding style to configure a
 `SmileyVarsPreparedStatement` object, you can write the above example
 more concisely like this:
 ```
-        try (SmileyVarsPreparedStatement svps
-                 = new SmileyVarsPreparedStatement(h2Connection, "SELECT * FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
-            ResultSet rs = svps.setInt("x", 3).setInt("y", 9).executeQuery();
-            ...
-        }
+    try (SmileyVarsPreparedStatement svps
+             = new SmileyVarsPreparedStatement(h2Connection, "SELECT * FROM square WHERE 1=1 (: AND x=:x:)(: AND y=:y :)")) {
+        ResultSet rs = svps.setInt("x", 3).setInt("y", 9).executeQuery();
+        ...
+    }
 ```
+
+### MapSetter
+`MapSetter` is a class that you can use to set the values of a
+`SmileyVarsPreparedStatement` object from a the values in a `Map`. This
+can be used to avoid writing `if` statements when some values for update
+operations may not always be provided.
+
+
 
 ### Logging
 

@@ -6,10 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Date;
+import java.util.*;
 
 /**
  * {@code MapSetter} is used to set the parameters of a {@link SmileyVarsPreparedStatement} from Maps that contain pairs
@@ -22,7 +20,7 @@ import java.util.Map;
  *     setterMap.put("description", (svps, value) -&gt; svps.setString(svps, (String)value);
  *     MapSetter mapSetter = new MapSetter(setterMap);
  * </pre>
- *<p>Once the {@code MapSetter} is created, you can use it to do bulk updates like this:</p>
+ * <p>Once the {@code MapSetter} is created, you can use it to do bulk updates like this:</p>
  * <pre>
  *     Collection&lt;Map&lt;String, Object&gt;&gt; records;
  *     SmileyVarsPreparedStatement svps;
@@ -31,6 +29,7 @@ import java.util.Map;
  *          mapSetter.setSmileyVars(svps, record).executeUpdate();
  *      }
  * </pre>
+ *
  * @author Mark Grand
  */
 public class MapSetter {
@@ -67,12 +66,48 @@ public class MapSetter {
      * @throws SmileyVarsException If there is a problem setting the values of the smileyVars.
      */
     @SuppressWarnings("UnusedReturnValue")
-    public SmileyVarsPreparedStatement setSmileyVars(@NotNull SmileyVarsPreparedStatement svps, Map<String, Object> valueMap) throws SQLException {
+    public SmileyVarsPreparedStatement setSmileyVars(@NotNull SmileyVarsPreparedStatement svps, @NotNull Map<String, Object> valueMap) throws SQLException {
         svps.clearParameters();
         for (Map.Entry<String, Object> valueEntry : valueMap.entrySet()) {
             setterMap.computeIfAbsent(valueEntry.getKey(), this::throwException).accept(svps, valueEntry.getValue());
         }
         return svps;
+    }
+
+    /**
+     * For each Map object returned by iterating on the given Iterable object, set the given {@link
+     * SmileyVarsPreparedStatement} object's parameters from the map and call the {@link SmileyVarsPreparedStatement}
+     * object's {@code executeUpdate} method.
+     *
+     * @param svps      The {@link SmileyVarsPreparedStatement} object to use.
+     * @param valueMaps An iterable object that contains value maps to be applied to the {@link
+     *                  SmileyVarsPreparedStatement}.
+     * @return A list of the results returned by calling the {@link SmileyVarsPreparedStatement} object's {@code
+     * executeUpdate} method for each set of values.
+     * @throws SQLException if there is a problem.
+     */
+    public List<Integer> executeUpdate(@NotNull SmileyVarsPreparedStatement svps, @NotNull Iterable<Map<String, Object>> valueMaps) throws SQLException {
+        return executeUpdate(svps, valueMaps.iterator());
+    }
+
+    /**
+     * For each Map object returned by iterating on the given Iterator, set the given {@link
+     * SmileyVarsPreparedStatement} object's parameters from the map and call the {@link SmileyVarsPreparedStatement}
+     * object's {@code executeUpdate} method.
+     *
+     * @param svps             The {@link SmileyVarsPreparedStatement} object to use.
+     * @param valueMapIterator An iterator that contains value maps to be applied to the {@link
+     *                         SmileyVarsPreparedStatement}.
+     * @return A list of the results returned by calling the {@link SmileyVarsPreparedStatement} object's {@code
+     * executeUpdate} method for each set of values.
+     * @throws SQLException if there is a problem.
+     */
+    public List<Integer> executeUpdate(@NotNull SmileyVarsPreparedStatement svps, @NotNull Iterator<Map<String, Object>> valueMapIterator) throws SQLException {
+        List<Integer> results = new ArrayList<>();
+        while (valueMapIterator.hasNext()) {
+            results.add(setSmileyVars(svps, valueMapIterator.next()).executeUpdate());
+        }
+        return results;
     }
 
     private BiSqlConsumer<SmileyVarsPreparedStatement, Object> throwException(String name) {
