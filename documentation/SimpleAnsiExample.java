@@ -13,12 +13,13 @@ public class SimpleAnsiExample {
     private static final SmileyVarsTemplate selectTemplate = SmileyVarsTemplate.ansiTemplate(AISLE_BIN_SELECT);
 
     public StorageLocation getLocation(Connection conn, String aisle, Integer bin) throws SQLException {
-        Statement stmt = conn.createStatement();
-        Map<String, Object> map = new HashMap<>();
-        map.put("aisle", aisle);
-        map.put("bin", bin);
-        ResultSet rs = stmt.executeQuery(selectTemplate.apply(map));
-        return new StorageLocation(rs);
+        try (Statement stmt = conn.createStatement()) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("aisle", aisle);
+            map.put("bin", bin);
+            ResultSet rs = stmt.executeQuery(selectTemplate.apply(map));
+            return new StorageLocation(rs);
+        }
     }
 
     private static class StorageLocation {

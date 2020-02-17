@@ -91,23 +91,39 @@ class Tokenizer implements Iterator<Token> {
     }
 
     private void scanCommonMultiCharacterToken(char c) {
-        if (c == '-' && isNextChar('-')) {
+        if (isBeginingOfEolComment(c)) {
             scanToEndOfLine();
-        } else if (c == '/' && isNextChar('*')) {
+        } else if (isBeginningOfBlockComment(c)) {
             scanToEndOfBlockComment();
         } else if (c == '"') {
             scanQuotedIdentifier();
         } else if (c == '\'') {
             scanAnsiQuotedString();
-        } else if (config.postgresqlEscapeStringEnabled && (c == 'e' || c == 'E') && isNextChar('\'')) {
+        } else if (config.postgresqlEscapeStringEnabled && isBeginningOfPostgresqlEscapeString(c)) {
             scanPostgresqlEscapeString();
         } else if (config.postgresqlDollarStringEnabled && c == '$') {
             scanPostgresqlDollarString();
-        } else if (config.oracleDelimitedStringEnabled && (c == 'q' || c == 'Q') && isNextChar('\'')) {
+        } else if (config.oracleDelimitedStringEnabled && isBeginningOfDelimitedString(c)) {
             scanOracleDelimitedString();
         } else if (c == '[' && config.squareBracketIdentifierQuotingEnabled) {
             scanPast(']');
         }
+    }
+
+    private boolean isBeginningOfDelimitedString(char c) {
+        return (c == 'q' || c == 'Q') && isNextChar('\'');
+    }
+
+    private boolean isBeginningOfPostgresqlEscapeString(char c) {
+        return (c == 'e' || c == 'E') && isNextChar('\'');
+    }
+
+    private boolean isBeginningOfBlockComment(char c) {
+        return c == '/' && isNextChar('*');
+    }
+
+    private boolean isBeginingOfEolComment(char c) {
+        return c == '-' && isNextChar('-');
     }
 
     private void scanPast(@SuppressWarnings("SameParameterValue") char c) {

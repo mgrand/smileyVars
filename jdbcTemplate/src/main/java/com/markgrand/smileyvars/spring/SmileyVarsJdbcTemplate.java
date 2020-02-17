@@ -36,7 +36,7 @@ import java.util.*;
  * {@inheritDoc}
  */
 public class SmileyVarsJdbcTemplate extends JdbcTemplate {
-    private static final Logger logger = LoggerFactory.getLogger(SmileyVarsJdbcTemplate.class);
+    private static final Logger log = LoggerFactory.getLogger(SmileyVarsJdbcTemplate.class);
 
     private DatabaseType databaseType;
 
@@ -83,7 +83,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
         super.setDataSource(dataSource);
         try {
             databaseType = DatabaseType.inferDatabaseType(JdbcUtils.<String>extractDatabaseMetaData(dataSource, "getDatabaseProductName"));
-            logger.debug("DatabaseType is {}", databaseType);
+            log.debug("DatabaseType is {}", databaseType);
         } catch (MetaDataAccessException e) {
             throw new DataAccessResourceFailureException("Error while determining type of database.", e);
         }
@@ -112,7 +112,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
     public <T> T executeSmileyVars(@NotNull String sql, @NotNull SqlFunction<SmileyVarsPreparedStatement, T> svpsFunction) {
         Connection conn = DataSourceUtils.getConnection(obtainDataSource());
         try {
-            logger.debug("Creating SmileyVarsPreparedStatement from sql: {}", sql);
+            log.debug("Creating SmileyVarsPreparedStatement from sql: {}", sql);
             try (SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql)) {
                 return svpsFunction.apply(svps);
             }
@@ -138,7 +138,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
      */
-    public <T> T querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull ResultSetExtractor<T> rse) throws DataAccessException {
+    public <T> T querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull ResultSetExtractor<T> rse) {
         return executeSmileyVars(sql, (SmileyVarsPreparedStatement svps) -> {
             setter.accept(svps);
             return rse.extractData(svps.executeQuery());
@@ -165,7 +165,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> T querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull ResultSetExtractor<T> rse) throws DataAccessException {
+    public <T> T querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull ResultSetExtractor<T> rse) {
         ensureEqualLengthArrays(names, values);
         Map<String, Object> valueMap = arraysToMap(names, values);
         return querySmileyVars(sql, valueMap, rse);
@@ -205,7 +205,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the value produced by the {@link ResultSetExtractor}.
      * @throws DataAccessException if there is a problem.
      */
-    public <T> T querySmileyVars(String sql, Map<String, ?> valueMap, ResultSetExtractor<T> rse) throws DataAccessException {
+    public <T> T querySmileyVars(String sql, Map<String, ?> valueMap, ResultSetExtractor<T> rse) {
         return super.query(expand(sql, valueMap), rse);
     }
 
@@ -230,7 +230,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param rch    a callback that is called to process each row.
      * @throws DataAccessException if there is any problem
      */
-    public void querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowCallbackHandler rch) throws DataAccessException {
+    public void querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowCallbackHandler rch) {
         executeSmileyVars(sql, (SmileyVarsPreparedStatement svps) -> {
             setter.accept(svps);
             try (ResultSet rs = svps.executeQuery()) {
@@ -263,7 +263,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public void querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowCallbackHandler rch) throws DataAccessException {
+    public void querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowCallbackHandler rch) {
         ensureEqualLengthArrays(names, values);
         Map<String, Object> valueMap = arraysToMap(names, values);
         querySmileyVars(sql, valueMap, rch);
@@ -289,7 +289,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param rch      The {@link RowCallbackHandler} to use for processing each row from the query's result set.
      * @throws DataAccessException if there is a problem.
      */
-    public void querySmileyVars(@NotNull String sql, @NotNull Map<String, ?> valueMap, @NotNull RowCallbackHandler rch) throws DataAccessException {
+    public void querySmileyVars(@NotNull String sql, @NotNull Map<String, ?> valueMap, @NotNull RowCallbackHandler rch) {
         super.query(expand(sql, valueMap), rch);
     }
 
@@ -310,8 +310,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return a list of the values returned by the calls to the RowMapper.
      * @throws DataAccessException if there is any problem
      */
-    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper)
-            throws DataAccessException {
+    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper) {
         return querySmileyVars(sql, setter, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
@@ -334,7 +333,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowMapper<T> rowMapper) {
         return querySmileyVars(sql, names, values, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
@@ -355,7 +354,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @param rowMapper a callback that is called to process each row into a value.
      * @throws DataAccessException if there is a problem.
      */
-    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> querySmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap, @NotNull RowMapper<T> rowMapper) {
         return querySmileyVars(sql, valueMap, new RowMapperResultSetExtractor<>(rowMapper));
     }
 
@@ -374,7 +373,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the result object returned by the ResultSetExtractor
      * @throws DataAccessException if there is any problem
      */
-    public <T> T queryForObjectSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> T queryForObjectSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, @NotNull RowMapper<T> rowMapper) {
         List<T> result = querySmileyVars(sql, setter, new RowMapperResultSetExtractor<>(rowMapper, 1));
         return DataAccessUtils.nullableSingleResult(result);
     }
@@ -397,7 +396,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> T queryForObjectSmileyVars(String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> T queryForObjectSmileyVars(String sql, @NotNull String[] names, @NotNull Object[] values, @NotNull RowMapper<T> rowMapper) {
         List<T> result = querySmileyVars(sql, names, values, new RowMapperResultSetExtractor<>(rowMapper, 1));
         return DataAccessUtils.nullableSingleResult(result);
     }
@@ -422,7 +421,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> T queryForObjectSmileyVars(String sql, Map<String, Object> valueMap, @NotNull RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> T queryForObjectSmileyVars(String sql, Map<String, Object> valueMap, @NotNull RowMapper<T> rowMapper) {
         List<T> result = querySmileyVars(sql, valueMap, new RowMapperResultSetExtractor<>(rowMapper, 1));
         return DataAccessUtils.nullableSingleResult(result);
     }
@@ -443,7 +442,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the result object
      * @throws DataAccessException if there is any problem
      */
-    public <T> T queryForObjectSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, Class<T> requiredType) throws DataAccessException {
+    public <T> T queryForObjectSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, Class<T> requiredType) {
         return queryForObjectSmileyVars(sql, setter, getSingleColumnRowMapper(requiredType));
     }
 
@@ -468,7 +467,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> T queryForObjectSmileyVars(String sql, String[] names, Object[] values, Class<T> requiredType) throws DataAccessException {
+    public <T> T queryForObjectSmileyVars(String sql, String[] names, Object[] values, Class<T> requiredType) {
         return queryForObjectSmileyVars(sql, names, values, getSingleColumnRowMapper(requiredType));
     }
 
@@ -492,7 +491,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> T queryForObjectSmileyVars(String sql, Map<String, Object> valueMap, Class<T> requiredType) throws DataAccessException {
+    public <T> T queryForObjectSmileyVars(String sql, Map<String, Object> valueMap, Class<T> requiredType) {
         return queryForObjectSmileyVars(sql, valueMap, getSingleColumnRowMapper(requiredType));
     }
 
@@ -510,7 +509,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return A map whose keys are the value in the result row and whose values are the values from the result row.
      * @throws DataAccessException if there is any problem
      */
-    public Map<String, Object> queryForMapSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) throws DataAccessException {
+    public Map<String, Object> queryForMapSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) {
         return queryForObjectSmileyVars(sql, setter, getColumnMapRowMapper());
     }
 
@@ -533,7 +532,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public Map<String, Object> queryForMapSmileyVars(String sql, String[] names, Object[] values) throws DataAccessException {
+    public Map<String, Object> queryForMapSmileyVars(String sql, String[] names, Object[] values) {
         return queryForObjectSmileyVars(sql, names, values, getColumnMapRowMapper());
     }
 
@@ -556,7 +555,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public Map<String, Object> queryForMapSmileyVars(String sql, Map<String, Object> valueMap) throws DataAccessException {
+    public Map<String, Object> queryForMapSmileyVars(String sql, Map<String, Object> valueMap) {
         return queryForObjectSmileyVars(sql, valueMap, getColumnMapRowMapper());
     }
 
@@ -577,7 +576,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return A List whose elements are the single value in each result row.
      * @throws DataAccessException if there is any problem
      */
-    public <T> List<T> queryForListSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, Class<T> elementType) throws DataAccessException {
+    public <T> List<T> queryForListSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter, Class<T> elementType) {
         return querySmileyVars(sql, setter, getSingleColumnRowMapper(elementType));
     }
 
@@ -600,7 +599,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> List<T> queryForListSmileyVars(String sql, String[] names, Object[] values, Class<T> elementType) throws DataAccessException {
+    public <T> List<T> queryForListSmileyVars(String sql, String[] names, Object[] values, Class<T> elementType) {
         return querySmileyVars(sql, names, values, getSingleColumnRowMapper(elementType));
     }
 
@@ -623,7 +622,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public <T> List<T> queryForListSmileyVars(String sql, Map<String, Object> valueMap, Class<T> elementType) throws DataAccessException {
+    public <T> List<T> queryForListSmileyVars(String sql, Map<String, Object> valueMap, Class<T> elementType) {
         return querySmileyVars(sql, valueMap, getSingleColumnRowMapper(elementType));
     }
 
@@ -643,7 +642,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return A List that contains a Map for each returned row.
      * @throws DataAccessException if there is any problem
      */
-    public List<Map<String, Object>> queryForListSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) throws DataAccessException {
+    public List<Map<String, Object>> queryForListSmileyVars(String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) {
         return querySmileyVars(sql, setter, getColumnMapRowMapper());
     }
 
@@ -666,7 +665,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public List<Map<String, Object>> queryForListSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) throws DataAccessException {
+    public List<Map<String, Object>> queryForListSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) {
         return querySmileyVars(sql, names, values, getColumnMapRowMapper());
     }
 
@@ -688,7 +687,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public List<Map<String, Object>> queryForListSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) throws DataAccessException {
+    public List<Map<String, Object>> queryForListSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) {
         return querySmileyVars(sql, valueMap, getColumnMapRowMapper());
     }
 
@@ -707,7 +706,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return result rows as an {@link SqlRowSet} object.
      * @throws DataAccessException if there is any problem
      */
-    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) throws DataAccessException {
+    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) {
         return querySmileyVars(sql, setter, new SqlRowSetResultSetExtractor());
     }
 
@@ -729,7 +728,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) throws DataAccessException {
+    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) {
         return querySmileyVars(sql, names, values, new SqlRowSetResultSetExtractor());
     }
 
@@ -750,7 +749,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) throws DataAccessException {
+    public SqlRowSet queryForRowSetSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) {
         return querySmileyVars(sql, valueMap, new SqlRowSetResultSetExtractor());
     }
 
@@ -767,7 +766,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @return the number of effected rows.
      * @throws DataAccessException if there is any problem
      */
-    public int updateSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) throws DataAccessException {
+    public int updateSmileyVars(@NotNull String sql, @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter) {
         return update(conn -> {
             SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql);
             setter.accept(svps);
@@ -791,7 +790,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      */
     public int updateSmileyVars(@NotNull String sql,
                                 @NotNull SqlConsumer<SmileyVarsPreparedStatement> setter,
-                                @NotNull KeyHolder generatedKeyHolder) throws DataAccessException {
+                                @NotNull KeyHolder generatedKeyHolder) {
         return update(conn -> {
                     SmileyVarsPreparedStatement svps = new SmileyVarsPreparedStatement(conn, sql);
 
@@ -818,7 +817,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public int updateSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) throws DataAccessException {
+    public int updateSmileyVars(@NotNull String sql, @NotNull String[] names, @NotNull Object[] values) {
         ensureEqualLengthArrays(names, values);
         return updateSmileyVars(sql, arraysToMap(names, values));
     }
@@ -842,7 +841,7 @@ public class SmileyVarsJdbcTemplate extends JdbcTemplate {
      * @throws DataAccessException      if there is a problem.
      * @throws IllegalArgumentException if the names and values arrays are not the same length
      */
-    public int updateSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) throws DataAccessException {
+    public int updateSmileyVars(@NotNull String sql, @NotNull Map<String, Object> valueMap) {
         return update(expand(sql, valueMap));
     }
 
