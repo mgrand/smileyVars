@@ -305,6 +305,8 @@ documentation for slf4j at <https://www.slf4j.org/manual.html>
 
 ## Road Map
 This is a list of planned future features, in no particular order:
+* A BeanSetter class to set the values of SmileyVarsPreparedStatements
+  parameters from the properties of Java Beans.
 * Support dollar quoted literals for H2
 * Support for nested smileyVars brackets.
 * Built-in support for additional data types:
