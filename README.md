@@ -301,8 +301,22 @@ more concisely like this:
 `MapSetter` is a class that you can use to set the values of a
 `SmileyVarsPreparedStatement` object from a the values in a `Map`. This
 can be used to avoid writing `if` statements when some values for update
-operations may not always be provided.
+operations may not always be provided. When there are multiple rows to
+be updated, it can also be used to avoid having to write a loop.
 
+There two steps to using a `MapSetter`. The first is to configure the
+`MapSetter` to use the correct `set` methods for the named columns it
+will be presented values for. The second step is to pass `Map` objects
+to the `MapSetter` that contains the values for the SmileyVars in a
+`SmileyVarsPreparedStatement`. You can pass individual `Map` objects or
+a collection of them.
+
+There are two ways to create a `MapSetter` object. You can use the
+constructor or the builder. Here is what it looks like to use the
+constructor:
+
+```
+```
 
 
 ### Logging

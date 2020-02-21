@@ -13,12 +13,11 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -157,5 +156,45 @@ class MapSetterTest {
         }};
 
         mapSetter.setSmileyVars(svps, valueMap);
+    }
+
+    @Test
+    void executeUpdatesTest(@Mocked SmileyVarsPreparedStatement svps) throws Exception {
+        MapSetter mapSetter = MapSetter.newBuilder().intVar("aisle").intVar("bin").intVar("level").intVar("quantity").build();
+
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("aisle", 7);
+        map1.put("bin", 8);
+        map1.put("level", 3);
+        map1.put("quantity", 88);
+
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("aisle", 17);
+        map2.put("bin", 18);
+        map2.put("level", 13);
+        map2.put("quantity", 98);
+
+        Map<String, Object> map3 = new HashMap<>();
+        map3.put("aisle", 27);
+        map3.put("bin", 28);
+        map3.put("quantity", 29);
+
+        List<Map<String, Object>> maps = Arrays.asList(map1, map2, map3);
+
+        new Expectations(){{
+            svps.setInt("aisle", 7);
+            svps.setInt("bin", 8);
+            svps.setInt("level", 3);
+            svps.setInt("quantity", 88);
+            svps.setInt("aisle", 17);
+            svps.setInt("bin", 18);
+            svps.setInt("level", 13);
+            svps.setInt("quantity", 98);
+            svps.setInt("aisle", 27);
+            svps.setInt("bin", 28);
+            svps.setInt("quantity", 29);
+        }};
+
+        mapSetter.executeUpdates(svps, maps);
     }
 }
