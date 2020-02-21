@@ -24,7 +24,7 @@ import java.util.*;
  * <pre>
  *     Collection&lt;Map&lt;String, Object&gt;&gt; records;
  *     SmileyVarsPreparedStatement svps;
- *     &#x22EE;
+ *     &hellip;
  *      for (Map&lt;String, Object&gt; record: records) {
  *          mapSetter.setSmileyVars(svps, record).executeUpdate();
  *      }
@@ -51,6 +51,11 @@ public class MapSetter {
         this.setterMap = setterMap;
     }
 
+    /**
+     * Create a Builder object that can be used to configure and create a {@link MapSetter} object.
+     *
+     * @return the Builder object.
+     */
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -86,8 +91,8 @@ public class MapSetter {
      * executeUpdate} method for each set of values.
      * @throws SQLException if there is a problem.
      */
-    public List<Integer> executeUpdate(@NotNull SmileyVarsPreparedStatement svps, @NotNull Iterable<Map<String, Object>> valueMaps) throws SQLException {
-        return executeUpdate(svps, valueMaps.iterator());
+    public List<Integer> executeUpdates(@NotNull SmileyVarsPreparedStatement svps, @NotNull Iterable<Map<String, Object>> valueMaps) throws SQLException {
+        return executeUpdates(svps, valueMaps.iterator());
     }
 
     /**
@@ -102,7 +107,7 @@ public class MapSetter {
      * executeUpdate} method for each set of values.
      * @throws SQLException if there is a problem.
      */
-    public List<Integer> executeUpdate(@NotNull SmileyVarsPreparedStatement svps, @NotNull Iterator<Map<String, Object>> valueMapIterator) throws SQLException {
+    public List<Integer> executeUpdates(@NotNull SmileyVarsPreparedStatement svps, @NotNull Iterator<Map<String, Object>> valueMapIterator) throws SQLException {
         List<Integer> results = new ArrayList<>();
         while (valueMapIterator.hasNext()) {
             results.add(setSmileyVars(svps, valueMapIterator.next()).executeUpdate());
@@ -413,6 +418,11 @@ public class MapSetter {
             return this;
         }
 
+        /**
+         * Create a {@link MapSetter} object that is configured by this Builder object.
+         *
+         * @return the created MapSetter object.
+         */
         public MapSetter build() {
             return new MapSetter(setterMap);
         }
