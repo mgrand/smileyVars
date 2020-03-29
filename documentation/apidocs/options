@@ -1,0 +1,26 @@
+-classpath
+'C:/Users/Mark Grand/Documents/GitHub/smileyVars/smiley-vars/target/smiley-vars-0.4.0-SNAPSHOT.jar;c:/Users/markgr~1/.m2/repository/org/springframework/spring-jdbc/5.2.1.RELEASE/spring-jdbc-5.2.1.RELEASE.jar;c:/Users/markgr~1/.m2/repository/org/springframework/spring-beans/5.2.1.RELEASE/spring-beans-5.2.1.RELEASE.jar;c:/Users/markgr~1/.m2/repository/org/springframework/spring-core/5.2.1.RELEASE/spring-core-5.2.1.RELEASE.jar;c:/Users/markgr~1/.m2/repository/org/springframework/spring-jcl/5.2.1.RELEASE/spring-jcl-5.2.1.RELEASE.jar;c:/Users/markgr~1/.m2/repository/org/springframework/spring-tx/5.2.1.RELEASE/spring-tx-5.2.1.RELEASE.jar;c:/Users/markgr~1/.m2/repository/org/jetbrains/annotations/17.0.0/annotations-17.0.0.jar;c:/Users/markgr~1/.m2/repository/org/slf4j/slf4j-api/1.7.28/slf4j-api-1.7.28.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'C:/Users/Mark Grand/Documents/GitHub/smileyVars/jdbcTemplate/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2019&#x2013;2020. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'C:/Users/Mark Grand/Documents/GitHub/smileyVars/jdbcTemplate/../documentation/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'SmileyVars-SpringIntegration 0.4.0-SNAPSHOT API'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' 'C:/Users/Mark Grand/Documents/GitHub/smileyVars/jdbcTemplate/target/javadoc-bundle-options'
+-linkoffline
+'https://github.com/mgrand/smileyVars/smiley-vars/apidocs' 'C:/Users/Mark Grand/Documents/GitHub/smileyVars/smiley-vars/../documentation/apidocs'
+-use
+-version
+-windowtitle
+'SmileyVars-SpringIntegration 0.4.0-SNAPSHOT API'

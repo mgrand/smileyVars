@@ -184,9 +184,15 @@ types. Other formatters are for use in just one type of template.
 this version of SmileyVars.</sub>
 
 ## Using smileyVars
-You can use smileyVars as a stand-alone pre-processor for SQL. However, 
-more convenient integrations with other libraries are planned. In this 
-section, we show you how to use smileyVars as a stand-alone preprocessor.
+You can use smileyVars as a stand-alone pre-processor for SQL. However,
+there are integrations with other libraries that you may find for
+convenient for your application. There is an integration with the JDBC
+library's `PreparedStatement` class. There is an additional integration
+with the Spring Framework's `JdbcTemplate` class.
+
+### SmileyVars as a Stand-Alone Pre-Processor
+In this section, we show you how to use smileyVars as a stand-alone
+preprocessor.
 
 The first step is adding the smileyVars jar file to your project. The
 recommended way to get the library is to allow maven or another 
@@ -297,6 +303,16 @@ more concisely like this:
     }
 ```
 
+There is a difference between using `SmileyVarsPreparedStatement` and
+using stand-alone SmileyVars that you should be aware of. When you are
+using stand-alone SmileyVars, you use Java values as values for
+SmileyVars. You can specify formatters to specify how the values should
+be formatted as SQL.
+
+When you use `SmileyVarsPreparedStatement`, you use `set` methods to
+specify values of SmileyVars using SQL types. Formatters in the template
+are ignored.
+
 ### MapSetter
 `MapSetter` is a class that you can use to set the values of a
 `SmileyVarsPreparedStatement` object from a the values in a `Map`. This
@@ -311,13 +327,64 @@ to the `MapSetter` that contains the values for the SmileyVars in a
 `SmileyVarsPreparedStatement`. You can pass individual `Map` objects or
 a collection of them.
 
-There are two ways to create a `MapSetter` object. You can use the
-constructor or the builder. Here is what it looks like to use the
-constructor:
-
+The simplest way to create a `MapSetter` object is to us a builder like
+this:
 ```
+MapSetter mapSetter = MapSetter.newBuilder()
+    .intVar("aisle")
+    .intVar("bin")
+    .intVar("level")
+    .intVar("quantity")
+    .stringVar("comment")
+    .build();
 ```
 
+Once the `MapSetter` exists, you can use in with individual `Map`
+objects like this:
+```
+SmileyVarsPreparedStatement svps;
+List<Map<String, Object>> maps;
+...
+ mapSetter.executeUpdates(svps, maps);
+```
+
+### Integration with Spring Framework's `JdbcTemplate`
+SmileyVars has an integration that allows you to use it with Spring's
+`JdbcTemplate` class. The integration is through a wrapper class named
+`SmileyVarsJdbcTemplate`.
+
+The `SmileyVarsJdbcTemplate` class allows you to do most of the things
+you can do with a `JdbcTemplate`, but with the added convenience of
+SmileyVars templates. It builds on the `SmileyVarsPreparedStatement`
+class.
+
+The `SmileyVarsJdbcTemplate` class is a subclass of `JdbcTemplate`, so
+it has all of the same methods. It also has similar methods with names
+suffixed with `SmileyVars`. Here is an example that uses the SmileyVars
+version of `query`:
+```
+DataSource ds = ...;
+ResultSetExtractor<List<Inventory>> rse = ...;
+static final String sql
+    = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+
+List<Inventory> fetchInventory(int aisle, int level) {
+     SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
+        return svjt.querySmileyVars(sql,
+                svps -> svps.setInt("aisle", 4).setInt("level", 1),
+                rse);
+}
+```
+This `querySmileyVars` method takes three arguemnts:
+* sql<br>This argument is the SQL body of a SmileyVars Template.
+* SmileyVarsPreparedStatement consumer<br>This is a lambda that is
+  passed a `SmileyVarsPreparedStatement` created from the sql. The
+  lambda is expected to set the values of the SmileyVars. It can
+  directly call the `SmileyVarsPreparedStatement` object's set methods.
+  It can also set the SmileVars indirectly by using a `MapSetter`.
+* `rse`<br>This parameter is a `ResultSetExtractor` that converts the
+  `ResultSet` produced by the query into a `List` of `Inventory`
+  objects.
 
 ### Logging
 
