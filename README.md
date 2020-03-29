@@ -1,4 +1,4 @@
-# smileyVars
+# smileyVars 0.4
 *A template engine for SQL*
 
 SmileyVars is a lightweight java-based template engine for SQL. It helps
@@ -310,8 +310,8 @@ SmileyVars. You can specify formatters to specify how the values should
 be formatted as SQL.
 
 When you use `SmileyVarsPreparedStatement`, you use `set` methods to
-specify values of SmileyVars using SQL types. Formatters in the template
-are ignored.
+specify values of SmileyVars using SQL value types. Formatters in the
+template are ignored.
 
 ### MapSetter
 `MapSetter` is a class that you can use to set the values of a
