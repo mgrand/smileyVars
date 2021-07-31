@@ -1,7 +1,7 @@
 *.iml
 .idea
 target/
-documentation/
+documentation
 
 pom.xml.tag
 pom.xml.releaseBackup
