@@ -222,7 +222,7 @@ Using SmilelyVars in your Java code is very simple. There are just two steps:
 * Create a template.  
 * Apply values to the template.
 
-This is exemplified by the following code sample:
+Here is a code sample:
 ```java
 import com.markgrand.smileyvars.DatabaseType;import com.markgrand.smileyvars.SmileyVarsTemplate;
 //...
