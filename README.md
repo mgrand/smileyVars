@@ -5,11 +5,14 @@ SmileyVars is a lightweight java-based template engine for SQL. It helps
 you avoid writing similar SQL many times because simple variations are
 needed.
 
-SmileyVars is being initially developed with an integration to Spring&#x2bc;s JdbcTemplate. Other integrations are possible.
+SmileyVars is being initially developed with an integration to Spring&#x2bc;s
+JdbcTemplate. Other integrations are possible.
 
 ## Introduction by Example
 
-Suppose we have a table that tracks the content of bins in a warehouse. Suppose that bins are identified by `aisle`, `level` and `bin_number`. A query to get information about the contents of one bin might look like
+Suppose we have a table that tracks the content of bins in a warehouse. Suppose
+bins are identified by `aisle`, `level` and `bin_number`. A query to get
+information about the contents of one bin might look like
 
 ```SQL
 SELECT item_number, quantity FROM bin_tbl
@@ -144,7 +147,7 @@ component) rather than a timestamp. You can specify the formatting you
 want for a variable by following it with a colon (:) and the name of a
 format like this:
 ```SQL
-SELECT * FROM data WHERE 1=1 (:and day=:day:date:)
+SELECT * FROM data WHERE 1=1 (: and day=:day:date :)
 ```
 If `day` is the `Calendar` value `18FEB2020 13:43:56EST` then the above 
 example expands to
