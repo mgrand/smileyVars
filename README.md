@@ -194,6 +194,9 @@ library's `PreparedStatement`](#integration-with-preparedstatement) class.
 There is an additional integration with the [Spring Framework's
 `JdbcTemplate`](#integration-with-spring-frameworks-jdbctemplate) class.
 
+There is also a convenience class named [MapSetter](#mapsetter) that allows you
+to reuse the same value settings for multiple database queries.
+
 ### SmileyVars as a Stand-Alone Pre-Processor
 In this section, we show you how to use smileyVars as a stand-alone
 preprocessor.
