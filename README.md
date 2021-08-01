@@ -167,7 +167,7 @@ These are the currently supported formats:
 
 **Format name** is the name to use when explicitly specifying the format.
 
-**Default Mapping** is yes if the format will automatically be used 
+**Default Mapping** is `yes` if the format will automatically be used
 based on the type of value when there is no formatter specified.
 
 **Applies to Java Types** shows the Java types that the formatter can be
