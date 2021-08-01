@@ -316,7 +316,7 @@ When you use `SmileyVarsPreparedStatement`, you use `set` methods to
 specify values of SmileyVars using SQL value types. Formatters in the
 template are ignored.
 
-### MapSetter
+#### MapSetter
 `MapSetter` is a class that you can use to set the values of a
 `SmileyVarsPreparedStatement` object from a the values in a `Map`. This
 can be used to avoid writing `if` statements when some values for update
