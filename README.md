@@ -191,8 +191,8 @@ You can use smileyVars as a stand-alone pre-processor for SQL. However,
 there are integrations with other libraries that you may find for
 convenient for your application. There is an [integration with the JDBC
 library's `PreparedStatement`](#integration-with-preparedstatement) class.
-There is an additional integration with the Spring Framework's `JdbcTemplate`
-class.
+There is an additional integration with the ()Spring Framework's
+`JdbcTemplate`)[#integration-with-spring-frameworks-jdbctemplate] class.
 
 ### SmileyVars as a Stand-Alone Pre-Processor
 In this section, we show you how to use smileyVars as a stand-alone
@@ -316,7 +316,7 @@ When you use `SmileyVarsPreparedStatement`, you use `set` methods to
 specify values of SmileyVars using SQL value types. Formatters in the
 template are ignored.
 
-#### MapSetter
+### MapSetter
 `MapSetter` is a class that you can use to set the values of a
 `SmileyVarsPreparedStatement` object from a the values in a `Map`. This
 can be used to avoid writing `if` statements when some values for update
