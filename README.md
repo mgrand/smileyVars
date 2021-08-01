@@ -189,9 +189,10 @@ types. Other formatters are for use in just one type of template.
 ## Using smileyVars
 You can use smileyVars as a stand-alone pre-processor for SQL. However,
 there are integrations with other libraries that you may find for
-convenient for your application. There is an integration with the JDBC
-library's `PreparedStatement` class. There is an additional integration
-with the Spring Framework's `JdbcTemplate` class.
+convenient for your application. There is an [integration with the JDBC
+library's `PreparedStatement` class](#integration-with_preparedstatement).
+There is an additional integration with the Spring Framework's `JdbcTemplate`
+class.
 
 ### SmileyVars as a Stand-Alone Pre-Processor
 In this section, we show you how to use smileyVars as a stand-alone
