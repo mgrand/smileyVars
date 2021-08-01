@@ -310,15 +310,15 @@ more concisely like this:
     }
 ```
 
-There is a difference between using `SmileyVarsPreparedStatement` and
-using stand-alone SmileyVars that you should be aware of. When you are
-using stand-alone SmileyVars, you use Java values as values for
-SmileyVars. You can specify formatters to specify how the values should
-be formatted as SQL.
+There is a difference between using `SmileyVarsPreparedStatement` and using
+stand-alone SmileyVars you should be aware of. When you use stand-alone
+SmileyVars, you use Java values as values for SmileyVars. You can specify
+formatters to specify how the values should be formatted as SQL.
 
-When you use `SmileyVarsPreparedStatement`, you use `set` methods to
-specify values of SmileyVars using SQL value types. Formatters in the
-template are ignored.
+When you use `SmileyVarsPreparedStatement`, you use `set` methods to specify
+values of SmileyVars using SQL value types. The SQL type of the provided values
+is determined by the rules that apply to substitution value in a
+`PreparedStatement` object. Formatters in the template are ignored.
 
 ### MapSetter
 `MapSetter` is a class that you can use to set the values of a
@@ -330,7 +330,7 @@ be updated, it can also be used to avoid having to write a loop.
 There two steps to using a `MapSetter`. The first is to configure the
 `MapSetter` to use the correct `set` methods for the named columns it
 will be presented values for. The second step is to pass `Map` objects
-to the `MapSetter` that contains the values for the SmileyVars in a
+to the `MapSetter` that contain the values for the SmileyVars in a
 `SmileyVarsPreparedStatement`. You can pass individual `Map` objects or
 a collection of them.
 
@@ -346,7 +346,7 @@ MapSetter mapSetter = MapSetter.newBuilder()
     .build();
 ```
 
-Once the `MapSetter` exists, you can use in with individual `Map`
+Once the `MapSetter` exists, you can use it with individual `Map`
 objects like this:
 ```
 SmileyVarsPreparedStatement svps;
@@ -367,7 +367,10 @@ class.
 
 The `SmileyVarsJdbcTemplate` class is a subclass of `JdbcTemplate`, so
 it has all of the same methods. It also has similar methods with names
-suffixed with `SmileyVars`. Here is an example that uses the SmileyVars
+suffixed with `SmileyVars`. These "smileyVars" versions of the methods work
+with a `SmileyVarsPreparedStatement` instead of a `PreparedStatement`.
+
+Here is an example that uses the SmileyVars
 version of `query`:
 ```
 DataSource ds = ...;
@@ -382,7 +385,7 @@ List<Inventory> fetchInventory(int aisle, int level) {
                 rse);
 }
 ```
-This `querySmileyVars` method takes three arguemnts:
+This `querySmileyVars` method takes three arguments:
 * sql<br>This argument is the SQL body of a SmileyVars Template.
 * SmileyVarsPreparedStatement consumer<br>This is a lambda that is
   passed a `SmileyVarsPreparedStatement` created from the sql. The
