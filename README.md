@@ -190,7 +190,7 @@ types. Other formatters are for use in just one type of template.
 You can use smileyVars as a stand-alone pre-processor for SQL. However,
 there are integrations with other libraries that you may find for
 convenient for your application. There is an [integration with the JDBC
-library's `PreparedStatement` class](#integration-with_preparedstatement).
+library's `PreparedStatement` class](#integration-with-preparedstatement).
 There is an additional integration with the Spring Framework's `JdbcTemplate`
 class.
 
