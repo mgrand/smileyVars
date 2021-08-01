@@ -16,14 +16,17 @@ SELECT item_number, quantity FROM bin_tbl
 WHERE aisle=:aisle and level=:level and bin_number=:bin
 ```
 
-The first thing that you might notice about this example is that the value to be substituted into the SQL are indicated by a name prefixed by ":". If we provide the values `aisle=32`, `level=4` and `bin=17` this will expand to
+The first thing that you might notice about this example is that the value to
+be substituted into the SQL are indicated by a name prefixed by ":". If we
+provide the values `aisle=32`, `level=4` and `bin=17` this will expand to
 
 ```SQL
 SELECT item_number, quantity FROM bin_tbl
 WHERE aisle=32 and level=4 and bin_number=17
 ```
 
-Suppose that we would like to use the same SQL even for cases were we want to retrieve multiple rows. We could write
+Suppose that we would like to use the same SQL even for cases were we want to
+retrieve multiple rows. We could write
 
 ```SQL
 SELECT item_number, quantity FROM bin_tbl
