@@ -186,9 +186,6 @@ created for a particular dialect of SQL such as PostgreSQL, Oracle of
 Transact-SQL (Sql Server). Some formatters are included in all template
 types. Other formatters are for use in just one type of template.
 
-<sub>**Note**: No dialect-specified formats have been implemented for
-this version of SmileyVars.</sub>
-
 ## Using smileyVars
 You can use smileyVars as a stand-alone pre-processor for SQL. However,
 there are integrations with other libraries that you may find for
