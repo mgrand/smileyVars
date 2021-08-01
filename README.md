@@ -250,8 +250,8 @@ There are other values for specific types of relational database:
 | `DatabaseType.ORACLE`     | Oracle     |
 | `DatabaseType.SQL_SERVER` | SQL Server |
 
-To apply values to a template, you need to put variable names and their 
-values in a map. Then pass the map to the template&#x2bc;s `apply` 
+To apply values to a template, you put variable names and their
+values in a map. Pass the map to the template&#x2bc;s `apply`
 method. The apply method returns the expanded template body.
 
 ### Integration with `PreparedStatement`
