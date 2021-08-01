@@ -216,7 +216,8 @@ class SmileyVarsJdbcTemplateTest {
     @Test
     void queryPreparedStatementWithRowMapper() {
         SmileyVarsJdbcTemplate svjt = new SmileyVarsJdbcTemplate(mockDataSource);
-        List<Inventory> inventoryList = svjt.querySmileyVars("SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)",
+        final String sql = "SELECT * FROM inventory WHERE aisle = :aisle AND level = :level (: AND bin_number = :bin_number :)";
+        List<Inventory> inventoryList = svjt.querySmileyVars(sql,
                 svps -> svps.setInt("aisle", 4).setInt("level", 1),
                 rowMapper);
         assertEquals(3, inventoryList.size());
