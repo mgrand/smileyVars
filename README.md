@@ -242,7 +242,7 @@ A call to the static method `SmileyVarsTemplate.template` creates a
 template with the given body to be parsed according to the rules for the
 specified type of database. The value `DatabaseType.ANSI` specifies
 generic rules that support features common to most relational databases.
-There are other values that are for a specific type of
+There are other values for specific types of
 relational database:
 
 | Method                    | Database   |
