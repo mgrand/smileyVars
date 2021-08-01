@@ -248,11 +248,12 @@ specified type of database. The value `DatabaseType.ANSI` specifies
 generic rules that support features common to most relational databases.
 There are other values for specific types of relational database:
 
-| Method                    | Database   |
-| --------------------------| ---------- |
-| `DatabaseType.POSTGRESQL` | PostgreSql |
-| `DatabaseType.ORACLE`     | Oracle     |
-| `DatabaseType.SQL_SERVER` | SQL Server |
+| Value                     | Database         |
+| --------------------------| ---------------- |
+| `DatabaseType.ANSI`       | Generic ANSI SQL |
+| `DatabaseType.POSTGRESQL` | PostgreSql       |
+| `DatabaseType.ORACLE`     | Oracle           |
+| `DatabaseType.SQL_SERVER` | SQL Server       |
 
 To apply values to a template, you put variable names and their
 values in a map. Pass the map to the template&#x2bc;s `apply`
