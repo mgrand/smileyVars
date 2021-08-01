@@ -191,8 +191,8 @@ You can use smileyVars as a stand-alone pre-processor for SQL. However,
 there are integrations with other libraries that you may find for
 convenient for your application. There is an [integration with the JDBC
 library's `PreparedStatement`](#integration-with-preparedstatement) class.
-There is an additional integration with the (Spring Framework's
-`JdbcTemplate`)[#integration-with-spring-frameworks-jdbctemplate] class.
+There is an additional integration with the [Spring Framework's
+`JdbcTemplate`](#integration-with-spring-frameworks-jdbctemplate) class.
 
 ### SmileyVars as a Stand-Alone Pre-Processor
 In this section, we show you how to use smileyVars as a stand-alone
