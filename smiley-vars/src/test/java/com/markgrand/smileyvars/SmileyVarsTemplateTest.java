@@ -6,6 +6,7 @@ import com.mockrunner.mock.jdbc.MockDatabaseMetaData;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -274,10 +275,12 @@ class SmileyVarsTemplateTest {
     @Test
     void unbracketedUnboundVar() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ANSI,"Select * from foo where x=:x");
-        assertThrows(UnboundVariableException.class, ()->template.apply(new HashMap<>()));
+        Map<String, ?> emptyMap = new HashMap<>();
+        Executable exec = ()->template.apply(emptyMap);
+        assertThrows(UnboundVariableException.class, exec);
     }
 
-    @Disabled
+    @Disabled("Nested brackets are not yet supported")
     @Test
     void nestedRightBoundBrackets() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ORACLE,"Select * from foo where 1=1(: and x=:x(: and y=:y:):)");
@@ -288,7 +291,7 @@ class SmileyVarsTemplateTest {
         assertEquals("Select * from foo where 1=1 and x='42' and y=39", template.apply(map));
     }
 
-    @Disabled
+    @Disabled("Nested brackets are not yet supported")
     @Test
     void nestedLeftBoundBrackets() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ORACLE,"Select * from foo where 1=1(:(: and x=:x:) and y=:y:)");
@@ -299,7 +302,7 @@ class SmileyVarsTemplateTest {
         assertEquals("Select * from foo where 1=1 and x='42' and y=39", template.apply(map));
     }
 
-    @Disabled
+    @Disabled("Nested brackets are not yet supported")
     @Test
     void nestedRightInnerUnboundBrackets() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ORACLE,"Select * from foo where 1=1(: and x=:x(: and y=:y:):)");
@@ -309,7 +312,7 @@ class SmileyVarsTemplateTest {
         assertEquals("Select * from foo where 1=1 and x='42'", template.apply(map));
     }
 
-    @Disabled
+    @Disabled("Nested brackets are not yet supported")
     @Test
     void nestedLeftInnerUnboundBrackets() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ORACLE,"Select * from foo where 1=1(:(: and x=:x:) and y=:y:)");
@@ -319,7 +322,7 @@ class SmileyVarsTemplateTest {
         assertEquals("Select * from foo where 1=1 and y=39", template.apply(map));
     }
 
-    @Disabled
+    @Disabled("Nested brackets are not yet supported")
     @Test
     void nestedRightOuterUnboundBrackets() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ORACLE,"Select * from foo where 1=1(: and x=:x(: and y=:y:):)");
@@ -329,7 +332,7 @@ class SmileyVarsTemplateTest {
         assertEquals("Select * from foo where 1=1", template.apply(map));
     }
 
-    @Disabled
+    @Disabled("Nested brackets are not yet supported")
     @Test
     void nestedLeftOuterUnboundBrackets() {
         @NotNull SmileyVarsTemplate template = SmileyVarsTemplate.template(DatabaseType.ORACLE,"Select * from foo where 1=1(:(: and x=:x:) and y=:y:)");
