@@ -205,7 +205,7 @@ The first step is adding the smileyVars jar file to your project. The
 recommended way to get the library is to allow maven or another 
 dependency management tool to automatically download it. The maven 
 dependency information is:
-```
+```XML
 <dependency>
     <groupId>com.markgrand.smileyVars</groupId>
     <artifactId>smileyVars-template</artifactId>
@@ -396,6 +396,17 @@ This `querySmileyVars` method takes three arguments:
   `ResultSet` produced by the query into a `List` of `Inventory`
   objects.
 
+To use the Spring Framework integration, you will need to add this dependency
+to your build:
+
+```XML
+<dependency>
+    <groupId>com.markgrand.smileyVars</groupId>
+    <artifactId>smileyVars-spring</artifactId>
+    <version>0.4.0-RELEASE</version>
+</dependency>
+```
+
 ### Logging
 
 SmileyVars uses slf4j for its logging. Slf4j integrates with all of the 
@@ -413,7 +424,6 @@ This is a list of planned future features, in no particular order:
   * Time
   * Money
   * unique identifier/GUID 
-* Integration with Spring JdbcTemplate
 * Support for parsing national character set strings.
 * Support for parsing unicode string literals.
 

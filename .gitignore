@@ -1,7 +1,6 @@
 *.iml
 .idea
 target/
-documentation/apidocs
 
 pom.xml.tag
 pom.xml.releaseBackup
