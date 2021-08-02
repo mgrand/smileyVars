@@ -197,6 +197,8 @@ There is an additional integration with the [Spring Framework's
 There is also a convenience class named [MapSetter](#mapsetter) that allows you
 to reuse the same value settings for multiple database queries.
 
+[Pre-built API documentation](documentation/apidocs/index.html) is available.
+
 ### SmileyVars as a Stand-Alone Pre-Processor
 In this section, we show you how to use smileyVars as a stand-alone
 preprocessor.
