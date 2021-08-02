@@ -10,7 +10,7 @@ JdbcTemplate. Other integrations are possible.
 
 ## Introduction by Example
 
-Suppose we have a table that tracks the content of bins in a warehouse. Suppose
+Suppose you have a table that tracks the content of bins in a warehouse. Suppose
 bins are identified by `aisle`, `level` and `bin_number`. A query to get
 information about the contents of one bin might look like
 
