@@ -71,14 +71,14 @@
         <jmockit.version>1.49</jmockit.version>
         <junit.version>5.5.2</junit.version>
         <logback.version>1.2.3</logback.version>
+        <maven.clean.version>3.1.0</maven.clean.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.javadoc.version>3.1.1</maven.javadoc.version>
+        <maven.javadoc.version>3.3.0</maven.javadoc.version>
         <maven.surefire.version>2.22.0</maven.surefire.version>
         <mockrunner-version>2.0.1</mockrunner-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>1.7.28</slf4j.version>
-        <validation.version>2.0.1.Final</validation.version>
+        <slf4j.version>1.7.32</slf4j.version>
     </properties>
 
     <url>https://github.com/mgrand/smileyVars</url>
@@ -143,6 +143,17 @@
                 </executions>
                 <configuration>
                     <reportOutputDirectory>${project.basedir}/../documentation</reportOutputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${maven.clean.version}</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>documentation/apidocs</directory>
+                        </fileset>
+                    </filesets>
                 </configuration>
             </plugin>
         </plugins>
